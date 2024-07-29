@@ -1,0 +1,38 @@
+services:
+  pg_database:
+    image: postgres:16-alpine
+    ports:
+      - "5439:5432"
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - '.env'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+#  api:
+#    image: "api"
+#    stop_signal: SIGINT
+#    build:
+#      context: backend
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8000:8000"
+#    restart: always
+#    env_file:
+#      - ".env"
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "200k"
+#        max-file: "10"
+#    volumes:
+#      - ./backend/src/cryptoapp:/app/src/cryptoapp
+
+
+volumes:
+  pgdata:

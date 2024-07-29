@@ -1,0 +1,12 @@
+venv/
+.idea/
+cache/
+README.MD
+
+
+*/node_modules/
+*/build/
+*/.git/
+.gitignore
+Dockerfile
+.editorconfig
