@@ -44,7 +44,4 @@ restart_api:
 	echo "Restarting Uvicorn server..."; \
 	uvicorn --factory app.main:create_app
 
-generate_certs:
-	@mkdir -p backend/certs
-	openssl genpkey -algorithm RSA -out backend/certs/jwt-private.pem -aes256
-	openssl rsa -pubout -in backend/certs/jwt-private.pem -out backend/certs/jwt-public.pem
+

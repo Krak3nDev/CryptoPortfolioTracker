@@ -4,13 +4,13 @@ from cryptoapp.application.common.exceptions import (
     InvalidTokenType,
 )
 from cryptoapp.application.common.interactor import Interactor
-from cryptoapp.application.interfaces.identifier import IUserIdentifier
+from cryptoapp.application.interfaces.identifier import UserIdentifier
 from cryptoapp.application.interfaces.repositories.user import UserRepo
 from cryptoapp.application.interfaces.uow import UoW
 
 
 class ActivationInteractor(Interactor[str, None]):
-    def __init__(self, user_repo: UserRepo, uow: UoW, identifier: IUserIdentifier):
+    def __init__(self, user_repo: UserRepo, uow: UoW, identifier: UserIdentifier):
         self.user_repo = user_repo
         self.uow = uow
         self.identifier = identifier
