@@ -1,12 +1,17 @@
 import React from "react"
 import "./App.css"
-import SignIn from "./components/SignIn.jsx"
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import MainPage from "./pages/MainPage.jsx"
 
 function App() {
   return (
-    <div className="app-container bg-black">
-      <SignIn />
-    </div>
+    <BrowserRouter>
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   )
 }
 
