@@ -2,13 +2,12 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 import jwt
-from cryptoapp.application.dto.user import UserAccessDTO
 from fastapi import HTTPException
 from fastapi.security.utils import get_authorization_scheme_param
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from cryptoapp.domain.entities.user import User
+from cryptoapp.application.dto.user import UserDTO
 
 
 def get_token_info(request: Request) -> str:
@@ -85,7 +84,7 @@ class JWTService:
         )
 
     def create_access_token(
-        self, user: User, expire_timedelta: Optional[timedelta] = None
+        self, user: UserDTO, expire_timedelta: Optional[timedelta] = None
     ) -> str:
         jwt_payload = {
             "sub": user.id,

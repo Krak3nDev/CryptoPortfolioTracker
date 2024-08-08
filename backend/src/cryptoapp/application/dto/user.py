@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -6,7 +7,7 @@ class UserDTO:
     id: int
     username: str
     email: str
-    password: str
+    password: Optional[str]
     is_active: bool
 
 

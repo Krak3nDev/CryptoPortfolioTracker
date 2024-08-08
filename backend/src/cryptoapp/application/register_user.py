@@ -2,15 +2,16 @@ from dataclasses import replace
 
 from cryptoapp.application.common.exceptions import UserAlreadyExistsError
 from cryptoapp.application.common.interactor import Interactor
-from cryptoapp.application.dto.user import BasicUserDTO, CreateUserDTO
+from cryptoapp.application.dto.user import CreateUserDTO
 from cryptoapp.application.interfaces.committer import Committer
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
 from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.application.interfaces.sender import INotificationSender
+from cryptoapp.domain.entities.user import User
 
 
-class RegisterInteractor(Interactor[CreateUserDTO, BasicUserDTO]):
+class RegisterInteractor(Interactor[CreateUserDTO, User]):
     def __init__(
         self,
         user_gateway: UserGateway,
@@ -25,7 +26,7 @@ class RegisterInteractor(Interactor[CreateUserDTO, BasicUserDTO]):
         self.notification_service = notification_sender
         self.generator = generator
 
-    async def __call__(self, data: CreateUserDTO) -> BasicUserDTO:
+    async def __call__(self, data: CreateUserDTO) -> User:
         user_exist = await self.user_gateway.check_data_unique(data.username, data.email)
 
         if user_exist:

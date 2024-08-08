@@ -1,6 +1,6 @@
-from typing import Optional, Any
+from typing import Optional
 
-from sqlalchemy import Update, exists, or_, select
+from sqlalchemy import Update, exists, or_, select, Row
 from sqlalchemy.dialects.postgresql import Insert
 
 from cryptoapp.application.dto.user import (
@@ -13,12 +13,10 @@ from .base import SessionInitializer
 
 
 class UserDataMapper(UserGateway, SessionInitializer):
-
-    def _load(self, row: Any) -> User:
+    def _load(self, row: Row) -> User:
         return User(
             id=row.user_id,
             username=row.username,
-            password=row.password_hash,
             is_active=row.is_active,
             email=row.email,
         )
@@ -35,13 +33,7 @@ class UserDataMapper(UserGateway, SessionInitializer):
             .returning(UserDB.user_id, UserDB.username)
         )
         result = (await self.session.execute(statement)).one()
-        return User(
-            id=result.user_id,
-            username=result.username,
-            password=result.password_hash,
-            is_active=result.is_active,
-            email=result.email,
-        )
+        return self._load(result)
 
     async def change_active_status(self, user_id: int, is_active: bool) -> None:
         stmt = (
@@ -58,29 +50,14 @@ class UserDataMapper(UserGateway, SessionInitializer):
 
     async def get_by_username(self, username: str) -> Optional[User]:
         statement = select(UserDB).where(UserDB.username == username)
-        result = (await self.session.execute(statement)).scalar_one_or_none()
-        return (
-            User(
-                id=result.user_id,
-                username=result.username,
-                password=result.password_hash,
-                is_active=result.is_active,
-                email=result.email,
-            )
-            if result
-            else None
-        )
-
+        result = (await self.session.execute(statement)).one_or_none()
+        if result:
+            return self._load(result)
+        return None
+    
     async def get_by_id(self, user_id: int) -> Optional[User]:
         statement = select(UserDB).where(UserDB.user_id == user_id)
-        result = (await self.session.execute(statement)).scalar_one_or_none()
-        return (
-            User(
-                id=result.user_id,
-                username=result.username,
-                password=result.password_hash,
-                is_active=result.is_active,
-                email=result.email,
-            ) if result
-            else None
-        )
+        result = (await self.session.execute(statement)).one_or_none()
+        if result:
+            return self._load(result)
+        return None

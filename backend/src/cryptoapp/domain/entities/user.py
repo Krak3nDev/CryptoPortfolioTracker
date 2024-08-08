@@ -10,7 +10,6 @@ class User:
     id: UserId
     username: str
     email: Optional[str]
-    password: Optional[str]
     is_active: bool
 
     def ensure_is_active(self) -> None:
