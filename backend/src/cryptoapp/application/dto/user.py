@@ -12,9 +12,12 @@ class UserDTO:
 
 
 @dataclass
-class BasicUserDTO:
-    user_id: int
+class UserAuthDTO:
+    id: int
     username: str
+    email: str
+    password: str
+    is_active: bool
 
 
 @dataclass

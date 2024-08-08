@@ -1,12 +1,10 @@
 from pathlib import Path
 
 import aiosmtplib
-from backend.src.cryptoapp.application.interfaces.repositories.user import UserRepo
 from dishka import Provider, Scope, provide
 
 from cryptoapp.application.activation import ActivationInteractor
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
-from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.application.login import LoginInteractor
 from cryptoapp.application.register_user import RegisterInteractor
 from cryptoapp.config import Config
@@ -77,9 +75,9 @@ class ApplicationProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     async def auth_service(
-        self, user_repo: UserRepo, hasher: PasswordHasher
+        self, user_gateway: UserDataMapper, hasher: PasswordHasher
     ) -> AuthService:
-        return AuthService(user_repo, hasher)
+        return AuthService(user_gateway, hasher)
 
     @provide(scope=Scope.APP)
     def get_login_interactor(self, auth: AuthService) -> LoginInteractor:

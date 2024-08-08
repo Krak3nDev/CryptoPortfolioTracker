@@ -4,7 +4,7 @@ from sqlalchemy import Update, exists, or_, select, Row
 from sqlalchemy.dialects.postgresql import Insert
 
 from cryptoapp.application.dto.user import (
-    CreateUserDTO,
+    CreateUserDTO, UserDTO, UserAuthDTO,
 )
 from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.domain.entities.user import User
@@ -19,6 +19,15 @@ class UserDataMapper(UserGateway, SessionInitializer):
             username=row.username,
             is_active=row.is_active,
             email=row.email,
+        )
+
+    def _load_dto(self, row: Row) -> UserDTO:
+        return UserDTO(
+            id=row.user_id,
+            username=row.username,
+            password=row.password,
+            email=row.email,
+            is_active=row.is_active,
         )
 
     async def add(self, user: CreateUserDTO) -> User:
@@ -54,10 +63,17 @@ class UserDataMapper(UserGateway, SessionInitializer):
         if result:
             return self._load(result)
         return None
-    
+
     async def get_by_id(self, user_id: int) -> Optional[User]:
         statement = select(UserDB).where(UserDB.user_id == user_id)
         result = (await self.session.execute(statement)).one_or_none()
         if result:
             return self._load(result)
+        return None
+
+    async def get_current_user_with_password(self, username: str) -> Optional[UserAuthDTO]:
+        statement = select(UserDB).where(UserDB.username == username)
+        result = (await self.session.execute(statement)).one_or_none()
+        if result:
+            return self._load_dto(result)
         return None

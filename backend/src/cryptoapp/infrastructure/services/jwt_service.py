@@ -7,7 +7,7 @@ from fastapi.security.utils import get_authorization_scheme_param
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from cryptoapp.application.dto.user import UserDTO
+from cryptoapp.application.dto.user import UserAuthDTO
 
 
 def get_token_info(request: Request) -> str:
@@ -84,7 +84,7 @@ class JWTService:
         )
 
     def create_access_token(
-        self, user: UserDTO, expire_timedelta: Optional[timedelta] = None
+        self, user: UserAuthDTO, expire_timedelta: Optional[timedelta] = None
     ) -> str:
         jwt_payload = {
             "sub": user.id,

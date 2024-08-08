@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from .user_id import UserId
 from ..exceptions import UserNotActiveError, AlreadyActivatedException
@@ -9,7 +8,7 @@ from ..exceptions import UserNotActiveError, AlreadyActivatedException
 class User:
     id: UserId
     username: str
-    email: Optional[str]
+    email: str
     is_active: bool
 
     def ensure_is_active(self) -> None:

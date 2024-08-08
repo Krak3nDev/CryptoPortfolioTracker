@@ -7,13 +7,13 @@ from cryptoapp.application.interfaces.repositories.user import UserGateway
 
 
 class GetUserInformationInteractor(Interactor[Any, BasicUserDTO]):
-    def __init__(self, identifier: UserIdentifier, user_repo: UserGateway):
+    def __init__(self, identifier: UserIdentifier, user_gateway: UserGateway):
         self.identifier = identifier
-        self.user_repo = user_repo
+        self.user_gateway = user_gateway
 
     async def __call__(self, data: dict[str, str | int]) -> BasicUserDTO:
         user_id = self.identifier.get_user_id(data)
-        user = await self.user_repo.get_user_by_id(user_id)
+        user = await self.user_gateway.get_by_id(user_id)
 
         user.ensure_is_active()
 
