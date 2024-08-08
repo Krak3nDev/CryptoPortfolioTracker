@@ -46,3 +46,9 @@ class AuthUserDTO:
 class UserLoginDTO:
     username: str
     password: str
+
+
+@dataclass
+class TokenInfo:
+    access_token: str
+    token_type: str = "Bearer"

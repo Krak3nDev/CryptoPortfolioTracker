@@ -8,7 +8,10 @@ class UserAlreadyExistsError(ApplicationError):
         super().__init__(f"User '{username}' already exists")
 
 
+class UserDoesNotExistError(ApplicationError):
+    def __init__(self) -> None:
+        super().__init__(f"User does not exist")
+
+
 class InvalidTokenType(ApplicationError):
     pass
-
-

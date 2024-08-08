@@ -89,12 +89,12 @@ class ApplicationProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     def get_user_info_interactor(
-        self, user_repo: UserDataMapper, identifier: JWTUserIdentifier
+        self, user_gateway: UserDataMapper, identifier: JWTUserIdentifier
     ) -> GetUserInformationInteractor:
-        return GetUserInformationInteractor(user_repo=user_repo, identifier=identifier)
+        return GetUserInformationInteractor(user_gateway=user_gateway, identifier=identifier)
 
     @provide(scope=Scope.REQUEST)
     def get_activation_interactor(
-        self, committer: SQLAlchemyCommitter, user_repo: UserDataMapper, identifier: JWTUserIdentifier
+        self, committer: SQLAlchemyCommitter, user_gateway: UserDataMapper, identifier: JWTUserIdentifier
     ) -> ActivationInteractor:
-        return ActivationInteractor(committer=committer, user_repo=user_repo, identifier=identifier)
+        return ActivationInteractor(committer=committer, user_gateway=user_gateway, identifier=identifier)
