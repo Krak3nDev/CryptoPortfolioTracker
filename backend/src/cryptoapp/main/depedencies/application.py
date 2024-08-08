@@ -6,10 +6,11 @@ from dishka import Provider, Scope, provide
 
 from cryptoapp.application.activation import ActivationInteractor
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
+from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.application.login import LoginInteractor
 from cryptoapp.application.register_user import RegisterInteractor
 from cryptoapp.config import Config
-from cryptoapp.infrastructure.database.repositories.user import SQLAlchemyUserRepo
+from cryptoapp.infrastructure.database.mappers.user import UserDataMapper
 from cryptoapp.infrastructure.services.auth import AuthService
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
@@ -26,8 +27,8 @@ class ApplicationProvider(Provider):
         return PasswordHasher()
 
     @provide(scope=Scope.REQUEST)
-    async def get_user_repo(self, committer: SQLAlchemyCommitter) -> SQLAlchemyUserRepo:
-        return SQLAlchemyUserRepo(committer.session)
+    async def get_user_mapper(self, committer: SQLAlchemyCommitter) -> UserDataMapper:
+        return UserDataMapper(committer.session)
 
     @provide(scope=Scope.APP)
     async def get_smtp(self, config: Config) -> aiosmtplib.SMTP:
@@ -51,14 +52,14 @@ class ApplicationProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def get_register_service(
         self,
-        user_repo: SQLAlchemyUserRepo,
+        user_mapper: UserDataMapper,
         hasher: PasswordHasher,
         committer: SQLAlchemyCommitter,
         notification_sender: EmailSender,
         generator: UrlGenerator,
     ) -> RegisterInteractor:
         return RegisterInteractor(
-            user_repo=user_repo,
+            user_gateway=user_mapper,
             hash_service=hasher,
             committer=committer,
             notification_sender=notification_sender,
@@ -90,12 +91,12 @@ class ApplicationProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     def get_user_info_interactor(
-        self, user_repo: SQLAlchemyUserRepo, identifier: JWTUserIdentifier
+        self, user_repo: UserDataMapper, identifier: JWTUserIdentifier
     ) -> GetUserInformationInteractor:
         return GetUserInformationInteractor(user_repo=user_repo, identifier=identifier)
 
     @provide(scope=Scope.REQUEST)
     def get_activation_interactor(
-        self, committer: SQLAlchemyCommitter, user_repo: SQLAlchemyUserRepo, identifier: JWTUserIdentifier
+        self, committer: SQLAlchemyCommitter, user_repo: UserDataMapper, identifier: JWTUserIdentifier
     ) -> ActivationInteractor:
         return ActivationInteractor(committer=committer, user_repo=user_repo, identifier=identifier)

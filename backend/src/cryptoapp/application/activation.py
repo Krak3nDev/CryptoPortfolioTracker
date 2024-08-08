@@ -6,12 +6,12 @@ from cryptoapp.application.common.exceptions import (
 from cryptoapp.application.common.interactor import Interactor
 from cryptoapp.application.interfaces.committer import Committer
 from cryptoapp.application.interfaces.identifier import UserIdentifier
-from cryptoapp.application.interfaces.repositories.user import UserRepo
+from cryptoapp.application.interfaces.repositories.user import UserGateway
 
 
 class ActivationInteractor(Interactor[str, None]):
-    def __init__(self, user_repo: UserRepo, committer: Committer, identifier: UserIdentifier):
-        self.user_repo = user_repo
+    def __init__(self, user_gateway: UserGateway, committer: Committer, identifier: UserIdentifier):
+        self.user_gateway = user_gateway
         self.committer = committer
         self.identifier = identifier
 
@@ -21,9 +21,9 @@ class ActivationInteractor(Interactor[str, None]):
 
         user_id = self.identifier.get_user_id(data=data)
 
-        user = await self.user_repo.get_user_by_id(user_id)
+        user = await self.user_gateway.get_by_id(user_id)
 
         user.ensure_not_already_active()
 
-        await self.user_repo.change_active_status(user_id=user_id, is_active=True)
+        await self.user_gateway.change_active_status(user_id=user_id, is_active=True)
         await self.committer.commit()

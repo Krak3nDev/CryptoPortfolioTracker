@@ -1,14 +1,14 @@
-from cryptoapp.application.dto.user import UserAccessDTO, UserLoginDTO
+from cryptoapp.application.dto.user import UserLoginDTO
 from cryptoapp.application.interfaces.authenticator import IAuthenticator
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
-from cryptoapp.application.interfaces.repositories.user import UserRepo
+from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.domain.entities.user import User
 from cryptoapp.domain.entities.user_id import UserId
 from cryptoapp.infrastructure.exceptions import AuthenticationError
 
 
 class AuthService(IAuthenticator):
-    def __init__(self, repo: UserRepo, hasher: IPasswordHasher):
+    def __init__(self, repo: UserGateway, hasher: IPasswordHasher):
         self.repo = repo
         self.hasher = hasher
 

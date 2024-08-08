@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from sqlalchemy import Update, exists, or_, select
 from sqlalchemy.dialects.postgresql import Insert
@@ -6,13 +6,23 @@ from sqlalchemy.dialects.postgresql import Insert
 from cryptoapp.application.dto.user import (
     CreateUserDTO,
 )
-from cryptoapp.application.interfaces.repositories.user import UserRepo
+from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.domain.entities.user import User
 from cryptoapp.infrastructure.database.models import UserDB
-from .base import BaseRepo
+from .base import SessionInitializer
 
 
-class SQLAlchemyUserRepo(UserRepo, BaseRepo):
+class UserDataMapper(UserGateway, SessionInitializer):
+
+    def _load(self, row: Any) -> User:
+        return User(
+            id=row.user_id,
+            username=row.username,
+            password=row.password_hash,
+            is_active=row.is_active,
+            email=row.email,
+        )
+
     async def add(self, user: CreateUserDTO) -> User:
         statement = (
             Insert(UserDB)

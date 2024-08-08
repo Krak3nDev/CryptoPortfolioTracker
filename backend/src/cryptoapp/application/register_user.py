@@ -6,34 +6,34 @@ from cryptoapp.application.dto.user import BasicUserDTO, CreateUserDTO
 from cryptoapp.application.interfaces.committer import Committer
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
-from cryptoapp.application.interfaces.repositories.user import UserRepo
+from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.application.interfaces.sender import INotificationSender
 
 
 class RegisterInteractor(Interactor[CreateUserDTO, BasicUserDTO]):
     def __init__(
         self,
-        user_repo: UserRepo,
+        user_gateway: UserGateway,
         hash_service: IPasswordHasher,
         committer: Committer,
         notification_sender: INotificationSender,
         generator: ActivationGenerator,
     ):
-        self.user_repo = user_repo
+        self.user_gateway = user_gateway
         self.hash_service = hash_service
         self.committer = committer
         self.notification_service = notification_sender
         self.generator = generator
 
     async def __call__(self, data: CreateUserDTO) -> BasicUserDTO:
-        user_exist = await self.user_repo.check_user_data_unique(data.username, data.email)
+        user_exist = await self.user_gateway.check_data_unique(data.username, data.email)
 
         if user_exist:
             raise UserAlreadyExistsError(data.username)
 
         hashed_password = self.hash_service.hash(data.password)
         user_data = replace(data, password=hashed_password)
-        user = await self.user_repo.create_user(user_data)
+        user = await self.user_gateway.add(user_data)
 
         await self.committer.commit()
         url = self.generator.generate(user_id=user.id)

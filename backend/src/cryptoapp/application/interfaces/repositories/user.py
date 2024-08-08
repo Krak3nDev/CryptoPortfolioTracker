@@ -7,9 +7,9 @@ from cryptoapp.application.dto.user import (
 from cryptoapp.domain.entities.user import User
 
 
-class UserRepo(Protocol):
+class UserGateway(Protocol):
     @abstractmethod
-    async def create_user(self, user: CreateUserDTO) -> User:
+    async def add(self, user: CreateUserDTO) -> User:
         pass
 
     @abstractmethod
@@ -17,13 +17,13 @@ class UserRepo(Protocol):
         pass
 
     @abstractmethod
-    async def check_user_data_unique(self, username: str, email: str) -> bool:
+    async def check_data_unique(self, username: str, email: str) -> bool:
         pass
 
     @abstractmethod
-    async def get_user_by_username(self, username: str) -> Optional[User]:
+    async def get_by_username(self, username: str) -> Optional[User]:
         pass
 
     @abstractmethod
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
+    async def get_by_id(self, user_id: int) -> Optional[User]:
         pass

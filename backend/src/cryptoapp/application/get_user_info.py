@@ -3,11 +3,11 @@ from typing import Any
 from cryptoapp.application.common.interactor import Interactor
 from cryptoapp.application.dto.user import BasicUserDTO
 from cryptoapp.application.interfaces.identifier import UserIdentifier
-from cryptoapp.application.interfaces.repositories.user import UserRepo
+from cryptoapp.application.interfaces.repositories.user import UserGateway
 
 
 class GetUserInformationInteractor(Interactor[Any, BasicUserDTO]):
-    def __init__(self, identifier: UserIdentifier, user_repo: UserRepo):
+    def __init__(self, identifier: UserIdentifier, user_repo: UserGateway):
         self.identifier = identifier
         self.user_repo = user_repo
 
