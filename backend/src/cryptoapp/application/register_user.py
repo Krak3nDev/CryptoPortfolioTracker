@@ -3,11 +3,11 @@ from dataclasses import replace
 from cryptoapp.application.common.exceptions import UserAlreadyExistsError
 from cryptoapp.application.common.interactor import Interactor
 from cryptoapp.application.dto.user import BasicUserDTO, CreateUserDTO
+from cryptoapp.application.interfaces.committer import Committer
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
 from cryptoapp.application.interfaces.repositories.user import UserRepo
 from cryptoapp.application.interfaces.sender import INotificationSender
-from cryptoapp.application.interfaces.uow import UoW
 
 
 class RegisterInteractor(Interactor[CreateUserDTO, BasicUserDTO]):
@@ -15,13 +15,13 @@ class RegisterInteractor(Interactor[CreateUserDTO, BasicUserDTO]):
         self,
         user_repo: UserRepo,
         hash_service: IPasswordHasher,
-        uow: UoW,
+        committer: Committer,
         notification_sender: INotificationSender,
         generator: ActivationGenerator,
     ):
         self.user_repo = user_repo
         self.hash_service = hash_service
-        self.uow = uow
+        self.committer = committer
         self.notification_service = notification_sender
         self.generator = generator
 
@@ -35,8 +35,8 @@ class RegisterInteractor(Interactor[CreateUserDTO, BasicUserDTO]):
         user_data = replace(data, password=hashed_password)
         user = await self.user_repo.create_user(user_data)
 
-        await self.uow.commit()
-        url = self.generator.generate(user_id=user.user_id)
+        await self.committer.commit()
+        url = self.generator.generate(user_id=user.id)
         await self.notification_service.send_notification(
             recipient=data.email,
             template_name="email.html",

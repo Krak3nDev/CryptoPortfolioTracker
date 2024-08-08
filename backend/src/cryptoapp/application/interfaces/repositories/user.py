@@ -2,7 +2,6 @@ from abc import abstractmethod
 from typing import Optional, Protocol
 
 from cryptoapp.application.dto.user import (
-    BasicUserDTO,
     CreateUserDTO,
 )
 from cryptoapp.domain.entities.user import User
@@ -10,7 +9,7 @@ from cryptoapp.domain.entities.user import User
 
 class UserRepo(Protocol):
     @abstractmethod
-    async def create_user(self, user: CreateUserDTO) -> BasicUserDTO:
+    async def create_user(self, user: CreateUserDTO) -> User:
         pass
 
     @abstractmethod
@@ -26,5 +25,5 @@ class UserRepo(Protocol):
         pass
 
     @abstractmethod
-    async def get_user_by_id(self, user_id: int) -> User:
+    async def get_user_by_id(self, user_id: int) -> Optional[User]:
         pass

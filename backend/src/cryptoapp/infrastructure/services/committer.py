@@ -1,8 +1,9 @@
-from cryptoapp.application.interfaces.uow import UoW
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from cryptoapp.application.interfaces.committer import Committer
 
-class SQLAlchemyUoW(UoW):
+
+class SQLAlchemyCommitter(Committer):
     def __init__(self, session: AsyncSession):
         self.session = session
 

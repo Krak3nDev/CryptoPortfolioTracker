@@ -1,11 +1,12 @@
 from typing import AsyncIterator
 
-from cryptoapp.config import Config, load_config
-from cryptoapp.infrastructure.database.setup import create_engine, create_session_pool
-from cryptoapp.infrastructure.services.uow import SQLAlchemyUoW
-from cryptoapp.services.coin_market import CoinMarketApi
 from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+
+from cryptoapp.config import Config, load_config
+from cryptoapp.infrastructure.database.setup import create_engine, create_session_pool
+from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
+from cryptoapp.services.coin_market import CoinMarketApi
 
 
 class CoreProvider(Provider):
@@ -30,6 +31,6 @@ class CoreProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def get_uow(
         self, session_pool: async_sessionmaker[AsyncSession]
-    ) -> AsyncIterator[SQLAlchemyUoW]:
+    ) -> AsyncIterator[SQLAlchemyCommitter]:
         async with session_pool() as session:
-            yield SQLAlchemyUoW(session)
+            yield SQLAlchemyCommitter(session)

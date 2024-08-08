@@ -1,6 +1,9 @@
 from pathlib import Path
 
 import aiosmtplib
+from backend.src.cryptoapp.application.interfaces.repositories.user import UserRepo
+from dishka import Provider, Scope, provide
+
 from cryptoapp.application.activation import ActivationInteractor
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
 from cryptoapp.application.login import LoginInteractor
@@ -8,16 +11,13 @@ from cryptoapp.application.register_user import RegisterInteractor
 from cryptoapp.config import Config
 from cryptoapp.infrastructure.database.repositories.user import SQLAlchemyUserRepo
 from cryptoapp.infrastructure.services.auth import AuthService
+from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
 from cryptoapp.infrastructure.services.identifier_service import JWTUserIdentifier
 from cryptoapp.infrastructure.services.jwt_service import JWTService
 from cryptoapp.infrastructure.services.password_hasher import PasswordHasher
 from cryptoapp.infrastructure.services.sender.email_sender import EmailSender
 from cryptoapp.infrastructure.services.sender.utils import init_smtp
-from cryptoapp.infrastructure.services.uow import SQLAlchemyUoW
-from dishka import Provider, Scope, provide
-
-from backend.src.cryptoapp.application.interfaces.repositories.user import UserRepo
 
 
 class ApplicationProvider(Provider):
@@ -26,8 +26,8 @@ class ApplicationProvider(Provider):
         return PasswordHasher()
 
     @provide(scope=Scope.REQUEST)
-    async def get_user_repo(self, uow: SQLAlchemyUoW) -> SQLAlchemyUserRepo:
-        return SQLAlchemyUserRepo(uow.session)
+    async def get_user_repo(self, committer: SQLAlchemyCommitter) -> SQLAlchemyUserRepo:
+        return SQLAlchemyUserRepo(committer.session)
 
     @provide(scope=Scope.APP)
     async def get_smtp(self, config: Config) -> aiosmtplib.SMTP:
@@ -53,14 +53,14 @@ class ApplicationProvider(Provider):
         self,
         user_repo: SQLAlchemyUserRepo,
         hasher: PasswordHasher,
-        uow: SQLAlchemyUoW,
+        committer: SQLAlchemyCommitter,
         notification_sender: EmailSender,
         generator: UrlGenerator,
     ) -> RegisterInteractor:
         return RegisterInteractor(
             user_repo=user_repo,
             hash_service=hasher,
-            uow=uow,
+            committer=committer,
             notification_sender=notification_sender,
             generator=generator,
         )
@@ -96,6 +96,6 @@ class ApplicationProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     def get_activation_interactor(
-        self, uow: SQLAlchemyUoW, user_repo: SQLAlchemyUserRepo, identifier: JWTUserIdentifier
+        self, committer: SQLAlchemyCommitter, user_repo: SQLAlchemyUserRepo, identifier: JWTUserIdentifier
     ) -> ActivationInteractor:
-        return ActivationInteractor(uow=uow, user_repo=user_repo, identifier=identifier)
+        return ActivationInteractor(committer=committer, user_repo=user_repo, identifier=identifier)
