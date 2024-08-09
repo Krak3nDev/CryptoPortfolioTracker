@@ -12,7 +12,6 @@ from cryptoapp.infrastructure.database.mappers.user import UserDataMapper
 from cryptoapp.infrastructure.services.auth import AuthService
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
-from cryptoapp.infrastructure.services.identifier_service import JWTUserIdentifier
 from cryptoapp.infrastructure.services.jwt_service import JWTService
 from cryptoapp.infrastructure.services.password_hasher import PasswordHasher
 from cryptoapp.infrastructure.services.sender.email_sender import EmailSender
@@ -83,18 +82,14 @@ class ApplicationProvider(Provider):
     def get_login_interactor(self, auth: AuthService) -> LoginInteractor:
         return LoginInteractor(auth=auth)
 
-    @provide(scope=Scope.APP)
-    def get_identifier(self) -> JWTUserIdentifier:
-        return JWTUserIdentifier()
-
     @provide(scope=Scope.REQUEST)
     def get_user_info_interactor(
-        self, user_gateway: UserDataMapper, identifier: JWTUserIdentifier
+        self, user_gateway: UserDataMapper,
     ) -> GetUserInformationInteractor:
-        return GetUserInformationInteractor(user_gateway=user_gateway, identifier=identifier)
+        return GetUserInformationInteractor(user_gateway=user_gateway)
 
     @provide(scope=Scope.REQUEST)
     def get_activation_interactor(
-        self, committer: SQLAlchemyCommitter, user_gateway: UserDataMapper, identifier: JWTUserIdentifier
+        self, committer: SQLAlchemyCommitter, user_gateway: UserDataMapper
     ) -> ActivationInteractor:
-        return ActivationInteractor(committer=committer, user_gateway=user_gateway, identifier=identifier)
+        return ActivationInteractor(committer=committer, user_gateway=user_gateway)
