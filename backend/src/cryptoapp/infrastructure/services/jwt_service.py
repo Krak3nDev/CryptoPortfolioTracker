@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from enum import Enum
 from typing import Any, Dict, Optional
 
 import jwt
@@ -7,7 +8,13 @@ from fastapi.security.utils import get_authorization_scheme_param
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from cryptoapp.application.dto.user import UserAuthDTO
+from cryptoapp.infrastructure.dto.jwt import TokenPayloadDTO
+from cryptoapp.infrastructure.dto.user import UserAuthDTO
+
+
+class TokenType(str, Enum):
+    ACCESS = "access"
+    ACTIVATION = "activation"
 
 
 def get_token_info(request: Request) -> str:
@@ -24,7 +31,6 @@ def get_token_info(request: Request) -> str:
 
 class JWTService:
     TOKEN_TYPE_FIELD = "type"
-    ACCESS_TOKEN_TYPE = "access"
 
     def __init__(
         self,
@@ -65,8 +71,15 @@ class JWTService:
         )
         return encoded
 
-    def decode_jwt(self, token: str) -> Dict[str, int | str]:
-        return jwt.decode(jwt=token, key=self.public_key, algorithms=[self.algorithm])  # type: ignore
+    def decode_jwt(self, token: str) -> TokenPayloadDTO:
+        data = jwt.decode(jwt=token, key=self.public_key, algorithms=[self.algorithm])
+        return TokenPayloadDTO(
+            sub=int(data["sub"]),
+            username=data["username"],
+            exp=data.get("exp"),
+            iat=data.get("iat"),
+            type=data["type"]
+        )
 
     def create_jwt(
         self,
@@ -87,11 +100,11 @@ class JWTService:
         self, user: UserAuthDTO, expire_timedelta: Optional[timedelta] = None
     ) -> str:
         jwt_payload = {
-            "sub": user.id,
+            "sub": str(user.id),
             "username": user.username,
         }
         return self.create_jwt(
-            token_type=self.ACCESS_TOKEN_TYPE,
+            token_type=TokenType.ACCESS,
             token_data=jwt_payload,
             expire_minutes=self.access_token_expire_minutes,
             expire_timedelta=expire_timedelta,

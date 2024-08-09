@@ -1,5 +1,5 @@
-from cryptoapp.application.dto.user import UserDTO
 from cryptoapp.domain.entities.user import User
+from cryptoapp.infrastructure.dto.user import UserDTO
 
 
 def convert_entity_to_dto(user: User) -> UserDTO:

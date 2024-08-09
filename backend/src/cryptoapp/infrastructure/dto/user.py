@@ -21,13 +21,6 @@ class UserAuthDTO:
 
 
 @dataclass
-class UserAccessDTO:
-    user_id: int
-    username: str
-    is_active: bool
-
-
-@dataclass
 class CreateUserDTO:
     username: str
     full_name: str
@@ -46,9 +39,3 @@ class AuthUserDTO:
 class UserLoginDTO:
     username: str
     password: str
-
-
-@dataclass
-class TokenInfo:
-    access_token: str
-    token_type: str = "Bearer"

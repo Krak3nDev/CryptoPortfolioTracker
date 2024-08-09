@@ -1,5 +1,7 @@
 from typing import Dict
 
+from cryptoapp.application.dto.user import BasicUserDTO
+from cryptoapp.infrastructure.dto.common import TokenInfo
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
@@ -7,11 +9,9 @@ from fastapi.security import HTTPBearer
 from starlette.requests import Request
 
 from cryptoapp.application.activation import ActivationInteractor
-from cryptoapp.application.dto.user import BasicUserDTO
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
 from cryptoapp.application.login import LoginInteractor
 from cryptoapp.application.register_user import RegisterInteractor
-from cryptoapp.infrastructure.dto.common import TokenInfo
 from cryptoapp.infrastructure.services.jwt_service import JWTService, get_token_info
 from cryptoapp.presentation.schemas.users import CreateUser, UserLogin
 
@@ -59,8 +59,8 @@ async def activation(
     jwt_service: FromDishka[JWTService],
     activation_interactor: FromDishka[ActivationInteractor],
 ) -> Dict[str, str]:
-    payload = jwt_service.decode_jwt(token)
-    await activation_interactor(payload)
+    token_payload = jwt_service.decode_jwt(token)
+    await activation_interactor(token_payload)
     return {"message": "Email successfully confirmed."}
 
 
