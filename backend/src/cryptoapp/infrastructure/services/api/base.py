@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 import logging
 import ssl
-from typing import TYPE_CHECKING, Any
+from types import TracebackType
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 import backoff
 from aiohttp import ClientError, ClientSession, FormData, TCPConnector
@@ -16,8 +17,6 @@ if TYPE_CHECKING:
 
 
 class BaseClient:
-    """Represents base API client."""
-
     def __init__(self, use_ssl: bool = True):
         self._session: ClientSession | None = None
         self.log = logging.getLogger(self.__class__.__name__)
@@ -82,7 +81,7 @@ class BaseClient:
         )
         return status, result
 
-    async def close(self):
+    async def close(self) -> None:
         """Graceful session close."""
         if not self._session:
             self.log.debug("There's not session to close.")
@@ -98,8 +97,13 @@ class BaseClient:
         # Adjust delay based on whether SSL is used
         await asyncio.sleep(0.250 if self.use_ssl else 0)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> BaseClient:
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> None:
         await self.close()

@@ -16,6 +16,8 @@ black = "^24.8.0"
 ruff = "^0.5.7"
 mypy = "^1.11.1"
 ruff-lsp = "^0.0.54"
+pytest = "^8.3.2"
+pytest-asyncio = "^0.23.8"
 
 
 [tool.poetry.group.api.dependencies]
@@ -36,17 +38,14 @@ python-multipart = "^0.0.9"
 pyjwt = { extras = ["crypto"], version = "^2.9.0" }
 bcrypt = "^4.2.0"
 aiosmtplib = "^3.0.2"
-aioredis = "^2.0.1"
+apscheduler = "^3.10.4"
 
 
 
-[tool.black]
-line_length = 99
-exclude = "\\.?venv|\\.cache"
 
 [tool.mypy]
-ignore_missing_imports = true
 disallow_subclassing_any = false
+disable_error_code = "import-untyped"
 strict = true
 plugins = [
     "sqlalchemy.ext.mypy.plugin",
@@ -56,12 +55,13 @@ exclude = [
     ".git",
     ".venv",
     ".idea",
-    ".tests",
+    "tests/",
     ".cache",
     "build",
     "dist",
     "scripts",
 ]
+
 
 [tool.ruff]
 exclude = [

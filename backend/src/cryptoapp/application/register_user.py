@@ -3,9 +3,9 @@ from dataclasses import replace
 from cryptoapp.application.common.exceptions import UserAlreadyExistsError
 from cryptoapp.application.common.interactor import Interactor
 from cryptoapp.application.interfaces.committer import Committer
+from cryptoapp.application.interfaces.gateways.user import UserGateway
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
-from cryptoapp.application.interfaces.repositories.user import UserGateway
 from cryptoapp.application.interfaces.sender import INotificationSender
 from cryptoapp.infrastructure.dto.converters import convert_entity_to_dto
 from cryptoapp.infrastructure.dto.user import CreateUserDTO, UserDTO

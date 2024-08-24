@@ -12,15 +12,6 @@ class UserDTO:
 
 
 @dataclass
-class UserAuthDTO:
-    id: int
-    username: str
-    email: str
-    password: str
-    is_active: bool
-
-
-@dataclass
 class CreateUserDTO:
     username: str
     full_name: str

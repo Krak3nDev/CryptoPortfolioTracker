@@ -1,7 +1,7 @@
 from cryptoapp.application.interfaces.authenticator import Authenticator
+from cryptoapp.application.interfaces.gateways.user import UserGateway
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
-from cryptoapp.application.interfaces.repositories.user import UserGateway
-from cryptoapp.infrastructure.dto.user import UserAuthDTO, UserLoginDTO
+from cryptoapp.infrastructure.dto.user import UserDTO, UserLoginDTO
 from cryptoapp.infrastructure.exceptions import AuthenticationError
 
 
@@ -10,11 +10,12 @@ class AuthService(Authenticator):
         self.user_gateway = user_gateway
         self.hasher = hasher
 
-    async def authenticate(self, login_user: UserLoginDTO) -> UserAuthDTO:
-        user = await self.user_gateway.get_current_user_with_password(login_user.username)
+    async def authenticate(self, login_user: UserLoginDTO) -> UserDTO:
+        user = await self.user_gateway.get_with_password(login_user.username)
 
-        if not user or not self.hasher.verify(password=login_user.password,
-                                              hashed_password=user.password):
+        if not user or not self.hasher.verify(
+            password=login_user.password,
+            hashed_password=user.password if user.password else ""):
             raise AuthenticationError("Invalid username or password")
 
         return user

@@ -8,7 +8,8 @@ from cryptoapp.application.get_user_info import GetUserInformationInteractor
 from cryptoapp.application.login import LoginInteractor
 from cryptoapp.application.register_user import RegisterInteractor
 from cryptoapp.config import Config
-from cryptoapp.infrastructure.database.mappers.user import UserDataMapper
+from cryptoapp.infrastructure.database.mappers.assets import AssetMapper
+from cryptoapp.infrastructure.database.mappers.users import UserDataMapper
 from cryptoapp.infrastructure.services.auth import AuthService
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
@@ -27,9 +28,13 @@ class ApplicationProvider(Provider):
     async def get_user_mapper(self, committer: SQLAlchemyCommitter) -> UserDataMapper:
         return UserDataMapper(committer.session)
 
+    @provide(scope=Scope.REQUEST)
+    async def get_asset_mapper(self, committer: SQLAlchemyCommitter) -> AssetMapper:
+        return AssetMapper(committer.session)
+
     @provide(scope=Scope.APP)
     async def get_smtp(self, config: Config) -> aiosmtplib.SMTP:
-        return await init_smtp(config.email_data)  # type: ignore
+        return await init_smtp(config.email_data)
 
     @provide(scope=Scope.APP)
     def get_sender(
@@ -78,7 +83,7 @@ class ApplicationProvider(Provider):
     ) -> AuthService:
         return AuthService(user_gateway, hasher)
 
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     def get_login_interactor(self, auth: AuthService) -> LoginInteractor:
         return LoginInteractor(auth=auth)
 

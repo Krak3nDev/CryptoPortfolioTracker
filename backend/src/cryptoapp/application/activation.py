@@ -3,7 +3,7 @@ from cryptoapp.application.common.exceptions import (
 )
 from cryptoapp.application.common.interactor import Interactor
 from cryptoapp.application.interfaces.committer import Committer
-from cryptoapp.application.interfaces.repositories.user import UserGateway
+from cryptoapp.application.interfaces.gateways.user import UserGateway
 from cryptoapp.infrastructure.dto.jwt import TokenPayloadDTO
 from cryptoapp.infrastructure.services.jwt_service import TokenType
 

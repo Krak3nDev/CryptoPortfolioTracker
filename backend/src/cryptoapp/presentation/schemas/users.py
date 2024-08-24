@@ -1,7 +1,6 @@
-from typing import Optional
-
-from cryptoapp.application.dto.user import CreateUserDTO, UserLoginDTO
 from pydantic import BaseModel, EmailStr
+
+from cryptoapp.infrastructure.dto.user import UserLoginDTO, CreateUserDTO
 
 
 class UserLogin(BaseModel):
@@ -28,11 +27,3 @@ class CreateUser(BaseModel):
             email=self.email,
             password=self.password,
         )
-
-
-class UserPydantic(BaseModel):
-    id: int
-    username: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
-    is_active: Optional[bool] = None

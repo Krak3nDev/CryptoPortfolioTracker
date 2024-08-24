@@ -1,9 +1,9 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from cryptoapp.application.dto.user import UserLoginDTO, UserAuthDTO
+from cryptoapp.infrastructure.dto.user import UserLoginDTO, UserDTO
 
 
 class Authenticator(Protocol):
     @abstractmethod
-    async def authenticate(self, login_user: UserLoginDTO) -> UserAuthDTO: ...
+    async def authenticate(self, login_user: UserLoginDTO) -> UserDTO: ...

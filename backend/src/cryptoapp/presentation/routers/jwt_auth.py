@@ -1,7 +1,5 @@
 from typing import Dict
 
-from cryptoapp.application.dto.user import BasicUserDTO
-from cryptoapp.infrastructure.dto.common import TokenInfo
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
@@ -12,6 +10,8 @@ from cryptoapp.application.activation import ActivationInteractor
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
 from cryptoapp.application.login import LoginInteractor
 from cryptoapp.application.register_user import RegisterInteractor
+from cryptoapp.infrastructure.dto.jwt import TokenInfo
+from cryptoapp.infrastructure.dto.user import UserDTO
 from cryptoapp.infrastructure.services.jwt_service import JWTService, get_token_info
 from cryptoapp.presentation.schemas.users import CreateUser, UserLogin
 
@@ -41,12 +41,12 @@ async def login(
     return TokenInfo(access_token=token, token_type="Bearer")
 
 
-@auth_router.get("/users/me/", response_model=BasicUserDTO, dependencies=[security])
+@auth_router.get("/users/me/", response_model=UserDTO, dependencies=[security])
 async def me(
     request: Request,
     jwt_service: FromDishka[JWTService],
     user_info: FromDishka[GetUserInformationInteractor],
-) -> BasicUserDTO:
+) -> UserDTO:
     token = get_token_info(request)
     token_info = jwt_service.decode_jwt(token)
     user = await user_info(token_info)

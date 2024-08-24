@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from cryptoapp.config import Config, load_config
 from cryptoapp.infrastructure.database.setup import create_engine, create_session_pool
+from cryptoapp.infrastructure.services.api.coin_market import CoinMarketApi
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
-from cryptoapp.services.coin_market import CoinMarketApi
 
 
 class CoreProvider(Provider):
@@ -22,11 +22,11 @@ class CoreProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_session_pool(self, engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
-        return create_session_pool(engine)  # type: ignore
+        return create_session_pool(engine)
 
     @provide(scope=Scope.APP)
     def get_engine(self, config: Config) -> AsyncEngine:
-        return create_engine(config.db)  # type: ignore
+        return create_engine(config.db)
 
     @provide(scope=Scope.REQUEST)
     async def get_uow(

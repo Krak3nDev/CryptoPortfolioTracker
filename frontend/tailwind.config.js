@@ -5,9 +5,12 @@ export default {
     extend: {
       colors: {
         "button-primary": "#3B82F6",
-        "button-text": "#FFFFFF",
+        "button-text": "#FFFFFF"
       },
-    },
+      fontFamily: {
+        sans: ["Roboto", "ui-sans-serif", "system-ui"]
+      }
+    }
   },
-  plugins: [],
+  plugins: []
 }

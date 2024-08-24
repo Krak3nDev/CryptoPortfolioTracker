@@ -1,10 +1,8 @@
 from abc import abstractmethod
 from typing import Optional, Protocol
 
-from cryptoapp.application.dto.user import (
-    CreateUserDTO, UserAuthDTO,
-)
 from cryptoapp.domain.entities.user import User
+from cryptoapp.infrastructure.dto.user import CreateUserDTO, UserDTO
 
 
 class UserGateway(Protocol):
@@ -29,5 +27,5 @@ class UserGateway(Protocol):
         pass
 
     @abstractmethod
-    async def get_current_user_with_password(self, username: str) -> Optional[UserAuthDTO]:
+    async def get_with_password(self, username: str) -> Optional[UserDTO]:
         pass

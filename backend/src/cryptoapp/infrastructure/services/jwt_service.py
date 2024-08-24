@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from cryptoapp.infrastructure.dto.jwt import TokenPayloadDTO
-from cryptoapp.infrastructure.dto.user import UserAuthDTO
+from cryptoapp.infrastructure.dto.user import UserDTO
 
 
 class TokenType(str, Enum):
@@ -97,7 +97,7 @@ class JWTService:
         )
 
     def create_access_token(
-        self, user: UserAuthDTO, expire_timedelta: Optional[timedelta] = None
+        self, user: UserDTO, expire_timedelta: Optional[timedelta] = None
     ) -> str:
         jwt_payload = {
             "sub": str(user.id),

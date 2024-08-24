@@ -3,7 +3,6 @@ import PropTypes from "prop-types"
 import { FaArrowDown, FaArrowUp } from "react-icons/fa"
 
 function TableCryptocurrencies({ data }) {
-
   const [sortConfig, setSortConfig] = useState({
     key: "name",
     direction: "ascending"
@@ -56,7 +55,8 @@ function TableCryptocurrencies({ data }) {
               <thead>
               <tr>
                 <th
-                  className="px-5 py-3 border-b-2 border-gray-200 bg-white text-left text-xs font-semibold text-gray-900 tracking-wider">
+                  className="px-5 py-3 border-b-2 border-gray-200 bg-white text-left text-xs font-semibold text-gray-900 tracking-wider"
+                >
                   #
                 </th>
                 <th
@@ -97,10 +97,10 @@ function TableCryptocurrencies({ data }) {
               </tr>
               </thead>
               <tbody className="font-bold text-gray-900">
-              {sortedData.map((currency, index) => (
-                <tr key={currency.name}>
+              {sortedData.map((currency) => (
+                <tr key={currency.id}>
                   <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {index + 1}
+                    {currency.id}
                   </td>
                   <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                     <div className="flex items-center">
@@ -166,6 +166,7 @@ function TableCryptocurrencies({ data }) {
 TableCryptocurrencies.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
       image: PropTypes.string.isRequired,
       price: PropTypes.number.isRequired,
