@@ -1,12 +1,12 @@
 from datetime import timedelta
 
 from cryptoapp.application.interfaces.generator import ActivationGenerator
-from cryptoapp.infrastructure.services.jwt_service import JWTService, TokenType
+from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor, TokenType
 from cryptoapp.utils.constants import DOMAIN
 
 
 class UrlGenerator(ActivationGenerator):
-    def __init__(self, jwt_service: JWTService):
+    def __init__(self, jwt_service: JwtTokenProcessor):
         self.jwt_service = jwt_service
 
     def generate(self, user_id: int) -> str:

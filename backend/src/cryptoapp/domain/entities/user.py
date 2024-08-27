@@ -8,7 +8,6 @@ from ..exceptions import UserNotActiveError, AlreadyActivatedException
 class User:
     id: UserId
     username: str
-    email: str
     is_active: bool
 
     def ensure_is_active(self) -> None:

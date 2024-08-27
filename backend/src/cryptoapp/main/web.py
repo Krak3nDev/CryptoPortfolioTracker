@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from cryptoapp.infrastructure.services.scheduler import start_scheduler
 from cryptoapp.main.depedencies.ioc_container import container
-from cryptoapp.main.routers import init_routers, register_exception_handlers
+from cryptoapp.main.router_registration import init_routers, register_exception_handlers
 from cryptoapp.utils.log import setup_logging
 
 

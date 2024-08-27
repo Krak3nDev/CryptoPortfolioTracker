@@ -1,7 +1,8 @@
 from cryptoapp.application.interfaces.authenticator import Authenticator
+
 from cryptoapp.application.interfaces.gateways.user import UserGateway
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
-from cryptoapp.infrastructure.dto.user import UserDTO, UserLoginDTO
+from cryptoapp.infrastructure.dto.data import UserLoginDTO, UserDTO
 from cryptoapp.infrastructure.exceptions import AuthenticationError
 
 
@@ -15,7 +16,8 @@ class AuthService(Authenticator):
 
         if not user or not self.hasher.verify(
             password=login_user.password,
-            hashed_password=user.password if user.password else ""):
-            raise AuthenticationError("Invalid username or password")
+            hashed_password=user.password
+        ):
+            raise AuthenticationError
 
         return user

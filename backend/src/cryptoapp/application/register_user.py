@@ -8,7 +8,7 @@ from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.hasher import IPasswordHasher
 from cryptoapp.application.interfaces.sender import INotificationSender
 from cryptoapp.infrastructure.dto.converters import convert_entity_to_dto
-from cryptoapp.infrastructure.dto.user import CreateUserDTO, UserDTO
+from cryptoapp.infrastructure.dto.data import CreateUserDTO, UserDTO
 
 
 class RegisterInteractor(Interactor[CreateUserDTO, UserDTO]):

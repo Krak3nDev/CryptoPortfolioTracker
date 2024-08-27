@@ -13,10 +13,11 @@ from cryptoapp.infrastructure.database.mappers.users import UserDataMapper
 from cryptoapp.infrastructure.services.auth import AuthService
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
-from cryptoapp.infrastructure.services.jwt_service import JWTService
+from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor
 from cryptoapp.infrastructure.services.password_hasher import PasswordHasher
 from cryptoapp.infrastructure.services.sender.email_sender import EmailSender
 from cryptoapp.infrastructure.services.sender.utils import init_smtp
+from cryptoapp.infrastructure.services.token_provider import TokenIdProvider
 
 
 class ApplicationProvider(Provider):
@@ -48,7 +49,7 @@ class ApplicationProvider(Provider):
         )
 
     @provide(scope=Scope.APP)
-    def get_generator(self, jwt: JWTService) -> UrlGenerator:
+    def get_generator(self, jwt: JwtTokenProcessor) -> UrlGenerator:
         return UrlGenerator(jwt)
 
     @provide(scope=Scope.REQUEST)
@@ -69,8 +70,8 @@ class ApplicationProvider(Provider):
         )
 
     @provide(scope=Scope.APP)
-    def get_jwt_service(self, config: Config) -> JWTService:
-        return JWTService(
+    def get_jwt_service(self, config: Config) -> JwtTokenProcessor:
+        return JwtTokenProcessor(
             private_key=config.auth_jwt.private_key_path.read_text(),
             public_key=config.auth_jwt.public_key_path.read_text(),
             algorithm=config.auth_jwt.algorithm,
@@ -78,14 +79,16 @@ class ApplicationProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    async def auth_service(
-        self, user_gateway: UserDataMapper, hasher: PasswordHasher
-    ) -> AuthService:
-        return AuthService(user_gateway, hasher)
+    def get_authentication_service(self, user_gateway: UserDataMapper, hasher: PasswordHasher) -> AuthService:
+        return AuthService(user_gateway=user_gateway, hasher=hasher)
 
     @provide(scope=Scope.REQUEST)
-    def get_login_interactor(self, auth: AuthService) -> LoginInteractor:
-        return LoginInteractor(auth=auth)
+    def get_token_id_provider(self, token: str, token_processor: JwtTokenProcessor) -> TokenIdProvider:
+        return TokenIdProvider(token=token, token_processor=token_processor)
+
+    @provide(scope=Scope.REQUEST)
+    def get_login_interactor(self, id_provider: TokenIdProvider, user_gateway: UserDataMapper) -> LoginInteractor:
+        return LoginInteractor(id_provider=id_provider, user_gateway=user_gateway)
 
     @provide(scope=Scope.REQUEST)
     def get_user_info_interactor(

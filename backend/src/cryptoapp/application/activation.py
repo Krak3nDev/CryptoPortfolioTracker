@@ -4,7 +4,7 @@ from cryptoapp.application.common.exceptions import (
 from cryptoapp.application.common.interactor import Interactor
 from cryptoapp.application.interfaces.committer import Committer
 from cryptoapp.application.interfaces.gateways.user import UserGateway
-from cryptoapp.infrastructure.dto.jwt import TokenPayloadDTO
+from cryptoapp.infrastructure.dto.data import TokenPayloadDTO
 from cryptoapp.infrastructure.services.jwt_service import TokenType
 
 
@@ -15,12 +15,12 @@ class ActivationInteractor(Interactor[TokenPayloadDTO, None]):
 
     async def __call__(self, data: TokenPayloadDTO) -> None:
         if TokenPayloadDTO.type != TokenType.ACTIVATION:
-            raise InvalidTokenType()
+            raise InvalidTokenType
 
         user = await self.user_gateway.get_by_id(data.sub)
 
         if not user:
-            raise UserDoesNotExistError()
+            raise UserDoesNotExistError
 
         user.ensure_not_already_active()
 

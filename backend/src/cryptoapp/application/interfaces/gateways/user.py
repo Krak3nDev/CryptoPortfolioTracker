@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Optional, Protocol
 
 from cryptoapp.domain.entities.user import User
-from cryptoapp.infrastructure.dto.user import CreateUserDTO, UserDTO
+from cryptoapp.infrastructure.dto.data import CreateUserDTO, UserDTO
 
 
 class UserGateway(Protocol):

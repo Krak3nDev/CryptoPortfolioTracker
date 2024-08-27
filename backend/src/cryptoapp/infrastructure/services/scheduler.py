@@ -8,9 +8,9 @@ from cryptoapp.main.depedencies.ioc_container import container
 
 def start_scheduler() -> None:
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(update_assets, IntervalTrigger(seconds=5))
+    scheduler.add_job(update_assets, IntervalTrigger(minutes=3))
     scheduler.start()
-
+    
 
 async def update_assets() -> None:
     async with container() as c:

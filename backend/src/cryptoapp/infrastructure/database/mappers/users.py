@@ -7,7 +7,7 @@ from cryptoapp.application.interfaces.gateways.user import UserGateway
 from cryptoapp.domain.entities.user import User
 from cryptoapp.infrastructure.database.models import UserDB
 from .base import SessionInitializer
-from ...dto.user import CreateUserDTO, UserDTO
+from ...dto.data import CreateUserDTO, UserDTO
 
 
 class UserDataMapper(UserGateway, SessionInitializer):

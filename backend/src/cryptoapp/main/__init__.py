@@ -3,5 +3,5 @@ __all__ = [
     "init_routers",
 ]
 
+from .router_registration import init_routers
 from .web import create_app
-from .routers import init_routers

@@ -80,7 +80,7 @@ class AssetMapper(SessionInitializer):
             statement,
             assets_to_update
         )
-
+ 
     async def bulk_upsert(self, assets: list[DBAssetDict]) -> None:
         statement = insert(AssetDB)
         do_update_stmt = statement.on_conflict_do_update(

@@ -2,8 +2,7 @@ from cryptoapp.application.common.exceptions import UserDoesNotExistError
 from cryptoapp.application.common.interactor import Interactor
 from cryptoapp.application.interfaces.gateways.user import UserGateway
 from cryptoapp.infrastructure.dto.converters import convert_entity_to_dto
-from cryptoapp.infrastructure.dto.jwt import TokenPayloadDTO
-from cryptoapp.infrastructure.dto.user import UserDTO
+from cryptoapp.infrastructure.dto.data import UserDTO, TokenPayloadDTO
 
 
 class GetUserInformationInteractor(Interactor[TokenPayloadDTO, UserDTO]):
