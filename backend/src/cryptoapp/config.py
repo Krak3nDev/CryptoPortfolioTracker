@@ -91,11 +91,22 @@ class EmailConfig:
 
 
 @dataclass
+class DomainConfig:
+    domain: str
+
+    @staticmethod
+    def from_env(env: Env) -> "DomainConfig":
+        domain = env.str("DOMAIN_URL")
+        return DomainConfig(domain=domain)
+
+
+@dataclass
 class Config:
     db: DbConfig
     coin_market: CoinMarketApiConfig
     auth_jwt: AuthJWT
     email_data: EmailConfig
+    domain: DomainConfig
 
 
 def load_config(path: Optional[str] = None) -> Config:
@@ -107,4 +118,5 @@ def load_config(path: Optional[str] = None) -> Config:
         coin_market=CoinMarketApiConfig.from_env(env),
         auth_jwt=AuthJWT(),
         email_data=EmailConfig.from_env(env),
+        domain=DomainConfig.from_env(env)
     )

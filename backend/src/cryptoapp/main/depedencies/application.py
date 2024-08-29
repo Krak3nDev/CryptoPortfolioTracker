@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import aiosmtplib
-from dishka import Provider, Scope, provide
-from starlette.requests import Request
+from dishka import Provider, Scope, provide, from_context
+from fastapi.requests import Request
 
 from cryptoapp.application.activation import ActivationInteractor
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
@@ -14,6 +14,7 @@ from cryptoapp.infrastructure.dto.data import TokenPayloadDTO
 from cryptoapp.infrastructure.services.auth import AuthService
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
+from cryptoapp.infrastructure.services.jwt_id_provider import TokenIdProvider
 from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor, get_token_info
 from cryptoapp.infrastructure.services.password_hasher import PasswordHasher
 from cryptoapp.infrastructure.services.sender.email_sender import EmailSender
@@ -21,6 +22,8 @@ from cryptoapp.infrastructure.services.sender.utils import init_smtp
 
 
 class ApplicationProvider(Provider):
+    request = from_context(provides=Request, scope=Scope.REQUEST)
+
     @provide(scope=Scope.APP)
     def get_hasher(self) -> PasswordHasher:
         return PasswordHasher()
@@ -49,8 +52,8 @@ class ApplicationProvider(Provider):
         )
 
     @provide(scope=Scope.APP)
-    def get_generator(self, jwt: JwtTokenProcessor) -> UrlGenerator:
-        return UrlGenerator(jwt)
+    def get_generator(self, jwt: JwtTokenProcessor, config: Config) -> UrlGenerator:
+        return UrlGenerator(jwt, domain_config=config.domain)
 
     @provide(scope=Scope.REQUEST)
     async def get_register_service(
@@ -79,12 +82,13 @@ class ApplicationProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def get_authentication_service(self, user_gateway: UserDataMapper, hasher: PasswordHasher) -> AuthService:
-        return AuthService(user_gateway=user_gateway, hasher=hasher)
+    def get_authentication_service(self, user_gateway: UserDataMapper, hasher: PasswordHasher,
+                                   jwt: JwtTokenProcessor) -> AuthService:
+        return AuthService(user_gateway=user_gateway, hasher=hasher, jwt=jwt)
 
     @provide(scope=Scope.REQUEST)
-    def get_token_id_provider(self, token: str, token_processor: JwtTokenProcessor) -> TokenIdProvider:
-        return TokenIdProvider(token=token, token_processor=token_processor)
+    def get_token_id_provider(self, token: TokenPayloadDTO) -> TokenIdProvider:
+        return TokenIdProvider(token=token)
 
     @provide(scope=Scope.REQUEST)
     def get_token(self, request: Request, token_processor: JwtTokenProcessor) -> TokenPayloadDTO:
@@ -100,6 +104,6 @@ class ApplicationProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     def get_activation_interactor(
-        self, committer: SQLAlchemyCommitter, user_gateway: UserDataMapper
+        self, committer: SQLAlchemyCommitter, user_gateway: UserDataMapper, id_provider: TokenIdProvider
     ) -> ActivationInteractor:
-        return ActivationInteractor(committer=committer, user_gateway=user_gateway)
+        return ActivationInteractor(committer=committer, user_gateway=user_gateway, id_provider=id_provider)

@@ -8,9 +8,7 @@ from fastapi.security.utils import get_authorization_scheme_param
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from cryptoapp.domain.entities.user_id import UserId
 from cryptoapp.infrastructure.dto.data import UserDTO, TokenPayloadDTO
-from cryptoapp.infrastructure.exceptions import AuthenticationError
 
 
 class TokenType(str, Enum):
@@ -110,16 +108,3 @@ class JwtTokenProcessor:
             expire_minutes=self.access_token_expire_minutes,
             expire_timedelta=expire_timedelta,
         )
-
-    def validate_user_id(self, token: str) -> UserId:
-        try:
-            payload = jwt.decode(
-                jwt=token, key=self.public_key, algorithms=[self.algorithm]
-            )
-        except jwt.PyJWTError:
-            raise AuthenticationError
-
-        try:
-            return UserId(int(payload["sub"]))
-        except (ValueError, KeyError):
-            raise AuthenticationError
