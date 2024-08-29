@@ -8,7 +8,7 @@ class TokenIdProvider(IdProvider):
         self,
         token_processor: JwtTokenProcessor,
         token: str,
-    ):
+    ) -> None:
         self.token_processor = token_processor
         self.token = token
 

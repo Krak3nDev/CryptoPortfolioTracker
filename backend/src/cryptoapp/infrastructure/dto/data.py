@@ -8,7 +8,7 @@ from cryptoapp.infrastructure.database.models.transactions import TransactionTyp
 
 @dataclass
 class UserDTO:
-    id: Optional[int]
+    id: int
     username: str
     email: Optional[str]
     password: str

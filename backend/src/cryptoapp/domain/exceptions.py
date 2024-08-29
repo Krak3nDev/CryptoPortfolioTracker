@@ -1,6 +1,3 @@
-from cryptoapp.application.common.exceptions import ApplicationError
-
-
 class DomainError(Exception):
     pass
 

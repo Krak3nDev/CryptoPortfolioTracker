@@ -2,22 +2,22 @@ from pathlib import Path
 
 import aiosmtplib
 from dishka import Provider, Scope, provide
+from starlette.requests import Request
 
 from cryptoapp.application.activation import ActivationInteractor
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
-from cryptoapp.application.login import LoginInteractor
 from cryptoapp.application.register_user import RegisterInteractor
 from cryptoapp.config import Config
 from cryptoapp.infrastructure.database.mappers.assets import AssetMapper
 from cryptoapp.infrastructure.database.mappers.users import UserDataMapper
+from cryptoapp.infrastructure.dto.data import TokenPayloadDTO
 from cryptoapp.infrastructure.services.auth import AuthService
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
-from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor
+from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor, get_token_info
 from cryptoapp.infrastructure.services.password_hasher import PasswordHasher
 from cryptoapp.infrastructure.services.sender.email_sender import EmailSender
 from cryptoapp.infrastructure.services.sender.utils import init_smtp
-from cryptoapp.infrastructure.services.token_provider import TokenIdProvider
 
 
 class ApplicationProvider(Provider):
@@ -87,8 +87,10 @@ class ApplicationProvider(Provider):
         return TokenIdProvider(token=token, token_processor=token_processor)
 
     @provide(scope=Scope.REQUEST)
-    def get_login_interactor(self, id_provider: TokenIdProvider, user_gateway: UserDataMapper) -> LoginInteractor:
-        return LoginInteractor(id_provider=id_provider, user_gateway=user_gateway)
+    def get_token(self, request: Request, token_processor: JwtTokenProcessor) -> TokenPayloadDTO:
+        return token_processor.decode_jwt(
+            get_token_info(request)
+        )
 
     @provide(scope=Scope.REQUEST)
     def get_user_info_interactor(

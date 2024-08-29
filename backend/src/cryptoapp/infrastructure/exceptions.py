@@ -4,3 +4,7 @@ class InfrastructureError(Exception):
 
 class AuthenticationError(InfrastructureError):
     pass
+
+
+class InvalidTokenType(InfrastructureError):
+    pass

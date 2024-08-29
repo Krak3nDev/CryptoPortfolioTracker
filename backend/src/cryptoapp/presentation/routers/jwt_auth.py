@@ -8,9 +8,9 @@ from fastapi.security import HTTPBearer
 from cryptoapp.application.activation import ActivationInteractor
 from cryptoapp.application.login import LoginInteractor
 from cryptoapp.application.register_user import RegisterInteractor
-from cryptoapp.infrastructure.dto.data import TokenInfo
+from cryptoapp.infrastructure.dto.data import TokenInfo, TokenPayloadDTO
 from cryptoapp.infrastructure.services.auth import AuthService
-from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor
+from cryptoapp.infrastructure.services.confirmation_token import check_token_type
 from cryptoapp.presentation.schemas.common import CreateUser, UserLogin
 
 auth_router = APIRouter(prefix="/jwt", route_class=DishkaRoute, tags=["auth"])
@@ -27,27 +27,22 @@ async def signup(
 
 @auth_router.post("/login", response_model=TokenInfo)
 async def login(
-    jwt_service: FromDishka[JwtTokenProcessor],
     auth_service: FromDishka[AuthService],
     login_interactor: FromDishka[LoginInteractor],
     user: UserLogin,
 ) -> TokenInfo:
-    authenticated_user = await auth_service.authenticate(user.to_dto())
-    login_interactor(authenticated_user)
-    token = jwt_service.create_access_token(
-        user=authenticated_user,
-    )
+    token, user_dto = await auth_service.authenticate(user.to_dto())
+    login_interactor(user_dto)
     return TokenInfo(access_token=token, token_type="Bearer")
 
 
 @auth_router.get("/confirm")
 async def activation(
-    token: str,
-    jwt_service: FromDishka[JwtTokenProcessor],
+    token: FromDishka[TokenPayloadDTO],
     activation_interactor: FromDishka[ActivationInteractor],
 ) -> Dict[str, str]:
-    token_payload = jwt_service.decode_jwt(token)
-    await activation_interactor(token_payload)
+    check_token_type(token)
+    await activation_interactor()
     return {"message": "Email successfully confirmed."}
 
 
