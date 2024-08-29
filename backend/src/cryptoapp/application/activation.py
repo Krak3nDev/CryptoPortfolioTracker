@@ -8,7 +8,9 @@ from cryptoapp.application.interfaces.id_provider import IdProvider
 
 
 class ActivationInteractor(Interactor[None, None]):
-    def __init__(self, user_gateway: UserGateway, committer: Committer, id_provider: IdProvider):
+    def __init__(
+        self, user_gateway: UserGateway, committer: Committer, id_provider: IdProvider
+    ):
         self.user_gateway = user_gateway
         self.committer = committer
         self.id_provider = id_provider

@@ -4,7 +4,10 @@ from starlette.requests import Request
 
 from cryptoapp.application.get_user_info import GetUserInformationInteractor
 from cryptoapp.infrastructure.dto.data import UserDTO
-from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor, get_token_info
+from cryptoapp.infrastructure.services.jwt_service import (
+    JwtTokenProcessor,
+    get_token_info,
+)
 from . import security
 
 user_router = APIRouter(prefix="/users", tags=["users"])

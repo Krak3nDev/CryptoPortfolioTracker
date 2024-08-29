@@ -15,7 +15,10 @@ from cryptoapp.infrastructure.services.auth import AuthService
 from cryptoapp.infrastructure.services.committer import SQLAlchemyCommitter
 from cryptoapp.infrastructure.services.generator import UrlGenerator
 from cryptoapp.infrastructure.services.jwt_id_provider import TokenIdProvider
-from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor, get_token_info
+from cryptoapp.infrastructure.services.jwt_service import (
+    JwtTokenProcessor,
+    get_token_info,
+)
 from cryptoapp.infrastructure.services.password_hasher import PasswordHasher
 from cryptoapp.infrastructure.services.sender.email_sender import EmailSender
 from cryptoapp.infrastructure.services.sender.utils import init_smtp
@@ -82,8 +85,12 @@ class ApplicationProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def get_authentication_service(self, user_gateway: UserDataMapper, hasher: PasswordHasher,
-                                   jwt: JwtTokenProcessor) -> AuthService:
+    def get_authentication_service(
+        self,
+        user_gateway: UserDataMapper,
+        hasher: PasswordHasher,
+        jwt: JwtTokenProcessor,
+    ) -> AuthService:
         return AuthService(user_gateway=user_gateway, hasher=hasher, jwt=jwt)
 
     @provide(scope=Scope.REQUEST)
@@ -91,19 +98,25 @@ class ApplicationProvider(Provider):
         return TokenIdProvider(token=token)
 
     @provide(scope=Scope.REQUEST)
-    def get_token(self, request: Request, token_processor: JwtTokenProcessor) -> TokenPayloadDTO:
-        return token_processor.decode_jwt(
-            get_token_info(request)
-        )
+    def get_token(
+        self, request: Request, token_processor: JwtTokenProcessor
+    ) -> TokenPayloadDTO:
+        return token_processor.decode_jwt(get_token_info(request))
 
     @provide(scope=Scope.REQUEST)
     def get_user_info_interactor(
-        self, user_gateway: UserDataMapper,
+        self,
+        user_gateway: UserDataMapper,
     ) -> GetUserInformationInteractor:
         return GetUserInformationInteractor(user_gateway=user_gateway)
 
     @provide(scope=Scope.REQUEST)
     def get_activation_interactor(
-        self, committer: SQLAlchemyCommitter, user_gateway: UserDataMapper, id_provider: TokenIdProvider
+        self,
+        committer: SQLAlchemyCommitter,
+        user_gateway: UserDataMapper,
+        id_provider: TokenIdProvider,
     ) -> ActivationInteractor:
-        return ActivationInteractor(committer=committer, user_gateway=user_gateway, id_provider=id_provider)
+        return ActivationInteractor(
+            committer=committer, user_gateway=user_gateway, id_provider=id_provider
+        )

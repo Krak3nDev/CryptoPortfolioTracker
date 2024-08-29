@@ -118,5 +118,5 @@ def load_config(path: Optional[str] = None) -> Config:
         coin_market=CoinMarketApiConfig.from_env(env),
         auth_jwt=AuthJWT(),
         email_data=EmailConfig.from_env(env),
-        domain=DomainConfig.from_env(env)
+        domain=DomainConfig.from_env(env),
     )

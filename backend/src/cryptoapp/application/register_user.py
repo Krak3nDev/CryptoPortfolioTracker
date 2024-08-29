@@ -27,7 +27,9 @@ class RegisterInteractor(Interactor[CreateUserDTO, UserDTO]):
         self.generator = generator
 
     async def __call__(self, data: CreateUserDTO) -> UserDTO:
-        user_exist = await self.user_gateway.check_data_unique(data.username, data.email)
+        user_exist = await self.user_gateway.check_data_unique(
+            data.username, data.email
+        )
 
         if user_exist:
             raise UserAlreadyExistsError(data.username)

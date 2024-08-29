@@ -1,7 +1,10 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from cryptoapp.infrastructure.database.mappers.assets import AssetMapper, collect_assets_to_update
+from cryptoapp.infrastructure.database.mappers.assets import (
+    AssetMapper,
+    collect_assets_to_update,
+)
 from cryptoapp.infrastructure.services.api.coin_market import CoinMarketApi
 from cryptoapp.main.depedencies.ioc_container import container
 
@@ -10,7 +13,7 @@ def start_scheduler() -> None:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(update_assets, IntervalTrigger(minutes=3))
     scheduler.start()
-    
+
 
 async def update_assets() -> None:
     async with container() as c:

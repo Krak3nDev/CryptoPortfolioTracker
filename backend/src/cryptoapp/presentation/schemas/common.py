@@ -4,7 +4,11 @@ from decimal import Decimal
 from pydantic import BaseModel, EmailStr
 
 from cryptoapp.infrastructure.database.models.transactions import TransactionType
-from cryptoapp.infrastructure.dto.data import UserLoginDTO, CreateUserDTO, TransactionDTO
+from cryptoapp.infrastructure.dto.data import (
+    UserLoginDTO,
+    CreateUserDTO,
+    TransactionDTO,
+)
 
 
 class UserLogin(BaseModel):
@@ -46,5 +50,5 @@ class Transaction(BaseModel):
             quantity=self.quantity,
             price_per_unit=self.price_per_unit,
             transaction_type=self.transaction_type,
-            transaction_date=self.transaction_date
+            transaction_date=self.transaction_date,
         )

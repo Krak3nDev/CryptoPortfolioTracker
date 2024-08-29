@@ -8,8 +8,6 @@ portfolio_router = APIRouter(prefix="/portfolio", tags=["portfolio"])
 
 @portfolio_router.post("/transactions/")
 async def create_transaction(
-    transaction: Transaction,
-    transaction_interactor: CryptoTransactionInteractor) -> None:
-    await transaction_interactor(
-        transaction=transaction.to_dto()
-    )
+    transaction: Transaction, transaction_interactor: CryptoTransactionInteractor
+) -> None:
+    await transaction_interactor(transaction=transaction.to_dto())

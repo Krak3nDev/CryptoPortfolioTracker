@@ -77,7 +77,7 @@ class JwtTokenProcessor:
             username=data["username"],
             exp=data.get("exp"),
             iat=data.get("iat"),
-            type=data["type"]
+            type=data["type"],
         )
 
     def create_jwt(

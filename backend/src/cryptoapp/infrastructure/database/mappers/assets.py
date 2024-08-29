@@ -23,22 +23,22 @@ def extract_asset_data(asset: CryptoData) -> DBAssetDict:
         percent_change_1h=usd_data["percent_change_1h"],
         percent_change_24h=usd_data["percent_change_24h"],
         percent_change_7d=usd_data["percent_change_7d"],
-        last_updated=datetime.fromisoformat(usd_data["last_updated"].replace("Z", "+00:00")).astimezone(timezone.utc),
+        last_updated=datetime.fromisoformat(
+            usd_data["last_updated"].replace("Z", "+00:00")
+        ).astimezone(timezone.utc),
     )
 
 
 def collect_assets_to_update(
-    new_assets: Sequence[CryptoData],
-    existing_assets: Sequence[RowMapping]) -> list[DBAssetDict]:
-    existing_assets_dict = {asset['crypto_id']: asset for asset in existing_assets}
+    new_assets: Sequence[CryptoData], existing_assets: Sequence[RowMapping]
+) -> list[DBAssetDict]:
+    existing_assets_dict = {asset["crypto_id"]: asset for asset in existing_assets}
     assets_to_update = []
 
     for asset in new_assets:
         current_asset_id = asset["id"]
         extracted_data = extract_asset_data(asset)
-        logging.error(
-            type(extracted_data["last_updated"])
-        )
+        logging.error(type(extracted_data["last_updated"]))
         new_last_updated = extracted_data["last_updated"]
 
         if current_asset_id not in existing_assets_dict:
@@ -47,7 +47,9 @@ def collect_assets_to_update(
         else:
             old_asset = existing_assets_dict[current_asset_id]
             old_last_updated = old_asset["last_updated"]
-            logging.debug(f"Comparing assets: new {new_last_updated} vs old {old_last_updated}")
+            logging.debug(
+                f"Comparing assets: new {new_last_updated} vs old {old_last_updated}"
+            )
 
             if new_last_updated > old_last_updated:
                 logging.debug(f"Updating asset: {extracted_data}")
@@ -76,11 +78,8 @@ class AssetMapper(SessionInitializer):
 
     async def bulk_update(self, assets_to_update: list[dict[str, Any]]) -> None:
         statement = update(AssetDB)
-        await self.session.execute(
-            statement,
-            assets_to_update
-        )
- 
+        await self.session.execute(statement, assets_to_update)
+
     async def bulk_upsert(self, assets: list[DBAssetDict]) -> None:
         statement = insert(AssetDB)
         do_update_stmt = statement.on_conflict_do_update(
@@ -91,6 +90,6 @@ class AssetMapper(SessionInitializer):
                 percent_change_1h=statement.excluded.percent_change_1h,
                 percent_change_24h=statement.excluded.percent_change_24h,
                 percent_change_7d=statement.excluded.percent_change_7d,
-            )
+            ),
         )
         await self.session.execute(do_update_stmt, assets)

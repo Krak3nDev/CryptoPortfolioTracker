@@ -41,7 +41,7 @@ class TransactionDTO:
     user_id: int
     quantity: Decimal
     price_per_unit: Decimal
-    transaction_type: TransactionType
+    t_type: TransactionType
     transaction_date: datetime
 
 

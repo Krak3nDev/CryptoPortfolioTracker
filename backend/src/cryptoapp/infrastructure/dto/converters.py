@@ -8,5 +8,5 @@ def convert_entity_to_dto(user: User) -> UserDTO:
         username=user.username,
         email=user.email,
         password=None,
-        is_active=user.is_active
+        is_active=user.is_active,
     )

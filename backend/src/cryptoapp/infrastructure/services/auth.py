@@ -6,7 +6,9 @@ from cryptoapp.infrastructure.services.jwt_service import JwtTokenProcessor
 
 
 class AuthService:
-    def __init__(self, user_gateway: UserGateway, hasher: IPasswordHasher, jwt: JwtTokenProcessor) -> None:
+    def __init__(
+        self, user_gateway: UserGateway, hasher: IPasswordHasher, jwt: JwtTokenProcessor
+    ) -> None:
         self.user_gateway = user_gateway
         self.hasher = hasher
         self.jwt = jwt
@@ -15,8 +17,7 @@ class AuthService:
         user = await self.user_gateway.get_with_password(login_user.username)
 
         if not user or not self.hasher.verify(
-            password=login_user.password,
-            hashed_password=user.password
+            password=login_user.password, hashed_password=user.password
         ):
             raise AuthenticationError
 
@@ -24,7 +25,5 @@ class AuthService:
 
     async def authenticate(self, login_user: UserLoginDTO) -> tuple[str, UserDTO]:
         user = await self._check_user(login_user)
-        token = self.jwt.create_access_token(
-            user=user
-        )
+        token = self.jwt.create_access_token(user=user)
         return token, user

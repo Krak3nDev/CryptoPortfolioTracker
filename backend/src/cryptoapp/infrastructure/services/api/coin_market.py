@@ -21,7 +21,7 @@ class CoinMarketApi(BaseClient):
             method=METH_GET,
             url=self.base_url + "cryptocurrency/listings/latest",
             headers={"X-CMC_PRO_API_KEY": self.api_key},
-            params={"start": "1", "limit": "2"}
+            params={"start": "1", "limit": "2"},
         )
         code, response_data = result
         crypto_response: CryptoResponse = cast(CryptoResponse, response_data)
@@ -32,12 +32,12 @@ async def main() -> None:
     setup_logging()
     config = load_config()
     print(config.coin_market.api_key)
-    api = CoinMarketApi(api_key=config.coin_market.api_key,
-                        base_url=config.coin_market.base_url)
+    api = CoinMarketApi(
+        api_key=config.coin_market.api_key, base_url=config.coin_market.base_url
+    )
 
     async with api:
-        code, result = await api.get_assets(
-        )
+        code, result = await api.get_assets()
         formatted_json = ujson.dumps(result, indent=4, ensure_ascii=False)
         print(formatted_json)
 

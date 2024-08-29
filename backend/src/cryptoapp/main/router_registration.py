@@ -23,11 +23,15 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(
         exc.UserAlreadyExistsError, user_already_exists_error_handler
     )
-    app.add_exception_handler(domain_exc.UserNotActiveError, user_not_active_error_handler)
+    app.add_exception_handler(
+        domain_exc.UserNotActiveError, user_not_active_error_handler
+    )
     app.add_exception_handler(
         infra_exc.AuthenticationError, authentication_error_handler
     )
-    app.add_exception_handler(infra_exc.InvalidTokenType, invalid_token_type_error_handler)
+    app.add_exception_handler(
+        infra_exc.InvalidTokenType, invalid_token_type_error_handler
+    )
     app.add_exception_handler(ExpiredSignatureError, token_expired_error_handler)
     app.add_exception_handler(
         domain_exc.AlreadyActivatedException, already_activated_error_handler
