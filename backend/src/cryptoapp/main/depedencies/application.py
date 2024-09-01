@@ -1,14 +1,16 @@
 from pathlib import Path
 
 import aiosmtplib
-from dishka import Provider, Scope, provide, from_context
+from dishka import Provider, Scope, from_context, provide
 from fastapi.requests import Request
 
-from cryptoapp.application.activation import ActivationInteractor
-from cryptoapp.application.get_user_info import GetUserInformationInteractor
-from cryptoapp.application.register_user import RegisterInteractor
+from cryptoapp.application.potrfolio.delete import DeleteTransaction
+from cryptoapp.application.user.activation import ActivationInteractor
+from cryptoapp.application.user.get_user_info import GetUserInformationInteractor
+from cryptoapp.application.user.register_user import RegisterInteractor
 from cryptoapp.config import Config
 from cryptoapp.infrastructure.database.mappers.assets import AssetMapper
+from cryptoapp.infrastructure.database.mappers.transactions import TransactionMapper
 from cryptoapp.infrastructure.database.mappers.users import UserDataMapper
 from cryptoapp.infrastructure.dto.data import TokenPayloadDTO
 from cryptoapp.infrastructure.services.auth import AuthService
@@ -38,6 +40,12 @@ class ApplicationProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def get_asset_mapper(self, committer: SQLAlchemyCommitter) -> AssetMapper:
         return AssetMapper(committer.session)
+
+    @provide(scope=Scope.REQUEST)
+    async def get_transaction_mapper(
+        self, committer: SQLAlchemyCommitter
+    ) -> TransactionMapper:
+        return TransactionMapper(committer.session)
 
     @provide(scope=Scope.APP)
     async def get_smtp(self, config: Config) -> aiosmtplib.SMTP:
@@ -85,7 +93,7 @@ class ApplicationProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def get_authentication_service(
+    async def get_authentication_service(
         self,
         user_gateway: UserDataMapper,
         hasher: PasswordHasher,
@@ -104,14 +112,14 @@ class ApplicationProvider(Provider):
         return token_processor.decode_jwt(get_token_info(request))
 
     @provide(scope=Scope.REQUEST)
-    def get_user_info_interactor(
+    async def get_user_info_interactor(
         self,
         user_gateway: UserDataMapper,
     ) -> GetUserInformationInteractor:
         return GetUserInformationInteractor(user_gateway=user_gateway)
 
     @provide(scope=Scope.REQUEST)
-    def get_activation_interactor(
+    async def get_activation_interactor(
         self,
         committer: SQLAlchemyCommitter,
         user_gateway: UserDataMapper,
@@ -119,4 +127,12 @@ class ApplicationProvider(Provider):
     ) -> ActivationInteractor:
         return ActivationInteractor(
             committer=committer, user_gateway=user_gateway, id_provider=id_provider
+        )
+
+    @provide(scope=Scope.REQUEST)
+    async def get_delete_transaction(
+        self, transaction_gateway: TransactionMapper, committer: SQLAlchemyCommitter
+    ) -> DeleteTransaction:
+        return DeleteTransaction(
+            transaction_gateway=transaction_gateway, committer=committer
         )
