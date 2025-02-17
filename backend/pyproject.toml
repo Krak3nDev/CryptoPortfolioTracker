@@ -1,0 +1,109 @@
+[project]
+name = "cryptoapp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Krak3nDev", email = "bihichnazar@gmail.com" }
+]
+requires-python = ">=3.11"
+
+dependencies = [
+    "alembic>=1.14.1",
+    "colorlog>=6.9.0",
+    "dishka>=1.4.2",
+    "environs>=14.1.1",
+    "fastapi[standard]>=0.115.8",
+    "psycopg[binary]>=3.2.4",
+]
+
+
+[dependency-groups]
+lint = [
+    "mypy>=1.15.0",
+    "ruff>=0.9.6",
+]
+
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+target-version = "py311"
+
+
+[lint]
+select = ["E4", "E7", "E9", "F", "E501", "I"]
+ignore = []
+fixable = ["ALL"]
+
+[lint.isort]
+case-sensitive = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+
+
+[tool.mypy]
+disallow_subclassing_any = false
+disable_error_code = "import-untyped"
+strict = true
+exclude = [
+    "\\.git",
+    "\\.venv",
+    "\\.idea",
+    "tests/",
+    "\\.cache",
+    "build",
+    "dist",
+    "scripts",
+]
+
+
+
+
+[project.scripts]
+cryptoapp = "cryptoapp:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cryptoapp"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,28 @@
+services:
+  backend:
+    container_name: cryptoapp.api.dev
+    image: cryptoapp_api:dev
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - ${HOST_PORT:-8000}:8000
+    command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory
+    volumes:
+      - ./backend/src/cryptoapp:/app/cryptoapp
+
+  database:
+    image: postgres:16.4-alpine
+    container_name: cryptoapp.postgres.dev
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - cryptoapp.postgres.data.dev:/var/lib/postgresql/data
+
+
+volumes:
+  cryptoapp.postgres.data.dev: {}
