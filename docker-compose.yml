@@ -5,24 +5,34 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     ports:
       - ${HOST_PORT:-8000}:8000
     command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
 
+
   database:
     image: postgres:16.4-alpine
     container_name: cryptoapp.postgres.dev
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+    env_file:
+      - .env
     ports:
       - ${POSTGRES_PORT}:5432
     volumes:
-      - cryptoapp.postgres.data.dev:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
 
-
-volumes:
-  cryptoapp.postgres.data.dev: {}
+  redis:
+    image: redis:latest
+    container_name: cryptoapp.redis.dev
+    env_file:
+      - .env
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --bind 0.0.0.0 --requirepass "$REDIS_PASSWORD" --appendonly yes --appendfsync everysec

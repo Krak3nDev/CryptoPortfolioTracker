@@ -46,10 +46,64 @@ class DbConfig:
 
 
 @dataclass
+class EmailConfig:
+    sender_email: str
+    smtp_server: str
+    smtp_port: int
+    app_password: str
+    tls: bool
+
+    @classmethod
+    def from_env(cls) -> "EmailConfig":
+        return cls(
+            sender_email=os.environ["EMAIL_SENDER"],
+            smtp_server=os.environ["SMTP_SERVER"],
+            smtp_port=int(os.environ["SMTP_PORT"]),
+            app_password=os.environ["APP_PASSWORD"],
+            tls=bool(os.environ["SMTP_TLS"]),
+        )
+
+
+@dataclass
+class UrlConfig:
+    base_url: str
+
+    @classmethod
+    def from_env(cls) -> "UrlConfig":
+        return cls(base_url=os.environ["APP_BASE_URL"])
+
+
+@dataclass
+class RedisConfig:
+    host: str
+    port: int
+    password: str
+
+    @classmethod
+    def from_env(cls) -> "RedisConfig":
+        return cls(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"]),
+            password=os.environ["REDIS_PASSWORD"],
+        )
+
+
+@dataclass
 class Config:
     db: DbConfig
+    email_config: EmailConfig
+    url_config: UrlConfig
+    redis_config: RedisConfig
 
 
 def load_config() -> "Config":
     db = DbConfig.from_env()
-    return Config(db=db)
+    email_config = EmailConfig.from_env()
+    url_config = UrlConfig.from_env()
+    redis_config = RedisConfig.from_env()
+    return Config(
+        db=db,
+        email_config=email_config,
+        url_config=url_config,
+        redis_config=redis_config,
+    )
