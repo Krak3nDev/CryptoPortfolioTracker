@@ -6,13 +6,16 @@ from dishka import AnyOf, Provider, Scope, from_context, provide
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from starlette.requests import Request
+from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.application.common.id_provider import IdProvider
+from cryptoapp.application.common.publisher import Publisher
 from cryptoapp.application.common.transaction_manager import TransactionManager
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.sender import EmailSender
 from cryptoapp.application.user.activation import ActivateUserProfileInteractor
 from cryptoapp.application.user.register_user import RegisterInteractor
+from cryptoapp.application.user.send_mail import SendMailInteractor
 from cryptoapp.domain.entities.user.factory import UserFactory
 from cryptoapp.domain.entities.user.gateway import UserGateway
 from cryptoapp.domain.entities.user.hasher import PasswordHasher
@@ -31,6 +34,7 @@ from cryptoapp.infrastructure.services.activation_token_id_provider import (
 )
 from cryptoapp.infrastructure.services.generator import UrlGenerator
 from cryptoapp.infrastructure.services.password_hasher import Hasher
+from cryptoapp.infrastructure.services.rabbit_publisher import RabbitPublisher
 from cryptoapp.infrastructure.services.sender.email_sender import SMTPEmailSender
 from cryptoapp.infrastructure.services.sender.utils import smtp_client_context
 from cryptoapp.main.config import Config, DbConfig, EmailConfig, RedisConfig, UrlConfig
@@ -45,6 +49,8 @@ class ConfigProvider(Provider):
 
 
 class InfrastructureServiceProvider(Provider):
+    broker = from_context(AioPikaBroker, scope=Scope.APP)
+    publisher = provide(source=RabbitPublisher, provides=Publisher, scope=Scope.APP)
     hasher = provide(source=Hasher, provides=PasswordHasher, scope=Scope.APP)
     activation_token_id_provider = provide(
         source=ActivationTokenIdProvider, provides=IdProvider, scope=Scope.REQUEST
@@ -78,6 +84,7 @@ class DomainServiceProvider(Provider):
 
 
 class InteractorProvider(Provider):
+    send_mail_interactor = provide(source=SendMailInteractor, scope=Scope.REQUEST)
     register_interactor = provide(source=RegisterInteractor, scope=Scope.REQUEST)
     user_activation = provide(source=ActivateUserProfileInteractor, scope=Scope.REQUEST)
 

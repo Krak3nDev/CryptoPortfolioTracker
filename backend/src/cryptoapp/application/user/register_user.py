@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
+from cryptoapp.application.common.publisher import Publisher, SendActivationEmail
 from cryptoapp.application.common.transaction_manager import TransactionManager
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.sender import EmailSender
 from cryptoapp.domain.entities.user.factory import UserFactory
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, eq=True)
 class CreateUserDTO:
     username: str
     email: str
@@ -20,11 +21,13 @@ class RegisterInteractor:
         tr_manager: TransactionManager,
         notification_sender: EmailSender,
         generator: ActivationGenerator,
+        publisher: Publisher,
     ):
         self.user_factory = user_factory
         self.tr_manager = tr_manager
         self.notification_service = notification_sender
         self.generator = generator
+        self.publisher = publisher
 
     async def __call__(self, data: CreateUserDTO) -> None:
         user = await self.user_factory.create(
@@ -38,12 +41,10 @@ class RegisterInteractor:
 
         url = await self.generator.generate_url(user_id=user.identity)
 
-        await self.notification_service.send_notification(
-            recipient=data.email,
-            template_name="email.html",
-            subject="Action Required: Confirm Your Email Address",
-            data={
-                "name": data.username,
-                "activation_url": url,
-            },
+        await self.publisher.publish_email_task(
+            SendActivationEmail(
+                email=data.email,
+                username=data.username,
+                url=url,
+            )
         )

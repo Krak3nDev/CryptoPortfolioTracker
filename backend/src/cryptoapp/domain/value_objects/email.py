@@ -1,19 +1,23 @@
 import re
 from dataclasses import dataclass
 
-from cryptoapp.domain.exceptions import InvalidEmail
+from cryptoapp.domain.exceptions import InvalidEmail, InvalidFieldLength
+
+PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+EMAIL_LENGTH = 320
 
 
 @dataclass(slots=True, frozen=True, eq=True)
 class Email:
-    _value: str
+    value: str
 
     def __post_init__(self) -> None:
-        pattern = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+        if not re.match(PATTERN, self.value):
+            raise InvalidEmail(self.value)
 
-        if not re.match(pattern, self._value):
-            raise InvalidEmail(self._value)
-
-    @property
-    def value(self) -> str:
-        return self._value
+        if len(self.value) > EMAIL_LENGTH:
+            raise InvalidFieldLength(
+                field_name="email", value=self.value, max_length=EMAIL_LENGTH
+            )

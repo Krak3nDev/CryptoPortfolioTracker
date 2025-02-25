@@ -1,8 +1,6 @@
-import logging
-
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel, EmailStr
 
@@ -42,10 +40,9 @@ async def register(
     )
 
 
-@user_router.get("/confirm")
+@user_router.get("/confirm/{token}")
 async def activate_user(
-    interactor: FromDishka[ActivateUserProfileInteractor],
-    token: str = Query(...),
+    interactor: FromDishka[ActivateUserProfileInteractor], token: str
 ) -> ORJSONResponse:
     await interactor()
     return ORJSONResponse(

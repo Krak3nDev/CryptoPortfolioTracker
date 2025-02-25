@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from typing import cast
 
 from sqlalchemy import URL
 
@@ -12,19 +13,19 @@ class DbConfig:
     database: str
     port: int = 5432
 
-    def construct_sqlalchemy_url(
+    @property
+    def url(
         self,
         driver: str = "psycopg",
         host: str | None = None,
         port: int | None = None,
     ) -> str:
-        # Если не указаны явно, берем host/port из объекта
         if not host:
             host = self.host
         if not port:
             port = self.port
 
-        uri = URL.create(
+        url = URL.create(
             drivername=f"postgresql+{driver}",
             username=self.user,
             password=self.password,
@@ -32,7 +33,7 @@ class DbConfig:
             port=port,
             database=self.database,
         )
-        return uri.render_as_string(hide_password=False)
+        return cast(str, url.render_as_string(hide_password=False))
 
     @classmethod
     def from_env(cls) -> "DbConfig":
@@ -87,6 +88,31 @@ class RedisConfig:
             password=os.environ["REDIS_PASSWORD"],
         )
 
+    @property
+    def url(self) -> str:
+        return f"redis://:{self.password}@{self.host}:{self.port}"
+
+
+@dataclass
+class RabbitConfig:
+    host: str
+    port: int
+    user: str
+    password: str
+
+    @property
+    def amqp_url(self) -> str:
+        return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}/"
+
+    @classmethod
+    def from_env(cls) -> "RabbitConfig":
+        return cls(
+            host=os.environ["RABBIT_HOST"],
+            port=int(os.environ["RABBIT_PORT"]),
+            user=os.environ["RABBIT_USER"],
+            password=os.environ["RABBIT_PASSWORD"],
+        )
+
 
 @dataclass
 class Config:
@@ -94,6 +120,7 @@ class Config:
     email_config: EmailConfig
     url_config: UrlConfig
     redis_config: RedisConfig
+    rabbit_config: RabbitConfig
 
 
 def load_config() -> "Config":
@@ -101,9 +128,11 @@ def load_config() -> "Config":
     email_config = EmailConfig.from_env()
     url_config = UrlConfig.from_env()
     redis_config = RedisConfig.from_env()
+    rabbit_config = RabbitConfig.from_env()
     return Config(
         db=db,
         email_config=email_config,
         url_config=url_config,
         redis_config=redis_config,
+        rabbit_config=rabbit_config,
     )

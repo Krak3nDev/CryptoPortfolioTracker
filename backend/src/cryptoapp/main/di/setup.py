@@ -1,13 +1,12 @@
-from dishka import make_async_container
-from dishka.integrations.fastapi import setup_dishka
-from fastapi import FastAPI
+from dishka import AsyncContainer, make_async_container
+from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.main.config import Config, DbConfig, EmailConfig, RedisConfig, UrlConfig
 
 from . import providers
 
 
-def setup_ioc_container(config: Config, app: FastAPI) -> None:
+def setup_ioc_container(config: Config, broker: AioPikaBroker) -> AsyncContainer:
     container = make_async_container(
         *providers,
         context={
@@ -16,6 +15,7 @@ def setup_ioc_container(config: Config, app: FastAPI) -> None:
             UrlConfig: config.url_config,
             EmailConfig: config.email_config,
             DbConfig: config.db,
+            AioPikaBroker: broker,
         },
     )
-    setup_dishka(container, app)
+    return container

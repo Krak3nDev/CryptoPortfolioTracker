@@ -20,6 +20,9 @@ dependencies = [
     "psycopg[binary]>=3.2.4",
     "redis>=5.2.1",
     "sqlalchemy>=2.0.38",
+    "taskiq[orjson]>=0.11.11",
+    "taskiq-aio-pika>=0.4.1",
+    "taskiq-redis>=1.0.2",
 ]
 
 
@@ -87,7 +90,8 @@ exclude = [
 
 [tool.mypy]
 disallow_subclassing_any = false
-disable_error_code = "import-untyped"
+ignore_missing_imports = true
+disable_error_code = "import-untyped,misc"
 strict = true
 exclude = [
     "\\.git",

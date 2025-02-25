@@ -1,25 +1,42 @@
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
+from typing import AsyncContextManager, AsyncIterator, Callable
 
+from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
+from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.main.config import load_config
 from cryptoapp.main.di.setup import setup_ioc_container
 from cryptoapp.main.init_routers import init_routers
 from cryptoapp.main.log import setup_logging
+from cryptoapp.main.taskiq_entry.broker import create_broker
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    yield
-    await app.state.dishka_container.close()
+def broker_startup_lifespan(
+    broker: AioPikaBroker,
+) -> Callable[[FastAPI], AsyncContextManager[None]]:
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        if not broker.is_worker_process:
+            await broker.startup()
+        yield
+        await broker.shutdown()
+        await app.state.dishka_container.close()
+
+    return lifespan
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(lifespan=lifespan)
     config = load_config()
+
+    broker = create_broker(config)
+
+    app = FastAPI(lifespan=broker_startup_lifespan(broker))
 
     init_routers(app)
     setup_logging()
-    setup_ioc_container(config=config, app=app)
+
+    container = setup_ioc_container(config=config, broker=broker)
+    setup_dishka(container=container, app=app)
+
     return app

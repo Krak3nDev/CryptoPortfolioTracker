@@ -1,4 +1,3 @@
-import logging
 import uuid
 
 from redis.asyncio import Redis
@@ -20,4 +19,4 @@ class UrlGenerator(ActivationGenerator):
             name=activation_token, value=str(user_id), time=ttl_hours * 3600
         )
 
-        return f"{self.config.base_url}/users/confirm?token={activation_token}"
+        return f"{self.config.base_url}/users/confirm/{activation_token}"

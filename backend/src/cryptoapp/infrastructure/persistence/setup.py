@@ -12,7 +12,7 @@ from cryptoapp.main.config import DbConfig
 
 def create_engine(db: DbConfig) -> AsyncEngine:
     engine = create_async_engine(
-        db.construct_sqlalchemy_url(),
+        db.url,
         query_cache_size=1200,
         pool_size=20,
         max_overflow=200,

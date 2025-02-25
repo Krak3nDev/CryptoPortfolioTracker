@@ -16,7 +16,7 @@ config = context.config
 
 cfg = load_config()
 
-config.set_main_option("sqlalchemy.url", cfg.db.construct_sqlalchemy_url())
+config.set_main_option("sqlalchemy.url", cfg.db.url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

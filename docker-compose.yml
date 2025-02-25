@@ -12,7 +12,9 @@ services:
     command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
-
+    depends_on:
+      rabbit:
+        condition: service_healthy
 
   database:
     image: postgres:16.4-alpine
@@ -36,3 +38,37 @@ services:
     volumes:
       - ./data/redis:/data
     command: redis-server --bind 0.0.0.0 --requirepass "$REDIS_PASSWORD" --appendonly yes --appendfsync everysec
+
+  rabbit:
+    image: rabbitmq:4.0-management
+    container_name: cryptoapp.rabbitmq.dev
+    ports:
+      - ${RABBIT_PORT}:5672     # AMQP
+      - 15672:15672    # RabbitMQ Management UI
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASSWORD}
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    container_name: cryptoapp.worker.dev
+    image: cryptoapp_api:dev
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    command: taskiq worker --ack-type when_saved cryptoapp.main.taskiq_entry.broker:broker cryptoapp.presentation.task_executor.tasks
+    volumes:
+      - ./backend/src/cryptoapp:/app/cryptoapp
+    depends_on:
+      rabbit:
+        condition: service_healthy

@@ -1,6 +1,9 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class UserId:
-    def __init__(self, value: int | None = None) -> None:
-        self._value = value
+    _value: int | None
 
     @property
     def value(self) -> int:
@@ -9,6 +12,3 @@ class UserId:
     @property
     def is_new(self) -> bool:
         return self._value is None
-
-    def __composite_values__(self) -> tuple[int | None]:
-        return (self._value,)
