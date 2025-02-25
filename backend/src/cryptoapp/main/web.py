@@ -10,6 +10,7 @@ from cryptoapp.main.di.setup import setup_ioc_container
 from cryptoapp.main.init_routers import init_routers
 from cryptoapp.main.log import setup_logging
 from cryptoapp.main.taskiq_entry.broker import create_broker
+from cryptoapp.main.web_errors import register_exception_handlers
 
 
 def broker_startup_lifespan(
@@ -34,6 +35,7 @@ def create_app() -> FastAPI:
     app = FastAPI(lifespan=broker_startup_lifespan(broker))
 
     init_routers(app)
+    register_exception_handlers(app)
     setup_logging()
 
     container = setup_ioc_container(config=config, broker=broker)
