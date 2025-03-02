@@ -17,6 +17,10 @@ class UserGateway(Protocol):
         raise NotImplementedError
 
     @abstractmethod
+    async def by_username(self, username: str) -> User | None:
+        raise NotImplementedError
+
+    @abstractmethod
     async def get_username_email_availability(
         self, username: str, email: str
     ) -> UserAvailabilityInfo | None:

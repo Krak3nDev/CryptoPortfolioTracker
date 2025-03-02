@@ -18,16 +18,13 @@ class User:
     def identity(self) -> int:
         return self._identity.value
 
-    @property
     def get_email(self) -> str:
         return self._email.value
 
-    @property
     def get_username(self) -> str:
         return self._username.value
 
-    @property
-    def hashed_password(self) -> str:
+    def get_hashed_password(self) -> str:
         return self._hashed_password
 
     @property

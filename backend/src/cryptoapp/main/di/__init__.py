@@ -1,6 +1,7 @@
 from dishka.integrations.fastapi import FastapiProvider
 
 from .providers import (
+    ActivationProvider,
     ConfigProvider,
     DbProvider,
     DomainServiceProvider,
@@ -16,5 +17,6 @@ providers = [
     MapperProvider(),
     DbProvider(),
     ConfigProvider(),
+    ActivationProvider(),
     FastapiProvider(),
 ]

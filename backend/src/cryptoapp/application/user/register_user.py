@@ -29,7 +29,7 @@ class RegisterInteractor:
         self.generator = generator
         self.publisher = publisher
 
-    async def __call__(self, data: CreateUserDTO) -> None:
+    async def __call__(self, data: CreateUserDTO) -> int:
         user = await self.user_factory.create(
             username=data.username,
             email=data.email,
@@ -48,3 +48,5 @@ class RegisterInteractor:
                 url=url,
             )
         )
+
+        return user.identity

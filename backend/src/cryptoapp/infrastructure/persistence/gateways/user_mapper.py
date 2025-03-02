@@ -13,6 +13,11 @@ class UserMapper(SessionInitializer, UserGateway):
         result = await self._session.get(User, user_id)
         return cast(User | None, result)
 
+    async def by_username(self, username: str) -> User | None:
+        stmt = select(User).where(users_table.c.username == username)
+        result = (await self._session.execute(stmt)).scalar_one_or_none()
+        return cast(User | None, result)
+
     def add(self, user: User) -> None:
         self._session.add(user)
 

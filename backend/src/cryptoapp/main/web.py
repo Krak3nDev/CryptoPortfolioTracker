@@ -3,6 +3,7 @@ from typing import AsyncContextManager, AsyncIterator, Callable
 
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.main.config import load_config
@@ -32,7 +33,9 @@ def create_app() -> FastAPI:
 
     broker = create_broker(config)
 
-    app = FastAPI(lifespan=broker_startup_lifespan(broker))
+    app = FastAPI(
+        lifespan=broker_startup_lifespan(broker), default_response_class=ORJSONResponse
+    )
 
     init_routers(app)
     register_exception_handlers(app)

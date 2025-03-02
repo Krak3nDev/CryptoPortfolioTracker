@@ -16,8 +16,11 @@ repos:
     rev: v0.9.6
     hooks:
       - id: ruff
-        args: [ "--select", "I", "--fix" ]
+        files: ^backend/.*\.py$
+        args: ["--config", "backend/pyproject.toml", "--select", "I", "--fix"]
       - id: ruff-format
+        files: ^backend/.*\.py$
+        args: ["--config", "backend/pyproject.toml"]
 
 
   - repo: https://github.com/compilerla/conventional-pre-commit
