@@ -5,24 +5,70 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     ports:
       - ${HOST_PORT:-8000}:8000
     command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
+    depends_on:
+      rabbit:
+        condition: service_healthy
 
   database:
     image: postgres:16.4-alpine
     container_name: cryptoapp.postgres.dev
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+    env_file:
+      - .env
     ports:
       - ${POSTGRES_PORT}:5432
     volumes:
-      - cryptoapp.postgres.data.dev:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
 
+  redis:
+    image: redis:latest
+    container_name: cryptoapp.redis.dev
+    env_file:
+      - .env
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --bind 0.0.0.0 --requirepass "$REDIS_PASSWORD" --appendonly yes --appendfsync everysec
 
-volumes:
-  cryptoapp.postgres.data.dev: {}
+  rabbit:
+    image: rabbitmq:4.0-management
+    container_name: cryptoapp.rabbitmq.dev
+    ports:
+      - ${RABBIT_PORT}:5672     # AMQP
+      - 15672:15672    # RabbitMQ Management UI
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASSWORD}
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    container_name: cryptoapp.worker.dev
+    image: cryptoapp_api:dev
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    command: taskiq worker --ack-type when_saved cryptoapp.main.taskiq_entry.broker:broker cryptoapp.presentation.task_executor.tasks
+    volumes:
+      - ./backend/src/cryptoapp:/app/cryptoapp
+    depends_on:
+      rabbit:
+        condition: service_healthy
