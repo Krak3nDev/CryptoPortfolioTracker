@@ -6,7 +6,7 @@ from cryptoapp.application.common.publisher import SendActivationEmail
 from cryptoapp.application.user.send_mail import EmailData, SendMailInteractor
 
 
-@inject  # type: ignore[misc]
+@inject
 async def send_mail_executor(
     data: SendActivationEmail, interactor: FromDishka[SendMailInteractor]
 ) -> None:
