@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from starlette.requests import Request
 from starlette.responses import Response
 
+from cryptoapp.infrastructure.exceptions import UnauthorizedError
 from cryptoapp.infrastructure.persistence.gateways.session_mapper import SessionGateway
 
 
@@ -47,6 +48,9 @@ class FastAPISessionManager:
 
     async def invalidate_session(self, request: Request, response: Response) -> None:
         session_id = request.cookies.get("session_id")
+
+        if not session_id:
+            raise UnauthorizedError()
 
         await self._http_session_manager.invalidate_session(session_id)
 

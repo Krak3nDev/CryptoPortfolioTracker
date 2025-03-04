@@ -23,6 +23,9 @@ dependencies = [
     "taskiq[orjson]>=0.11.11",
     "taskiq-aio-pika>=0.4.1",
     "taskiq-redis>=1.0.2",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.25.3",
+    "pytest-cov>=6.0.0",
 ]
 
 
@@ -58,6 +61,7 @@ docstring-code-line-length = "dynamic"
 
 
 exclude = [
+    "tests/",
     ".bzr",
     ".direnv",
     ".eggs",
@@ -105,6 +109,9 @@ exclude = [
 ]
 
 
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
 
 
 [project.scripts]

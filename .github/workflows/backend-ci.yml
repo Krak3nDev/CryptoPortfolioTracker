@@ -1,0 +1,55 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+
+jobs:
+  lint-backend:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run backend setup
+        uses: ./.github/actions/backend-setup
+
+      - name: Mypy check
+        run: uv run mypy src --config-file pyproject.toml
+        working-directory: backend
+
+      - name: Ruff sort imports
+        run: uv run ruff check src --select I --fix --config pyproject.toml
+        working-directory: backend
+
+      - name: Ruff check
+        run: uv run ruff check src --fix --config pyproject.toml
+        working-directory: backend
+
+      - name: Ruff format
+        run: uv run ruff format src --config pyproject.toml
+        working-directory: backend
+
+  test-backend:
+    runs-on: ubuntu-22.04
+    needs: [lint-backend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run backend setup
+        uses: ./.github/actions/backend-setup
+
+      - name: Run tests with coverage
+        run: uv run pytest --cov=src --cov-report=term-missing --cov-report=xml --cov-report=html:htmlcov tests
+        working-directory: backend
+
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            backend/htmlcov
+            backend/coverage.xml

@@ -1,5 +1,3 @@
-from typing import cast
-
 from sqlalchemy import or_, select
 
 from cryptoapp.domain.entities.user.gateway import UserAvailabilityInfo, UserGateway
@@ -11,12 +9,12 @@ from cryptoapp.infrastructure.persistence.tables.users import users_table
 class UserMapper(SessionInitializer, UserGateway):
     async def by_identity(self, user_id: int) -> User | None:
         result = await self._session.get(User, user_id)
-        return cast(User | None, result)
+        return result
 
     async def by_username(self, username: str) -> User | None:
         stmt = select(User).where(users_table.c.username == username)
         result = (await self._session.execute(stmt)).scalar_one_or_none()
-        return cast(User | None, result)
+        return result
 
     def add(self, user: User) -> None:
         self._session.add(user)

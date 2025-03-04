@@ -1,6 +1,5 @@
 import os
 from dataclasses import dataclass
-from typing import cast
 
 from sqlalchemy import URL
 
@@ -33,7 +32,7 @@ class DbConfig:
             port=port,
             database=self.database,
         )
-        return cast(str, url.render_as_string(hide_password=False))
+        return url.render_as_string(hide_password=False)
 
     @classmethod
     def from_env(cls) -> "DbConfig":

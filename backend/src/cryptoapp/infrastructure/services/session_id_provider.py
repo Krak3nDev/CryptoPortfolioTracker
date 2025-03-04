@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Protocol, cast
+from typing import Protocol
 
 from starlette.requests import Request
 
@@ -24,7 +24,7 @@ class FastAPISessionIDGetter(SessionIDGetter):
         self._request = request
 
     def get(self) -> str | None:
-        return cast(str | None, self._request.cookies.get("session_id"))
+        return self._request.cookies.get("session_id")
 
 
 class HTTPIdentityProvider(IdProvider):

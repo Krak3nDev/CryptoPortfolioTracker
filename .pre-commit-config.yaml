@@ -16,16 +16,21 @@ repos:
     rev: v0.9.6
     hooks:
       - id: ruff
-        files: ^backend/.*\.py$
-        args: ["--config", "backend/pyproject.toml", "--select", "I", "--fix"]
-      - id: ruff-format
-        files: ^backend/.*\.py$
-        args: ["--config", "backend/pyproject.toml"]
+        name: ruff-all
+        files: ^backend/(?!tests).*\.py$
+        args: ["--config", "backend/pyproject.toml", "--fix"]
 
+      - id: ruff
+        name: ruff-imports
+        files: ^backend/(?!tests).*\.py$
+        args: ["--config", "backend/pyproject.toml", "--select", "I", "--fix"]
+
+      - id: ruff-format
+        files: ^backend/(?!tests).*\.py$
+        args: ["--config", "backend/pyproject.toml"]
 
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: 5f9c312d9978fbcee1da97154ba385834eeda799
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
-        args: []
