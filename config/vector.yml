@@ -80,7 +80,7 @@ sinks:
     inputs:
       - logs_to_metric
       - logs_to_metric_send_mail
-    endpoint: "http://<victoriametrics_host>:8428/api/v1/write"
+    endpoint: "http://victoriametrics:8428/api/v1/write"
     healthcheck:
       enabled: false
 
@@ -89,7 +89,7 @@ sinks:
     inputs:
       - filter_logs
     endpoints:
-      - "http://victoria-logs-host:9428/insert/elasticsearch/"
+      - "http://victorialogs:9428/insert/elasticsearch/"
     api_version: v8
     compression: gzip
     healthcheck:

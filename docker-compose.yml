@@ -1,7 +1,6 @@
 services:
   backend:
     container_name: cryptoapp.api.dev
-    image: cryptoapp_api:dev
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -9,7 +8,7 @@ services:
       - .env
     ports:
       - ${HOST_PORT:-8000}:8000
-    command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory
+    command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory --use-colors
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
     depends_on:
@@ -44,7 +43,7 @@ services:
     container_name: cryptoapp.rabbitmq.dev
     ports:
       - ${RABBIT_PORT}:5672     # AMQP
-      - 15672:15672    # RabbitMQ Management UI
+      - "15672:15672"    # RabbitMQ Management UI
     env_file:
       - .env
     environment:
@@ -61,7 +60,6 @@ services:
 
   worker:
     container_name: cryptoapp.worker.dev
-    image: cryptoapp_api:dev
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -86,10 +84,69 @@ services:
         condition: service_started
 
   vector-agent:
-    container_name: cryptoapp.vector.dev
+    container_name: cryptoapp.vector-agent.dev
     image: timberio/vector:0.45.0-alpine
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/vector.yml:/etc/vector/vector.yml:ro
-      - ./logs/cryptoapp_filtered.log:/var/log/cryptoapp_filtered.log
     command: ["--config", "/etc/vector/vector.yml"]
+
+  vmagent:
+    container_name: cryptoapp.vm-agent.dev
+    image: victoriametrics/vmagent:v1.113.0
+    depends_on:
+      - "victoriametrics"
+      - "nginx"
+    ports:
+      - "8429:8429"
+    volumes:
+      - vmagent_data:/vmagentdata
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--promscrape.config=/etc/prometheus/prometheus.yml"
+      - "--remoteWrite.url=http://victoriametrics:8428/api/v1/write"
+    restart: always
+
+
+  victoriametrics:
+    container_name: cryptoapp.vmetrics.dev
+    image: victoriametrics/victoria-metrics:v1.113.0
+    ports:
+      - "8428:8428"
+    volumes:
+      - vmdata:/storage
+    command:
+      - "--storageDataPath=/storage"
+      - "--httpListenAddr=:8428"
+    restart: always
+
+  victorialogs:
+    container_name: cryptoapp.vlogs.dev
+    image: victoriametrics/victoria-logs:v1.15.0-victorialogs
+    ports:
+      - "9428:9428"
+    volumes:
+       - victorialogs_data:/victoria-logs-data
+    restart: always
+
+  grafana:
+    container_name: cryptoapp.grafana.dev
+    image: grafana/grafana-oss:11.3.4
+    environment:
+      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - victoriametrics
+      - victorialogs
+    restart: unless-stopped
+
+
+volumes:
+  grafana_data:
+  vmdata:
+  vmagent_data:
+  victorialogs_data:

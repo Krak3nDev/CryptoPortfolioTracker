@@ -1,0 +1,7 @@
+scrape_configs:
+  - job_name: 'nginx'
+    scrape_interval: 5s
+    metrics_path: '/status'
+    static_configs:
+      - targets:
+          - 'cryptoapp.nginx.dev:80'
