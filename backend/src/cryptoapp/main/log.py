@@ -1,35 +1,32 @@
+import json
 import logging
-from logging import Logger
+from logging.config import dictConfig
+from pathlib import Path
+from typing import Any
 
-import colorlog
+
+def parse_logging_config(path: str | Path | None = None) -> dict[str, Any]:
+    if path is None:
+        current_dir = Path(__file__).resolve().parent
+        config_path = current_dir / "logging.json"
+    else:
+        config_path = Path(path).resolve()
+
+    with config_path.open("r", encoding="utf-8") as f:
+        config = json.load(f)
+    return config  # type: ignore
 
 
-def setup_logging() -> Logger:
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    logger.info("Starting crypto app")
-
-    console_handler = colorlog.StreamHandler()
-    color_formatter = colorlog.ColoredFormatter(
-        "%(log_color)s%(levelname)-8s %(name)s:%(lineno)d - %(message)s%(reset)s",
-        log_colors={
-            "DEBUG": "cyan",
-            "INFO": "green",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITICAL": "bold_red",
-        },
-    )
-    console_handler.setFormatter(color_formatter)
-    logger.addHandler(console_handler)
-    return logger
+def setup_logging() -> None:
+    config = parse_logging_config()
+    dictConfig(config)
 
 
 if __name__ == "__main__":
-    main_logger = setup_logging()
-
-    main_logger.debug("Debug message")
-    main_logger.info("Info message")
-    main_logger.warning("Warning message")
-    main_logger.error("Error message")
-    main_logger.critical("Critical message")
+    setup_logging()
+    logger = logging.getLogger(__name__)
+    logger.debug("Debug message")
+    logger.info("Info message")
+    logger.warning("Warning message")
+    logger.error("Error message")
+    logger.critical("Critical message")

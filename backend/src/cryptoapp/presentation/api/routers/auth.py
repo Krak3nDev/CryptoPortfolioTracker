@@ -17,44 +17,26 @@ auth_router = APIRouter(
 )
 
 
-class CreateUserSchema(BaseModel):
-    email: EmailStr
-    username: str
-    password: str
-
-    def to_dto(self) -> CreateUserDTO:
-        return CreateUserDTO(
-            username=self.username, email=str(self.email), password=self.password
-        )
-
-
 @auth_router.post("/register")
 async def register(
-    data: CreateUserSchema,
+    data: CreateUserDTO,
     interactor: FromDishka[RegisterInteractor],
 ) -> dict[str, str]:
-    await interactor(data=data.to_dto())
+    await interactor(data=data)
     return {"message": "Registration was successful. Please check your email."}
 
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-    def to_dto(self) -> LoginAuthDTO:
-        return LoginAuthDTO(username=self.username, password=self.password)
 
 
 @auth_router.post("/login")
 async def login(
-    data: UserLogin,
+    data: LoginAuthDTO,
     response: Response,
     auther: FromDishka[Auther],
     session_manager: FromDishka[FastAPISessionManager],
     interactor: FromDishka[LoginInteractor],
 ) -> dict[str, str]:
     user_id = await auther.authenticate(
-        data=data.to_dto(),
+        data=data,
     )
     await interactor(data=LoginRequestDTO(data.username))
     await session_manager.init_session(user_id=user_id, response=response)

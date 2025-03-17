@@ -3,7 +3,7 @@ from fastapi.responses import ORJSONResponse
 from starlette.requests import Request
 
 from cryptoapp.application.exceptions import ApplicationError, UserIsNotRegistered
-from cryptoapp.domain.exceptions import DomainError
+from cryptoapp.domain.exceptions import DomainError, ValidationError
 from cryptoapp.infrastructure.exceptions import UnauthorizedError
 
 
@@ -45,3 +45,4 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(ApplicationError, business_logic_error_handler)
     app.add_exception_handler(UnauthorizedError, unauthorized_error_handler)
     app.add_exception_handler(UserIsNotRegistered, user_not_registered_error_handler)
+    app.add_exception_handler(ValidationError, validation_error_handler)
