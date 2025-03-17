@@ -5,6 +5,16 @@ sources:
       - "cryptoapp.api.dev"
       - "cryptoapp.worker.dev"
 
+  cadvisor_metrics:
+    type: prometheus_scrape
+    endpoints:
+      - "http://cadvisor:8080/metrics"
+    scrape_interval_secs: 15
+
+  host_metrics:
+    type: host_metrics
+    scrape_interval_secs: 10
+
 transforms:
   remap_logs:
     type: remap
@@ -12,16 +22,13 @@ transforms:
       - docker_logs_source
     source: |
       .level = if exists(.level) && !is_null(.level) {
-          .level
+        .level
       } else if exists(.severity) && !is_null(.severity) {
-          .severity
+        .severity
       } else {
-          "INFO"
+        "INFO"
       }
-
       .count = 1
-
-      .
 
   filter_logs:
     type: filter
@@ -35,7 +42,6 @@ transforms:
       - filter_logs
     source: |
       .is_send_mail = contains!(.message, "Executing task send_mail")
-      .
 
   filter_send_mail:
     type: filter
@@ -74,12 +80,24 @@ transforms:
           container: "{{ container_name }}"
           level: "{{ level }}"
 
+  add_host_label:
+    type: remap
+    inputs:
+      - logs_to_metric
+      - logs_to_metric_send_mail
+      - cadvisor_metrics
+      - host_metrics
+    source: |
+      if is_null(.tags) {
+        .tags = {}
+      }
+      .tags.host = get_env_var("HOSTNAME") ?? "unknown"
+
 sinks:
   victoriametrics_sink:
     type: prometheus_remote_write
     inputs:
-      - logs_to_metric
-      - logs_to_metric_send_mail
+      - add_host_label
     endpoint: "http://victoriametrics:8428/api/v1/write"
     healthcheck:
       enabled: false
@@ -95,7 +113,6 @@ sinks:
     healthcheck:
       enabled: false
     query:
-      _msg_field: message
-      _time_field: timestamp
-      _stream_fields: host,container_name
-      debug: true
+      _msg_field: "message"
+      _time_field: "timestamp"
+      _stream_fields: "host,container_name"

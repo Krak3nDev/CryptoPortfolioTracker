@@ -86,9 +86,17 @@ services:
   vector-agent:
     container_name: cryptoapp.vector-agent.dev
     image: timberio/vector:0.45.0-alpine
+    privileged: true
+    pid: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/vector.yml:/etc/vector/vector.yml:ro
+      - /proc:/host_proc:ro
+      - /sys:/host_sys:ro
+    environment:
+      PROCFS_ROOT: "/host_proc"
+      SYSFS_ROOT: "/host_sys"
+      HOSTNAME: "localhost"
     command: ["--config", "/etc/vector/vector.yml"]
 
   vmagent:
@@ -106,7 +114,6 @@ services:
       - "--promscrape.config=/etc/prometheus/prometheus.yml"
       - "--remoteWrite.url=http://victoriametrics:8428/api/v1/write"
     restart: always
-
 
   victoriametrics:
     container_name: cryptoapp.vmetrics.dev
@@ -128,6 +135,21 @@ services:
     volumes:
        - victorialogs_data:/victoria-logs-data
     restart: always
+
+  cadvisor:
+    container_name: cryptoapp.cadvisor.dev
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/:/rootfs"
+      - "/var/run:/var/run"
+      - "/sys:/sys"
+      - "/var/lib/docker/:/var/lib/docker"
+      - "/dev/disk/:/dev/disk"
+    privileged: true
+    devices:
+      - "/dev/kmsg"
 
   grafana:
     container_name: cryptoapp.grafana.dev
