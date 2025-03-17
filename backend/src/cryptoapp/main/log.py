@@ -2,9 +2,10 @@ import json
 import logging
 from logging.config import dictConfig
 from pathlib import Path
+from typing import Any
 
 
-def parse_logging_config(path: str | Path | None = None) -> dict:
+def parse_logging_config(path: str | Path | None = None) -> dict[str, Any]:
     if path is None:
         current_dir = Path(__file__).resolve().parent
         config_path = current_dir / "logging.json"
@@ -13,9 +14,10 @@ def parse_logging_config(path: str | Path | None = None) -> dict:
 
     with config_path.open("r", encoding="utf-8") as f:
         config = json.load(f)
-    return config
+    return config  # type: ignore
 
-def setup_logging():
+
+def setup_logging() -> None:
     config = parse_logging_config()
     dictConfig(config)
 
