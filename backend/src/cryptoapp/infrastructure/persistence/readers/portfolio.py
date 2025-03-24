@@ -4,6 +4,7 @@ from typing import TypedDict, Sequence
 from sqlalchemy import select, func, case, literal, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from cryptoapp.domain.entities.transaction.transaction import TransactionType
 from cryptoapp.infrastructure.persistence.gateways.base import SessionInitializer
 from cryptoapp.infrastructure.persistence.tables import (
     portfolios_table,
@@ -13,7 +14,7 @@ from cryptoapp.infrastructure.persistence.tables import (
 from cryptoapp.infrastructure.services.minio import S3Minio
 
 
-class PortfolioDTO(TypedDict):
+class PortfolioData(TypedDict):
     portfolio_name: str
     portfolio_id: int | None
     avatar: str | None
@@ -22,12 +23,25 @@ class PortfolioDTO(TypedDict):
     percent_change_24h: Decimal
 
 
+class TransactionData(TypedDict):
+    transaction_id: int
+    transaction_type: TransactionType
+    transaction_time: str
+    quantity: Decimal
+    asset_id: int
+    asset_symbol: str
+    asset_name: str
+    purchase_price: Decimal | None
+    current_price: Decimal
+    note: str | None
+
+
 class PortfolioReader(SessionInitializer):
     def __init__(self, session: AsyncSession, minio: S3Minio):
         super().__init__(session)
         self._minio = minio
 
-    async def _get_portfolios(self, user_id: int) -> Sequence[PortfolioDTO]:
+    async def _get_portfolios(self, user_id: int) -> Sequence[PortfolioData]:
         user_portfolios = (
             select(
                 portfolios_table.c.portfolio_id,
@@ -209,7 +223,7 @@ class PortfolioReader(SessionInitializer):
         rows = result.mappings().all()
 
         return [
-            PortfolioDTO(
+            PortfolioData(
                 portfolio_name=row["portfolio_name"],
                 portfolio_id=row["portfolio_id"],
                 avatar=row["avatar"],
@@ -220,8 +234,8 @@ class PortfolioReader(SessionInitializer):
             for row in rows
         ]
 
-    async def _prepare_data(self, data: Sequence[PortfolioDTO]) -> list[PortfolioDTO]:
-        result: list[PortfolioDTO] = []
+    async def _prepare_data(self, data: Sequence[PortfolioData]) -> list[PortfolioData]:
+        result: list[PortfolioData] = []
 
         for portfolio in data:
             avatar = portfolio["avatar"]
@@ -233,7 +247,7 @@ class PortfolioReader(SessionInitializer):
             elif avatar is not None:
                 avatar = await self._minio.get_presigned_url(avatar)
 
-            new_portfolio: PortfolioDTO = {
+            new_portfolio: PortfolioData = {
                 "portfolio_name": portfolio["portfolio_name"],
                 "portfolio_id": portfolio_id,
                 "avatar": avatar,
@@ -248,6 +262,63 @@ class PortfolioReader(SessionInitializer):
 
     async def get_portfolios_with_presigned_urls(
         self, user_id: int
-    ) -> list[PortfolioDTO]:
+    ) -> list[PortfolioData]:
         portfolios_data = await self._get_portfolios(user_id)
         return await self._prepare_data(portfolios_data)
+
+    async def get_portfolio_transactions(
+        self, portfolio_id: int, user_id: int, limit: int = 20, offset: int = 0
+    ) -> list[TransactionData]:
+        stmt = (
+            select(
+                transactions_table.c.transaction_id.label("transaction_id"),
+                transactions_table.c.transaction_type.label("transaction_type"),
+                transactions_table.c.created_at.label("transaction_time"),
+                transactions_table.c.quantity.label("quantity"),
+                assets_table.c.asset_id.label("asset_id"),
+                assets_table.c.symbol.label("asset_symbol"),
+                assets_table.c.name.label("asset_name"),
+                transactions_table.c.price.label("purchase_price"),
+                assets_table.c.price_usd.label("current_price"),
+                transactions_table.c.note.label("note"),
+            )
+            .select_from(
+                transactions_table.join(
+                    assets_table,
+                    transactions_table.c.asset_id == assets_table.c.asset_id,
+                ).join(
+                    portfolios_table,
+                    transactions_table.c.portfolio_id
+                    == portfolios_table.c.portfolio_id,
+                )
+            )
+            .where(
+                transactions_table.c.portfolio_id == portfolio_id,
+                portfolios_table.c.user_id == user_id,
+            )
+            .limit(limit)
+            .offset(offset)
+        )
+
+        result = await self._session.execute(stmt)
+        rows = result.mappings().all()
+
+        transactions: list[TransactionData] = []
+
+        for row in rows:
+            transactions.append(
+                TransactionData(
+                    transaction_id=row["transaction_id"],
+                    transaction_type=row["transaction_type"],
+                    transaction_time=row["transaction_time"].isoformat(),
+                    quantity=row["quantity"],
+                    asset_id=row["asset_id"],
+                    asset_symbol=row["asset_symbol"],
+                    asset_name=row["asset_name"],
+                    purchase_price=row["purchase_price"],
+                    current_price=row["current_price"],
+                    note=row["note"],
+                )
+            )
+
+        return transactions

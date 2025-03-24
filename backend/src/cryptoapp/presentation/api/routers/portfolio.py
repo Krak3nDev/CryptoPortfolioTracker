@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Form, UploadFile
+from fastapi import APIRouter, Form, UploadFile, Query
 from pydantic import BaseModel, Field
 
 from cryptoapp.application.common.id_provider import IdProvider
@@ -19,7 +19,8 @@ from cryptoapp.application.portfolio.create_transaction import (
 from cryptoapp.domain.entities.transaction.transaction import TransactionType
 from cryptoapp.infrastructure.persistence.readers.portfolio import (
     PortfolioReader,
-    PortfolioDTO,
+    PortfolioData,
+    TransactionData,
 )
 
 portfolio_router = APIRouter(
@@ -40,7 +41,7 @@ async def create_portfolio(
 @portfolio_router.get("/", response_model_exclude_none=True)
 async def get_portfolios(
     identity_provider: FromDishka[IdProvider], reader: FromDishka[PortfolioReader]
-) -> list[PortfolioDTO]:
+) -> list[PortfolioData]:
     user_id = await identity_provider.get_current_user_id()
     return await reader.get_portfolios_with_presigned_urls(user_id)
 
@@ -83,3 +84,21 @@ async def create_transaction_for_portfolio(
     )
 
     return {"transaction_id": transaction_id}
+
+
+@portfolio_router.get("/{portfolio_id}/transactions", status_code=200)
+async def get_transactions(
+    portfolio_id: int,
+    identity_provider: FromDishka[IdProvider],
+    reader: FromDishka[PortfolioReader],
+    limit: int = Query(
+        default=20, ge=1, description="The maximum number of records per page"
+    ),
+    offset: int = Query(
+        default=0, ge=0, description="Offset from the beginning of the selection"
+    ),
+) -> list[TransactionData]:
+    user_id = await identity_provider.get_current_user_id()
+    return await reader.get_portfolio_transactions(
+        portfolio_id=portfolio_id, user_id=user_id, limit=limit, offset=offset
+    )
