@@ -3,6 +3,11 @@ class DomainError(Exception):
         super().__init__(message or "Domain Error")
 
 
+class IdentityNotSetError(DomainError):
+    def __init__(self, message: str = "The identity has not been set.") -> None:
+        super().__init__(message)
+
+
 class ValidationError(Exception):
     def __init__(self, message: str | None = None) -> None:
         super().__init__(message or "Validation Error")
@@ -38,3 +43,26 @@ class UserAlreadyExistsError(DomainError):
 class UserAlreadyActivated(DomainError):
     def __init__(self) -> None:
         super().__init__("User already activated")
+
+
+class NotFound(Exception):
+    def __init__(self, message: str = "Resource not found") -> None:
+        super().__init__(message)
+
+
+class PortfolioNotFound(NotFound):
+    def __init__(self, portfolio_id: int) -> None:
+        message = f"Portfolio with ID {portfolio_id} not found"
+        super().__init__(message)
+
+
+class TransactionNotFound(NotFound):
+    def __init__(self, transaction_id: int) -> None:
+        message = f"Transaction with ID {transaction_id} not found"
+        super().__init__(message)
+
+
+class AssetNotFound(NotFound):
+    def __init__(self, asset_id: int) -> None:
+        message = f"Asset with ID {asset_id} not found"
+        super().__init__(message)

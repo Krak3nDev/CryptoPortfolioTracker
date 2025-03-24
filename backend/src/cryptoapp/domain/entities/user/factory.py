@@ -1,10 +1,7 @@
 from cryptoapp.domain.entities.user.gateway import UserGateway
 from cryptoapp.domain.entities.user.hasher import PasswordHasher
-from cryptoapp.domain.entities.user.user import User
-from cryptoapp.domain.entities.user.user_id import UserId
+from cryptoapp.domain.entities.user.user import User, UserId
 from cryptoapp.domain.exceptions import UserAlreadyExistsError
-from cryptoapp.domain.value_objects.email import Email
-from cryptoapp.domain.value_objects.username import Username
 
 
 class UserFactory:
@@ -15,9 +12,6 @@ class UserFactory:
     async def create(
         self, username: str, email: str, password: str, user_id: int | None
     ) -> User:
-        email_vo = Email(email)
-        username_vo = Username(username)
-
         availability_info = await self.user_gateway.get_username_email_availability(
             username, email
         )
@@ -35,9 +29,9 @@ class UserFactory:
 
         user = User(
             _identity=UserId(_value=user_id),
-            _email=email_vo,
+            _email=email,
             _hashed_password=hashed_password,
-            _username=username_vo,
+            _username=username,
             _is_active=False,
         )
 

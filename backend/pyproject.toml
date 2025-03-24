@@ -6,9 +6,9 @@ readme = "README.md"
 authors = [
     { name = "Krak3nDev", email = "bihichnazar@gmail.com" }
 ]
-requires-python = ">=3.11"
-
+requires-python = ">=3.12"
 dependencies = [
+    "aioboto3>=14.1.0",
     "aiosmtplib>=4.0.0",
     "alembic>=1.14.1",
     "bcrypt>=4.2.1",
@@ -16,23 +16,27 @@ dependencies = [
     "dishka>=1.4.2",
     "environs>=14.1.1",
     "fastapi[standard]>=0.115.8",
+    "httpx>=0.28.1",
     "orjson>=3.10.15",
+    "pillow>=11.1.0",
     "psycopg[binary]>=3.2.4",
-    "redis>=5.2.1",
-    "sqlalchemy>=2.0.38",
-    "taskiq[orjson]>=0.11.11",
-    "taskiq-aio-pika>=0.4.1",
-    "taskiq-redis>=1.0.2",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.25.3",
     "pytest-cov>=6.0.0",
+    "python-multipart>=0.0.20",
+    "redis>=5.2.1",
+    "sqlalchemy>=2.0.38",
+    "taskiq-aio-pika>=0.4.1",
+    "taskiq-redis>=1.0.2",
+    "taskiq[orjson]>=0.11.11",
+    "tenacity>=9.0.0",
+    "uuid6>=2024.7.10",
 ]
-
 
 [dependency-groups]
 lint = [
     "mypy>=1.15.0",
-    "ruff>=0.9.6",
+    "ruff>=0.11.2",
 ]
 
 

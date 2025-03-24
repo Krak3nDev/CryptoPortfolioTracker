@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import AsyncContextManager, AsyncIterator, Callable
 
+
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse

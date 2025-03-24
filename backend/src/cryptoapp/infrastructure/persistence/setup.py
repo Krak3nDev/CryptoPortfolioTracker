@@ -1,5 +1,3 @@
-from typing import AsyncIterable
-
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -25,10 +23,3 @@ def create_engine(db: DbConfig) -> AsyncEngine:
 def create_session_pool(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
     session_pool = async_sessionmaker(bind=engine, expire_on_commit=False)
     return session_pool
-
-
-async def create_async_session(
-    session_factory: async_sessionmaker[AsyncSession],
-) -> AsyncIterable[AsyncSession]:
-    async with session_factory() as session:
-        yield session

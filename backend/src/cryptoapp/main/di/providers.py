@@ -1,6 +1,10 @@
 from pathlib import Path
 from typing import Annotated, AsyncIterable
 
+from aioboto3 import Session
+from aiobotocore.client import AioBaseClient
+from httpx import AsyncClient
+
 import aiosmtplib
 from dishka import AnyOf, FromComponent, Provider, Scope, from_context, provide
 from redis.asyncio import Redis
@@ -13,15 +17,31 @@ from cryptoapp.application.common.publisher import Publisher
 from cryptoapp.application.common.transaction_manager import TransactionManager
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.sender import EmailSender
+from cryptoapp.application.interfaces.storage import StorageService
+from cryptoapp.application.portfolio.create import (
+    CreatePortfolio,
+)
+from cryptoapp.application.portfolio.create_transaction import CreateTransaction
 from cryptoapp.application.user.activation import ActivateUserProfileInteractor
 from cryptoapp.application.user.login import LoginInteractor
 from cryptoapp.application.user.register_user import RegisterInteractor
 from cryptoapp.application.user.send_mail import SendMailInteractor
+from cryptoapp.domain.entities.portfolio.factory import PortfolioFactory
+from cryptoapp.domain.entities.portfolio.gateway import PortfolioGateway
+from cryptoapp.domain.entities.transaction.factory import TransactionFactory
+from cryptoapp.domain.entities.transaction.gateway import TransactionGateway
 from cryptoapp.domain.entities.user.factory import UserFactory
 from cryptoapp.domain.entities.user.gateway import UserGateway
 from cryptoapp.domain.entities.user.hasher import PasswordHasher
+from cryptoapp.infrastructure.persistence.gateways.portfolio_mapper import (
+    PortfolioMapper,
+)
 from cryptoapp.infrastructure.persistence.gateways.session_mapper import SessionGateway
+from cryptoapp.infrastructure.persistence.gateways.transaction_mapper import (
+    TransactionMapper,
+)
 from cryptoapp.infrastructure.persistence.gateways.user_mapper import UserMapper
+from cryptoapp.infrastructure.persistence.readers.portfolio import PortfolioReader
 from cryptoapp.infrastructure.persistence.setup import (
     create_engine,
     create_session_pool,
@@ -36,6 +56,8 @@ from cryptoapp.infrastructure.services.activation_token_id_provider import (
 )
 from cryptoapp.infrastructure.services.auth import Auther
 from cryptoapp.infrastructure.services.generator import UrlGenerator
+from cryptoapp.infrastructure.services.marcetcap_api.api import CoinMarketCapAPI
+from cryptoapp.infrastructure.services.minio import S3Minio
 from cryptoapp.infrastructure.services.password_hasher import Hasher
 from cryptoapp.infrastructure.services.rabbit_publisher import RabbitPublisher
 from cryptoapp.infrastructure.services.sender.email_sender import SMTPEmailSender
@@ -49,7 +71,15 @@ from cryptoapp.infrastructure.services.session_manager import (
     FastAPISessionManager,
     HTTPSessionManager,
 )
-from cryptoapp.main.config import Config, DbConfig, EmailConfig, RedisConfig, UrlConfig
+from cryptoapp.main.config import (
+    Config,
+    DbConfig,
+    EmailConfig,
+    RedisConfig,
+    UrlConfig,
+    S3MinioConfig,
+    CoinMarketCapConfig,
+)
 
 
 class ConfigProvider(Provider):
@@ -58,6 +88,8 @@ class ConfigProvider(Provider):
     url_config = from_context(UrlConfig, scope=Scope.APP)
     email_config = from_context(EmailConfig, scope=Scope.APP)
     db_config = from_context(DbConfig, scope=Scope.APP)
+    market_api_config = from_context(CoinMarketCapConfig, scope=Scope.APP)
+    minio_config = from_context(S3MinioConfig, scope=Scope.APP)
 
 
 class ActivationProvider(Provider):
@@ -130,20 +162,60 @@ class InfrastructureServiceProvider(Provider):
 
     auth_manager = provide(source=Auther, scope=Scope.REQUEST)
 
+    minio = provide(
+        source=S3Minio, provides=AnyOf[StorageService, S3Minio], scope=Scope.APP
+    )
+
+    market_api = provide(source=CoinMarketCapAPI, scope=Scope.APP)
+
+    @provide(scope=Scope.APP)
+    async def provide_async_client(self) -> AsyncIterable[AsyncClient]:
+        async with AsyncClient() as client:
+            yield client
+
+    @provide(scope=Scope.APP)
+    def provide_s3_session(self, minio_config: S3MinioConfig) -> Session:
+        return Session(
+            aws_access_key_id=minio_config.aws_access_key,
+            aws_secret_access_key=minio_config.aws_secret_access_key,
+        )
+
+    @provide(scope=Scope.APP)
+    async def provide_s3(
+        self, session: Session, minio_config: S3MinioConfig
+    ) -> AsyncIterable[AioBaseClient]:
+        async with session.client(
+            "s3",
+            endpoint_url=minio_config.base_url,
+        ) as s3:
+            yield s3
+
+    portfolio_reader = provide(PortfolioReader, scope=Scope.REQUEST)
+
 
 class DomainServiceProvider(Provider):
     user_factory = provide(source=UserFactory, scope=Scope.REQUEST)
+    portfolio_factory = provide(source=PortfolioFactory, scope=Scope.REQUEST)
+    transaction_factory = provide(source=TransactionFactory, scope=Scope.REQUEST)
 
 
 class InteractorProvider(Provider):
-    send_mail_interactor = provide(source=SendMailInteractor, scope=Scope.REQUEST)
-    register_interactor = provide(source=RegisterInteractor, scope=Scope.REQUEST)
-    login_interactor = provide(source=LoginInteractor, scope=Scope.REQUEST)
+    send_mail = provide(source=SendMailInteractor, scope=Scope.REQUEST)
+    register = provide(source=RegisterInteractor, scope=Scope.REQUEST)
+    login = provide(source=LoginInteractor, scope=Scope.REQUEST)
+    create_portfolio = provide(source=CreatePortfolio, scope=Scope.REQUEST)
+    create_transaction = provide(source=CreateTransaction, scope=Scope.REQUEST)
 
 
 class MapperProvider(Provider):
     user_mapper = provide(
         source=UserMapper, provides=AnyOf[UserGateway, UserMapper], scope=Scope.REQUEST
+    )
+    portfolio_mapper = provide(
+        source=PortfolioMapper, provides=PortfolioGateway, scope=Scope.REQUEST
+    )
+    transaction_mapper = provide(
+        source=TransactionMapper, provides=TransactionGateway, scope=Scope.REQUEST
     )
 
 
