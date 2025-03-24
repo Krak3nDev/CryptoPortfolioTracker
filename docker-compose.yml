@@ -1,7 +1,6 @@
 services:
   backend:
     container_name: cryptoapp.api.dev
-    image: cryptoapp_api:dev
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -9,7 +8,7 @@ services:
       - .env
     ports:
       - ${HOST_PORT:-8000}:8000
-    command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory
+    command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory --use-colors
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
     depends_on:
@@ -44,7 +43,7 @@ services:
     container_name: cryptoapp.rabbitmq.dev
     ports:
       - ${RABBIT_PORT}:5672     # AMQP
-      - 15672:15672    # RabbitMQ Management UI
+      - "15672:15672"    # RabbitMQ Management UI
     env_file:
       - .env
     environment:
@@ -54,13 +53,13 @@ services:
       - ./data/rabbitmq:/var/lib/rabbitmq
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
-      interval: 10s
+      interval: 60s
       timeout: 5s
-      retries: 5
+      retries: 3
+      start_period: 5s
 
   worker:
     container_name: cryptoapp.worker.dev
-    image: cryptoapp_api:dev
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -72,3 +71,104 @@ services:
     depends_on:
       rabbit:
         condition: service_healthy
+
+  nginx:
+    container_name: cryptoapp.nginx.dev
+    image: clandast/nginx-vts:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      backend:
+        condition: service_started
+
+  vector-agent:
+    container_name: cryptoapp.vector-agent.dev
+    image: timberio/vector:0.45.0-alpine
+    privileged: true
+    pid: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/vector.yml:/etc/vector/vector.yml:ro
+      - /proc:/host_proc:ro
+      - /sys:/host_sys:ro
+    environment:
+      PROCFS_ROOT: "/host_proc"
+      SYSFS_ROOT: "/host_sys"
+      HOSTNAME: "localhost"
+    command: ["--config", "/etc/vector/vector.yml"]
+
+  vmagent:
+    container_name: cryptoapp.vm-agent.dev
+    image: victoriametrics/vmagent:v1.113.0
+    depends_on:
+      - "victoriametrics"
+      - "nginx"
+    ports:
+      - "8429:8429"
+    volumes:
+      - vmagent_data:/vmagentdata
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--promscrape.config=/etc/prometheus/prometheus.yml"
+      - "--remoteWrite.url=http://victoriametrics:8428/api/v1/write"
+    restart: always
+
+  victoriametrics:
+    container_name: cryptoapp.vmetrics.dev
+    image: victoriametrics/victoria-metrics:v1.113.0
+    ports:
+      - "8428:8428"
+    volumes:
+      - vmdata:/storage
+    command:
+      - "--storageDataPath=/storage"
+      - "--httpListenAddr=:8428"
+    restart: always
+
+  victorialogs:
+    container_name: cryptoapp.vlogs.dev
+    image: victoriametrics/victoria-logs:v1.15.0-victorialogs
+    ports:
+      - "9428:9428"
+    volumes:
+       - victorialogs_data:/victoria-logs-data
+    restart: always
+
+  cadvisor:
+    container_name: cryptoapp.cadvisor.dev
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/:/rootfs"
+      - "/var/run:/var/run"
+      - "/sys:/sys"
+      - "/var/lib/docker/:/var/lib/docker"
+      - "/dev/disk/:/dev/disk"
+    privileged: true
+    devices:
+      - "/dev/kmsg"
+
+  grafana:
+    container_name: cryptoapp.grafana.dev
+    image: grafana/grafana-oss:11.3.4
+    environment:
+      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - victoriametrics
+      - victorialogs
+    restart: unless-stopped
+
+
+volumes:
+  grafana_data:
+  vmdata:
+  vmagent_data:
+  victorialogs_data:

@@ -1,0 +1,802 @@
+{
+  "title": "Host Monitoring Dashboard",
+  "uid": "host-metrics",
+  "schemaVersion": 36,
+  "version": 0,
+  "tags": ["performance", "system", "monitoring"],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "10s",
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "host",
+        "type": "query",
+        "datasource": "VictoriaMetrics",
+        "query": {
+          "query": "label_values(host_boot_time, instance)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "skipUrlSync": false,
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "title": "Host Overview",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1
+    },
+    {
+      "title": "Uptime",
+      "type": "stat",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "host_uptime",
+          "legendFormat": "Uptime"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 1 },
+      "id": 2
+    },
+    {
+      "title": "CPU Threads",
+      "type": "stat",
+      "datasource": "VictoriaMetrics",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "host_logical_cpus",
+          "legendFormat": "Threads"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 1 },
+      "id": 3,
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Total RAM",
+      "type": "stat",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "host_memory_total_bytes",
+          "legendFormat": "Total RAM"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 1 },
+      "id": 4
+    },
+    {
+      "title": "CPU Load",
+      "type": "gauge",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "max": 100,
+          "min": 0,
+          "unit": "percent",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 70,  "color": "orange" },
+              { "value": 90,  "color": "red" }
+            ]
+          }
+        }
+      },
+      "options": {
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "expr": "100 - (avg(rate(host_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "CPU Load"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 1 },
+      "id": 5
+    },
+    {
+      "title": "Memory Use",
+      "type": "gauge",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "max": 100,
+          "min": 0,
+          "unit": "percent",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 70,  "color": "orange" },
+              { "value": 90,  "color": "red" }
+            ]
+          }
+        }
+      },
+      "options": {
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "expr": "(host_memory_used_bytes / host_memory_total_bytes) * 100",
+          "legendFormat": "Memory Use %"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 1 },
+      "id": 6
+    },
+    {
+      "title": "Disk Free (Total)",
+      "type": "stat",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "red" },
+              { "value": 21474836480, "color": "orange" },
+              { "value": 53687091200, "color": "green" }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(\n  max by (device) (\n    host_filesystem_free_bytes{filesystem=~\"ext4|btrfs|xfs\"}\n  )\n)",
+          "legendFormat": "Free Space"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 1 },
+      "id": 7
+    },
+    {
+      "title": "Net IN (24h)",
+      "type": "stat",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(host_network_receive_bytes_total[24h]))",
+          "legendFormat": "Net In"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 6 },
+      "id": 8
+    },
+    {
+      "title": "Net OUT (24h)",
+      "type": "stat",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(host_network_transmit_bytes_total[24h]))",
+          "legendFormat": "Net Out"
+        }
+      ],
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 6 },
+      "id": 9
+    },
+    {
+      "title": "CPU Details",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 11 },
+      "id": 11
+    },
+    {
+      "title": "CPU Load",
+      "type": "timeseries",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": { "mode": "off" }
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "avg by (mode) (rate(host_cpu_seconds_total{mode=\"idle\"}[5m]) * 100)",
+          "legendFormat": "idle"
+        },
+        {
+          "expr": "avg by (mode) (rate(host_cpu_seconds_total{mode=\"user\"}[5m]) * 100)",
+          "legendFormat": "user"
+        },
+        {
+          "expr": "avg by (mode) (rate(host_cpu_seconds_total{mode=\"system\"}[5m]) * 100)",
+          "legendFormat": "system"
+        },
+        {
+          "expr": "avg by (mode) (rate(host_cpu_seconds_total{mode=\"iowait\"}[5m]) * 100)",
+          "legendFormat": "iowait"
+        },
+        {
+          "expr": "avg by (mode) (rate(host_cpu_seconds_total{mode=\"nice\"}[5m]) * 100)",
+          "legendFormat": "nice"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
+      "id": 12
+    },
+    {
+      "title": "Memory Details",
+      "type": "row",
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 20 },
+      "id": 13,
+      "panels": [
+        {
+          "title": "Memory Usage",
+          "type": "timeseries",
+          "datasource": "VictoriaMetrics",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "value": null, "color": "green" }
+                ]
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "none" },
+                "thresholdsStyle": { "mode": "off" }
+              }
+            }
+          },
+          "options": {
+            "legend": {
+              "calcs": ["mean", "max"],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            { "expr": "host_memory_total_bytes", "legendFormat": "Total" },
+            { "expr": "host_memory_used_bytes",   "legendFormat": "Used" },
+            { "expr": "host_memory_free_bytes",   "legendFormat": "Free" },
+            { "expr": "host_memory_cached_bytes", "legendFormat": "Cached" },
+            { "expr": "host_memory_buffers_bytes","legendFormat": "Buffers" }
+          ],
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 21 },
+          "id": 14
+        }
+      ]
+    },
+    {
+      "title": "Network Details",
+      "type": "row",
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "id": 15,
+      "panels": [
+        {
+          "title": "Network Traffic",
+          "type": "timeseries",
+          "datasource": "VictoriaMetrics",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps",
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "value": null, "color": "green" }
+                ]
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "none" },
+                "thresholdsStyle": { "mode": "off" }
+              }
+            }
+          },
+          "options": {
+            "legend": {
+              "calcs": ["mean", "max"],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "expr": "rate(host_network_receive_bytes_total{device!=\"lo\"}[5m])",
+              "legendFormat": "RX {{device}}"
+            },
+            {
+              "expr": "rate(host_network_transmit_bytes_total{device!=\"lo\"}[5m])",
+              "legendFormat": "TX {{device}}"
+            }
+          ],
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+          "id": 16
+        },
+        {
+          "title": "Network Packets",
+          "type": "timeseries",
+          "datasource": "VictoriaMetrics",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "pps",
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "value": null, "color": "green" }
+                ]
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": { "type": "linear" },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": { "group": "A", "mode": "none" },
+                "thresholdsStyle": { "mode": "off" }
+              }
+            }
+          },
+          "options": {
+            "legend": {
+              "calcs": ["mean", "max"],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "expr": "rate(host_network_receive_packets_total{device!=\"lo\"}[5m])",
+              "legendFormat": "RX {{device}}"
+            },
+            {
+              "expr": "rate(host_network_transmit_packets_total{device!=\"lo\"}[5m])",
+              "legendFormat": "TX {{device}}"
+            }
+          ],
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
+          "id": 17
+        }
+      ]
+    },
+    {
+      "title": "Disk Details",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "id": 18
+    },
+    {
+      "title": "Disk Free",
+      "type": "timeseries",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "max by (device) (\n  host_filesystem_free_bytes{filesystem=~\"ext4|btrfs|xfs\"}\n)",
+          "legendFormat": "Free Space ({{device}})"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 23 },
+      "id": 19
+    },
+    {
+      "title": "Disk Activity",
+      "type": "timeseries",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(host_disk_read_bytes_total{device=\"nvme0n1\"}[5m])",
+          "legendFormat": "Read ({{device}})"
+        },
+        {
+          "expr": "rate(host_disk_written_bytes_total{device=\"nvme0n1\"}[5m])",
+          "legendFormat": "Write ({{device}})"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 23 },
+      "id": 20
+    },
+    {
+      "title": "Disk IO",
+      "type": "timeseries",
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "iops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(host_disk_reads_completed_total{device=\"nvme0n1\"}[5m])",
+          "legendFormat": "Read IOPS ({{device}})"
+        },
+        {
+          "expr": "rate(host_disk_writes_completed_total{device=\"nvme0n1\"}[5m])",
+          "legendFormat": "Write IOPS ({{device}})"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 23 },
+      "id": 21
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "colored": {
+      "()": "colorlog.ColoredFormatter",
+      "format": "%(log_color)s%(levelname)-8s %(name)s:%(lineno)d - %(message)s%(reset)s",
+      "log_colors": {
+        "DEBUG": "cyan",
+        "INFO": "green",
+        "WARNING": "yellow",
+        "ERROR": "red",
+        "CRITICAL": "bold_red"
+      }
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "formatter": "colored",
+      "level": "DEBUG"
+    }
+  },
+  "root": {
+    "level": "DEBUG",
+    "handlers": ["console"]
+  },
+  "loggers": {
+    "myapp": {
+      "level": "DEBUG",
+      "propagate": true
+    },
+    "__main__": {
+      "level": "DEBUG",
+      "propagate": true
+    }
+  }
+}
