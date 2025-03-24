@@ -1,0 +1,47 @@
+@use "./mixins" as mixins;
+@use "./consts" as consts;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+@import "./null";
+
+:root {
+  --main-bg: var(#261E35);
+  --second-bg: var(#2F293E);
+  --select-bg: var(#372C44);
+  --block-bg: var(#3C354A);
+  --icons: var(#8D8598);
+  --light: var(#E2D8FD);
+  --main-text: var(#FFFFFF);
+  --disable-text: var(#868B93);
+  --select-text: var(#D8BCFF);
+  --green: var(#00C287);
+  --red: var(#E72D04);
+}
+
+main {
+  z-index: mixins.z("main");
+}
+
+body {
+  min-height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .locked {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  @media (max-width: consts.$mobile_px + px) {
+    @include mixins.hidescroll();
+  }
+}
+
+[class*="__container"] {
+  @include mixins.container-r;
+  @include mixins.adaptiveValue("padding-left", 100, 20);
+  @include mixins.adaptiveValue("padding-right", 100, 20);
+}

@@ -1,0 +1,33 @@
+// Default font ==============================================================================================================================================================================================================================================================================
+$fontFamily: "Inter", sans-serif;
+$fontSize: 1rem;
+
+// Options
+// Min page width
+$minWidth: 320;
+// Layout width
+$maxWidth: 1920;
+// Max width container (if 0, without container)
+$maxWidthContainer: 1440;
+// Container padding (left + right)
+$containerPadding: 0;
+
+// Container width
+$containerWidth: $maxWidthContainer + $containerPadding;
+
+// Breakpoints
+$pc: em($containerWidth); // PC, notebook, some tablets in horizontal position
+$pc_px: $containerWidth; // PC, notebook, some tablets in horizontal position
+$tablet: em(991.98); // Tablets, some mobiles in horizontal position
+$tablet_px: 991.98; // Tablets, some mobiles in horizontal position
+$mobile: em(767.98); // Mobiles L
+$mobile_px: 767.98;
+$mobileSmall: em(479.98); // Mobiles S
+$mobileSmall_px: 479.98; // Mobiles S
+
+// Z-index list
+// Main list
+$z-index-main-list: (
+  "header",
+  "main"
+);

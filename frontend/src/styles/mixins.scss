@@ -1,0 +1,297 @@
+@use "sass:math";
+@use "./consts";
+
+// Import font
+@mixin font($font_name, $file_name, $weight, $style) {
+  @font-face {
+    font-family: $font_name;
+    font-display: swap;
+    src: url("../fonts/#{$file_name}.woff2") format("woff2"),
+    url("../fonts/#{$file_name}.woff") format("woff");
+    font-weight: #{$weight};
+    font-style: #{$style};
+  }
+}
+
+//Percent
+@function percent($px, $from) {
+  $result: math.div($px, $from) * 100%;
+  @return $result;
+}
+
+//REM
+@function rem($px) {
+  $result: math.div($px, 16) + rem;
+  @return $result;
+}
+
+//EM
+@function em($px, $current: 16) {
+  $result: math.div($px, $current) + em;
+  @return $result;
+}
+
+// Containers
+// Responsive
+@mixin container-r {
+  height: 100%;
+
+  @if (consts.$maxWidthContainer > 0) {
+    max-width: rem(consts.$maxWidthContainer);
+    box-sizing: content-box;
+    margin: 0 auto;
+  }
+  @if (consts.$containerPadding > 0) {
+    padding: 0 rem(math.div(consts.$containerPadding, 2));
+  }
+}
+
+// Breakpoints
+@mixin container-b {
+  margin: 0 auto;
+  height: 100%;
+  @if (consts.$maxWidthContainer > 0) {
+    max-width: rem(consts.$maxWidthContainer);
+    box-sizing: content-box;
+  } @else {
+    @if (consts.$containerPadding > 0) {
+      padding: 0 rem(math.div(consts.$containerPadding, 2));
+    }
+  }
+  @media (max-width: consts.$pc) {
+    max-width: rem(970);
+  }
+  @media (max-width: consts.$tablet) {
+    max-width: rem(750);
+  }
+  @media (max-width: consts.$mobile) {
+    max-width: none;
+    @if (consts.$containerPadding > 0 and consts.$maxWidthContainer > 0) {
+      padding: 0 rem(math.div(consts.$containerPadding, 2));
+    }
+  }
+}
+
+// Currency
+@mixin currency($sym) {
+  &::after {
+    content: "#{$sym}";
+  }
+}
+
+// Adaptive value (clamp)
+@mixin adaptiveValue(
+  $property,
+  $startSize,
+  $minSize,
+  $widthFrom: consts.$containerWidth,
+  $widthTo: consts.$minWidth,
+  $keepSize: 0
+) {
+  // For calc();
+  $addSize: math.div($startSize - $minSize, 16);
+
+  @if (
+    $widthFrom == consts.$containerWidth and consts.$maxWidthContainer == 0
+  ) {
+    $widthFrom: consts.$maxWidth;
+  }
+  //@if ($minSize <= 0) {
+  //	$minSize: 0.0001;
+  //}
+  //@if ($startSize <= 0) {
+  //	$startSize: 0.0001;
+  //}
+
+  // Breakpoints in EM
+  $widthFromMedia: em($widthFrom);
+  $widthToMedia: em($widthTo);
+
+  // Formula float value
+  // Source: https://css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/
+  $slope: math.div(($startSize - $minSize), ($widthFrom - $widthTo));
+  $yIntersection: -$widthTo * $slope + $minSize;
+  $flyValue: #{rem($yIntersection)}" + " #{$slope * 100}vw;
+
+  // Get value
+  $propertyValue: #{"clamp(" rem($minSize) "," $flyValue "," rem($startSize) ")"};
+  // If negative value
+  @if ($minSize > $startSize) {
+    $propertyValue: #{"clamp("
+      rem($startSize)
+      ","
+      $flyValue
+      ","
+      rem($minSize)
+      ")"};
+  }
+
+  @if $widthFrom ==
+    consts.$containerWidth or
+    $widthFrom ==
+    consts.$maxWidth or
+    $keepSize ==
+    1 or
+    $keepSize ==
+    2 {
+    @media (min-width: $widthFromMedia) {
+      #{$property}: rem($startSize);
+    }
+  }
+  @media (min-width: $widthToMedia) and (max-width: $widthFromMedia) {
+    // If support clamp();
+    @supports (#{$property}: $propertyValue) {
+      #{$property}: $propertyValue;
+    }
+    // If not support clamp();
+    @supports not (#{$property}: $propertyValue) {
+      #{$property}: calc(
+        #{rem($minSize)} + #{$addSize} * (100vw - #{rem($widthTo)}) / #{math.div(
+            $widthFrom,
+            16
+          ) - math.div($widthTo, 16)}
+      );
+    }
+  }
+  @if $widthTo == consts.$minWidth or $keepSize == 1 or $keepSize == 3 {
+    @media (max-width: $widthToMedia) {
+      #{$property}: rem($minSize);
+    }
+  }
+}
+
+// Z-index
+@function z($name, $list-name: consts.$z-index-main-list) {
+  @if index($list: $list-name, $value: $name) {
+    @return (
+        length($list: $list-name) - index($list: $list-name, $value: $name)
+      ) + 1;
+  } @else {
+    @warn "Element #{$name} nit found in list #{$list-name}!";
+    @return null;
+  }
+}
+
+// Responsive ratio
+@mixin responsive-ratio($width: 0, $height: 0) {
+  padding-bottom: calc(math.div($height, $width) * 100%);
+}
+
+// Centerer
+@mixin centerer($horizontal: true, $vertical: true) {
+  position: absolute;
+  @if ($horizontal and $vertical) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  } @else if ($horizontal) {
+    left: 50%;
+    transform: translate(-50%, 0);
+  } @else if ($vertical) {
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+}
+
+// Grids
+@mixin gridCards($type: fit, $min: rem(280), $max: 1fr, $gap: rem(30)) {
+  display: grid;
+  gap: $gap;
+  grid-template-columns: repeat(auto-#{$type}, minmax($min, $max));
+}
+
+// Responsive images (IBG)
+@mixin ibg {
+  position: relative;
+  img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+  }
+}
+
+@mixin ibg_contain {
+  img {
+    object-fit: contain;
+  }
+}
+
+// List counter
+@mixin listCounter {
+  list-style-type: none;
+  counter-reset: item;
+  li {
+    position: relative;
+
+    &:before {
+      counter-increment: item;
+      content: counter(item);
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+}
+
+// Responsive video
+@mixin responsiveVideo {
+  position: relative;
+  overflow: hidden;
+  height: 0;
+  padding-bottom: 56.25%;
+  video,
+  iframe,
+  object,
+  embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// background video
+@mixin videoBackground {
+  video,
+  iframe,
+  object,
+  embed {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    transform: translateX(-50%) translateY(-50%);
+    background-size: cover;
+  }
+}
+
+// Gray scale
+@mixin grayfilter {
+  transition: all 0.3s ease 0s;
+  filter: grayscale(1);
+  @media (any-hover: hover) {
+    &:hover {
+      filter: grayscale(0);
+    }
+  }
+}
+
+// Smooth scroll
+@mixin smoothscroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+// Hide scroll
+@mixin hidescroll {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
