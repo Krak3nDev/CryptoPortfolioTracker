@@ -6,17 +6,18 @@
 @import "./null";
 
 :root {
-  --main-bg: var(#261E35);
-  --second-bg: var(#2F293E);
-  --select-bg: var(#372C44);
-  --block-bg: var(#3C354A);
-  --icons: var(#8D8598);
-  --light: var(#E2D8FD);
-  --main-text: var(#FFFFFF);
-  --disable-text: var(#868B93);
-  --select-text: var(#D8BCFF);
-  --green: var(#00C287);
-  --red: var(#E72D04);
+  --main-bg: #261E35;
+  --second-bg: #2F293E;
+  --select-bg: #372C44;
+  --block-bg: #3C354A;
+  --icons: #8D8598;
+  --light: #E2D8FD;
+  --main-text: #FFFFFF;
+  --disable-text: #868B93;
+  --select-text: #D8BCFF;
+  --green: #00C287;
+  --red: #E72D04;
+  --error: #f2545b;
 }
 
 main {
@@ -29,6 +30,8 @@ body {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  background-color: var(--main-bg);
+  color: var(--main-text);
 
   .locked {
     overflow: hidden;
@@ -44,4 +47,19 @@ body {
   @include mixins.container-r;
   @include mixins.adaptiveValue("padding-left", 100, 20);
   @include mixins.adaptiveValue("padding-right", 100, 20);
+}
+
+.block {
+  background: var(--block-bg) linear-gradient(135deg, #ffffff07, var(--second-bg));
+  border: var(--light) solid mixins.rem(1);
+  border-radius: mixins.rem(20);
+}
+
+.link {
+  color: var(--disable-text);
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--select-text);
+  }
 }

@@ -50,7 +50,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBIT_PASSWORD}
     volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 60s
@@ -90,14 +90,14 @@ services:
     pid: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config/vector.yml:/etc/vector/vector.yml:ro
+      - ./config/vector.yaml:/etc/vector/vector.yaml:ro
       - /proc:/host_proc:ro
       - /sys:/host_sys:ro
     environment:
       PROCFS_ROOT: "/host_proc"
       SYSFS_ROOT: "/host_sys"
       HOSTNAME: "localhost"
-    command: ["--config", "/etc/vector/vector.yml"]
+    command: ["--config", "/etc/vector/vector.yaml"]
 
   vmagent:
     container_name: cryptoapp.vm-agent.dev
@@ -109,9 +109,9 @@ services:
       - "8429:8429"
     volumes:
       - vmagent_data:/vmagentdata
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus.yaml:/etc/prometheus/prometheus.yaml
     command:
-      - "--promscrape.config=/etc/prometheus/prometheus.yml"
+      - "--promscrape.config=/etc/prometheus/prometheus.yaml"
       - "--remoteWrite.url=http://victoriametrics:8428/api/v1/write"
     restart: always
 
@@ -172,3 +172,4 @@ volumes:
   vmdata:
   vmagent_data:
   victorialogs_data:
+  rabbitmq_data:
