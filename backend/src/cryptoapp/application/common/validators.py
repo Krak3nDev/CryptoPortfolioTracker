@@ -1,7 +1,7 @@
 import re
 from typing import Final
 
-from cryptoapp.domain.exceptions import InvalidFieldLength, InvalidEmail
+from cryptoapp.domain.exceptions import InvalidEmail, InvalidFieldLength
 
 PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 

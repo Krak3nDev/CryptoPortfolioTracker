@@ -3,7 +3,7 @@ from fastapi.responses import ORJSONResponse
 from starlette.requests import Request
 
 from cryptoapp.application.exceptions import ApplicationError
-from cryptoapp.domain.exceptions import DomainError, ValidationError, NotFound
+from cryptoapp.domain.exceptions import BaseNotFound, DomainError, ValidationError
 from cryptoapp.infrastructure.exceptions import UnauthorizedError
 
 
@@ -49,4 +49,4 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(ApplicationError, business_logic_error_handler)
     app.add_exception_handler(UnauthorizedError, unauthorized_error_handler)
     app.add_exception_handler(ValidationError, validation_error_handler)
-    app.add_exception_handler(NotFound, resource_not_found)
+    app.add_exception_handler(BaseNotFound, resource_not_found)

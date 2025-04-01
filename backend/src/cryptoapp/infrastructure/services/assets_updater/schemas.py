@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import NamedTuple, TypedDict, TypeAlias
+from typing import NamedTuple, TypeAlias, TypedDict
 
 CmcIdToTagNames: TypeAlias = dict[int, list[str]]
 

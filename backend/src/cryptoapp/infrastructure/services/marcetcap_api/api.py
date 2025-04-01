@@ -1,13 +1,13 @@
 from httpx import (
     AsyncClient,
-    RequestError,
     HTTPStatusError,
+    RequestError,
 )
 from tenacity import (
-    wait_exponential,
     retry,
-    stop_after_attempt,
     retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
 )
 
 from cryptoapp.infrastructure.services.marcetcap_api.schemas import (

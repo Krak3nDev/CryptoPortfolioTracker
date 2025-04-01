@@ -2,13 +2,13 @@ from dishka import AsyncContainer, make_async_container
 from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.main.config import (
+    CoinMarketCapConfig,
     Config,
     DbConfig,
     EmailConfig,
     RedisConfig,
-    UrlConfig,
     S3MinioConfig,
-    CoinMarketCapConfig,
+    UrlConfig,
 )
 from cryptoapp.main.di import providers
 

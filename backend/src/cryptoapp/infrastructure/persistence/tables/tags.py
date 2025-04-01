@@ -1,9 +1,9 @@
 from sqlalchemy import (
     Column,
+    ForeignKey,
     Integer,
     String,
     Table,
-    ForeignKey,
 )
 
 from cryptoapp.infrastructure.persistence.tables.base import mapper_registry

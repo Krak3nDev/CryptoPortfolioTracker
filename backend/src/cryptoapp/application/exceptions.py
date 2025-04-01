@@ -1,4 +1,4 @@
-from cryptoapp.domain.exceptions import NotFound
+from cryptoapp.domain.exceptions import BaseNotFound
 
 
 class ApplicationError(Exception):
@@ -10,6 +10,6 @@ class EmailNotVerifiedError(ApplicationError):
         super().__init__(message)
 
 
-class UserIsNotRegistered(NotFound):
+class UserIsNotRegistered(BaseNotFound):
     def __init__(self, message: str = "User is not registered") -> None:
         super().__init__(message)

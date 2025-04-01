@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Annotated, AsyncIterable
 
+import aiosmtplib
 from aioboto3 import Session
 from aiobotocore.client import AioBaseClient
-from httpx import AsyncClient
-
-import aiosmtplib
 from dishka import AnyOf, FromComponent, Provider, Scope, from_context, provide
+from httpx import AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from starlette.requests import Request
@@ -22,11 +21,12 @@ from cryptoapp.application.portfolio.create import (
     CreatePortfolio,
 )
 from cryptoapp.application.portfolio.create_transaction import CreateTransaction
+from cryptoapp.application.portfolio.delete import DeletePortfolio
+from cryptoapp.application.portfolio.delete_transaction import DeleteTransaction
 from cryptoapp.application.user.activation import ActivateUserProfileInteractor
 from cryptoapp.application.user.login import LoginInteractor
 from cryptoapp.application.user.register_user import RegisterInteractor
 from cryptoapp.application.user.send_mail import SendMailInteractor
-from cryptoapp.domain.entities.portfolio.factory import PortfolioFactory
 from cryptoapp.domain.entities.portfolio.gateway import PortfolioGateway
 from cryptoapp.domain.entities.transaction.factory import TransactionFactory
 from cryptoapp.domain.entities.transaction.gateway import TransactionGateway
@@ -72,13 +72,13 @@ from cryptoapp.infrastructure.services.session_manager import (
     HTTPSessionManager,
 )
 from cryptoapp.main.config import (
+    CoinMarketCapConfig,
     Config,
     DbConfig,
     EmailConfig,
     RedisConfig,
-    UrlConfig,
     S3MinioConfig,
-    CoinMarketCapConfig,
+    UrlConfig,
 )
 
 
@@ -195,7 +195,6 @@ class InfrastructureServiceProvider(Provider):
 
 class DomainServiceProvider(Provider):
     user_factory = provide(source=UserFactory, scope=Scope.REQUEST)
-    portfolio_factory = provide(source=PortfolioFactory, scope=Scope.REQUEST)
     transaction_factory = provide(source=TransactionFactory, scope=Scope.REQUEST)
 
 
@@ -205,6 +204,8 @@ class InteractorProvider(Provider):
     login = provide(source=LoginInteractor, scope=Scope.REQUEST)
     create_portfolio = provide(source=CreatePortfolio, scope=Scope.REQUEST)
     create_transaction = provide(source=CreateTransaction, scope=Scope.REQUEST)
+    delete_portfolio = provide(source=DeletePortfolio, scope=Scope.REQUEST)
+    delete_transaction = provide(source=DeleteTransaction, scope=Scope.REQUEST)
 
 
 class MapperProvider(Provider):

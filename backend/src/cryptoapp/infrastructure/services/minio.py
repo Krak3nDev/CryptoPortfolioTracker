@@ -2,16 +2,14 @@ import io
 import logging
 
 import uuid6
-from PIL import Image
 from aiobotocore.client import AioBaseClient
-
-from botocore.exceptions import EndpointConnectionError, ClientError
+from botocore.exceptions import ClientError, EndpointConnectionError
+from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from cryptoapp.application.interfaces.storage import StorageService
 from cryptoapp.application.portfolio.create import BUCKET
 from cryptoapp.main.config import S3MinioConfig
-
 
 logger = logging.getLogger(__name__)
 

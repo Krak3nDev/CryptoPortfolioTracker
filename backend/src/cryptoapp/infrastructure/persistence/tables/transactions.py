@@ -1,19 +1,19 @@
 from sqlalchemy import (
     Column,
     DateTime,
+    ForeignKey,
     Integer,
+    Numeric,
     String,
     Table,
     text,
-    Numeric,
 )
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import composite
 
 from cryptoapp.domain.entities.transaction.transaction import (
+    AssetId,
     Transaction,
     TransactionId,
-    AssetId,
 )
 from cryptoapp.infrastructure.persistence.tables.base import mapper_registry
 

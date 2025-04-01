@@ -30,7 +30,7 @@ class InvalidFieldLength(ValidationError):
 
 class UserAlreadyExistsError(DomainError):
     def __init__(self, username: str | None = None, email: str | None = None) -> None:
-        details = []
+        details: list[str] = []
         if username:
             details.append(f"username='{username}'")
         if email:
@@ -45,24 +45,12 @@ class UserAlreadyActivated(DomainError):
         super().__init__("User already activated")
 
 
-class NotFound(Exception):
+class BaseNotFound(Exception):
     def __init__(self, message: str = "Resource not found") -> None:
         super().__init__(message)
 
 
-class PortfolioNotFound(NotFound):
-    def __init__(self, portfolio_id: int) -> None:
-        message = f"Portfolio with ID {portfolio_id} not found"
-        super().__init__(message)
-
-
-class TransactionNotFound(NotFound):
-    def __init__(self, transaction_id: int) -> None:
-        message = f"Transaction with ID {transaction_id} not found"
-        super().__init__(message)
-
-
-class AssetNotFound(NotFound):
-    def __init__(self, asset_id: int) -> None:
-        message = f"Asset with ID {asset_id} not found"
+class EntityNotFound(BaseNotFound):
+    def __init__(self, field_name: str, value: int) -> None:
+        message = f"{field_name} with ID {value} not found"
         super().__init__(message)

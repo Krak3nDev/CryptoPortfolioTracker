@@ -31,4 +31,4 @@ class Auther:
         if (data.username != user.username) or not is_valid_password:
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
-        return user.identity
+        return user.identity.value

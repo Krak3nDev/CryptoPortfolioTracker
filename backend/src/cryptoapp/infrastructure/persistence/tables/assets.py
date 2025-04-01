@@ -1,11 +1,11 @@
 from sqlalchemy import (
+    Boolean,
     Column,
     DateTime,
     Integer,
+    Numeric,
     String,
     Table,
-    Boolean,
-    Numeric,
     text,
 )
 

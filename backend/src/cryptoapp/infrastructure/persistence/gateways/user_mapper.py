@@ -1,14 +1,14 @@
 from sqlalchemy import or_, select
 
 from cryptoapp.domain.entities.user.gateway import UserAvailabilityInfo, UserGateway
-from cryptoapp.domain.entities.user.user import User
+from cryptoapp.domain.entities.user.user import User, UserId
 from cryptoapp.infrastructure.persistence.gateways.base import SessionInitializer
 from cryptoapp.infrastructure.persistence.tables.users import users_table
 
 
 class UserMapper(SessionInitializer, UserGateway):
-    async def by_identity(self, user_id: int) -> User | None:
-        result = await self._session.get(User, user_id)
+    async def by_identity(self, user_id: UserId) -> User | None:
+        result = await self._session.get(User, user_id.value)
         return result
 
     async def by_username(self, username: str) -> User | None:

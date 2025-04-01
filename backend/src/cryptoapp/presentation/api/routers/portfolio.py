@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Form, UploadFile, Query
+from fastapi import APIRouter, Form, Query, UploadFile
 from pydantic import BaseModel, Field
 
 from cryptoapp.application.common.id_provider import IdProvider
@@ -13,13 +13,21 @@ from cryptoapp.application.portfolio.create import (
     CreationPortfolioResponse,
 )
 from cryptoapp.application.portfolio.create_transaction import (
-    TransactionCreationRequest,
     CreateTransaction,
+    TransactionCreationRequest,
+)
+from cryptoapp.application.portfolio.delete import (
+    DeletePortfolio,
+    DeletePortfolioRequest,
+)
+from cryptoapp.application.portfolio.delete_transaction import (
+    DeleteTransaction,
+    DeleteTransactionRequest,
 )
 from cryptoapp.domain.entities.transaction.transaction import TransactionType
 from cryptoapp.infrastructure.persistence.readers.portfolio import (
-    PortfolioReader,
     PortfolioData,
+    PortfolioReader,
     TransactionData,
 )
 
@@ -36,6 +44,14 @@ async def create_portfolio(
 ) -> CreationPortfolioResponse:
     raw_bytes = loaded_file.file.read() if loaded_file else None
     return await interactor(data=CreationPortfolioRequest(name=name, avatar=raw_bytes))
+
+
+@portfolio_router.delete("/{portfolio_id}")
+async def delete_portfolio(
+    interactor: FromDishka[DeletePortfolio], portfolio_id: int
+) -> dict[str, str]:
+    await interactor(data=DeletePortfolioRequest(portfolio_id=portfolio_id))
+    return {"message": "Portfolio deleted successfully"}
 
 
 @portfolio_router.get("/", response_model_exclude_none=True)
@@ -84,6 +100,18 @@ async def create_transaction_for_portfolio(
     )
 
     return {"transaction_id": transaction_id}
+
+
+@portfolio_router.delete("/{portfolio_id}/transactions/{transaction_id}")
+async def delete_transaction(
+    interactor: FromDishka[DeleteTransaction], portfolio_id: int, transaction_id: int
+) -> dict[str, str]:
+    await interactor(
+        data=DeleteTransactionRequest(
+            portfolio_id=portfolio_id, transaction_id=transaction_id
+        )
+    )
+    return {"message": "Transaction deleted successfully"}
 
 
 @portfolio_router.get("/{portfolio_id}/transactions", status_code=200)

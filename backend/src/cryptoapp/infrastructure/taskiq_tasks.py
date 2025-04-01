@@ -1,7 +1,7 @@
 from dishka import FromDishka
 from dishka.integrations.taskiq import inject
-from taskiq_aio_pika import AioPikaBroker
 from sqlalchemy.ext.asyncio import AsyncSession
+from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.application.common.publisher import SendActivationEmail
 from cryptoapp.application.user.send_mail import EmailData, SendMailInteractor

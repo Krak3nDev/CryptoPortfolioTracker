@@ -1,15 +1,15 @@
 from decimal import Decimal, InvalidOperation
-from typing import Iterable, Mapping, Any
+from typing import Any, Iterable, Mapping
 
 from dateutil.parser import isoparse
 
-from cryptoapp.infrastructure.services.marcetcap_api.schemas import CryptoCurrency
 from cryptoapp.infrastructure.services.assets_updater.schemas import (
     AssetRow,
-    TagExtractionResult,
-    CmcIdToTagNames,
     AssetTagLink,
+    CmcIdToTagNames,
+    TagExtractionResult,
 )
+from cryptoapp.infrastructure.services.marcetcap_api.schemas import CryptoCurrency
 
 
 def extract_tags(

@@ -1,14 +1,14 @@
 from decimal import Decimal
-from typing import TypedDict, Sequence
+from typing import Sequence, TypedDict
 
-from sqlalchemy import select, func, case, literal, union_all
+from sqlalchemy import case, func, literal, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cryptoapp.domain.entities.transaction.transaction import TransactionType
 from cryptoapp.infrastructure.persistence.gateways.base import SessionInitializer
 from cryptoapp.infrastructure.persistence.tables import (
-    portfolios_table,
     assets_table,
+    portfolios_table,
     transactions_table,
 )
 from cryptoapp.infrastructure.services.minio import S3Minio

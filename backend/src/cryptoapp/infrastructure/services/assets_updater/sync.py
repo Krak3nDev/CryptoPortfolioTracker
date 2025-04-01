@@ -12,8 +12,8 @@ from cryptoapp.infrastructure.persistence.tables import (
 )
 from cryptoapp.infrastructure.services.assets_updater.schemas import AssetRow
 from cryptoapp.infrastructure.services.assets_updater.utils import (
-    extract_tags,
     build_assets_tags_rows,
+    extract_tags,
     prepare_asset_rows,
 )
 from cryptoapp.infrastructure.services.marcetcap_api.api import (

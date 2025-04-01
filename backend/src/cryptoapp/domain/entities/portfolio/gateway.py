@@ -1,14 +1,21 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from cryptoapp.domain.entities.portfolio.portfolio import Portfolio
+from cryptoapp.domain.entities.portfolio.portfolio import Portfolio, PortfolioId
+from cryptoapp.domain.entities.user.user import UserId
 
 
 class PortfolioGateway(Protocol):
     @abstractmethod
-    async def by_identity(self, portfolio_id: int, user_id: int) -> Portfolio | None:
+    async def by_identity(
+        self, portfolio_id: PortfolioId, user_id: UserId
+    ) -> Portfolio | None:
         raise NotImplementedError
 
     @abstractmethod
     def add(self, portfolio: Portfolio) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def delete(self, portfolio: Portfolio) -> None:
         raise NotImplementedError

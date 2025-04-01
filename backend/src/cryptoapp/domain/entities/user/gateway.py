@@ -3,7 +3,7 @@ from typing import TypedDict
 
 from websockets import Protocol
 
-from cryptoapp.domain.entities.user.user import User
+from cryptoapp.domain.entities.user.user import User, UserId
 
 
 class UserAvailabilityInfo(TypedDict):
@@ -13,7 +13,7 @@ class UserAvailabilityInfo(TypedDict):
 
 class UserGateway(Protocol):
     @abstractmethod
-    async def by_identity(self, user_id: int) -> User | None:
+    async def by_identity(self, user_id: UserId) -> User | None:
         raise NotImplementedError
 
     @abstractmethod

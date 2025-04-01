@@ -1,15 +1,15 @@
 from sqlalchemy import (
     Column,
     DateTime,
+    ForeignKey,
     Integer,
     String,
     Table,
     text,
-    ForeignKey,
 )
 from sqlalchemy.orm import composite, relationship
 
-from cryptoapp.domain.entities.portfolio.portfolio import PortfolioId, Portfolio
+from cryptoapp.domain.entities.portfolio.portfolio import Portfolio, PortfolioId
 from cryptoapp.domain.entities.transaction.transaction import Transaction
 from cryptoapp.domain.entities.user.user import UserId
 from cryptoapp.infrastructure.persistence.tables.base import mapper_registry

@@ -16,9 +16,25 @@ class User:
     _username: str
     _is_active: bool
 
+    @classmethod
+    def create(
+        cls,
+        user_id: int | None,
+        email: str,
+        hashed_password: str,
+        username: str,
+    ) -> "User":
+        return cls(
+            _identity=UserId(user_id),
+            _email=email,
+            _hashed_password=hashed_password,
+            _username=username,
+            _is_active=False,
+        )
+
     @property
-    def identity(self) -> int:
-        return self._identity.value
+    def identity(self) -> UserId:
+        return self._identity
 
     @property
     def email(self) -> str:

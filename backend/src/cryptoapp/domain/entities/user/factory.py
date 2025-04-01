@@ -1,6 +1,6 @@
 from cryptoapp.domain.entities.user.gateway import UserGateway
 from cryptoapp.domain.entities.user.hasher import PasswordHasher
-from cryptoapp.domain.entities.user.user import User, UserId
+from cryptoapp.domain.entities.user.user import User
 from cryptoapp.domain.exceptions import UserAlreadyExistsError
 
 
@@ -27,14 +27,9 @@ class UserFactory:
 
         hashed_password = self.hasher.hash(password)
 
-        user = User(
-            _identity=UserId(_value=user_id),
-            _email=email,
-            _hashed_password=hashed_password,
-            _username=username,
-            _is_active=False,
+        return User.create(
+            user_id=user_id,
+            email=email,
+            hashed_password=hashed_password,
+            username=username,
         )
-
-        self.user_gateway.add(user=user)
-
-        return user
