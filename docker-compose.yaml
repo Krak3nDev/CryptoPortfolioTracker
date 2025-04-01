@@ -65,7 +65,21 @@ services:
       dockerfile: Dockerfile.dev
     env_file:
       - .env
-    command: taskiq worker --ack-type when_saved cryptoapp.main.taskiq_entry.broker:broker cryptoapp.presentation.task_executor.tasks
+    command: taskiq worker --ack-type when_saved cryptoapp.main.taskiq_entry.broker:broker cryptoapp.infrastructure.taskiq_tasks
+    volumes:
+      - ./backend/src/cryptoapp:/app/cryptoapp
+    depends_on:
+      rabbit:
+        condition: service_healthy
+
+  scheduler:
+    container_name: cryptoapp.scheduler.dev
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    command: taskiq scheduler cryptoapp.main.taskiq_entry.broker:scheduler cryptoapp.infrastructure.taskiq_tasks
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
     depends_on:
@@ -90,7 +104,7 @@ services:
     pid: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config/vector.yaml:/etc/vector/vector.yaml:ro
+      - ./config/vector.yml:/etc/vector/vector.yml:ro
       - /proc:/host_proc:ro
       - /sys:/host_sys:ro
     environment:
@@ -166,6 +180,19 @@ services:
       - victorialogs
     restart: unless-stopped
 
+  minio:
+    container_name: cryptoapp.minio.dev
+    image: quay.io/minio/minio:RELEASE.2025-03-12T18-04-18Z
+    env_file:
+      - .env
+    ports:
+    - "9000:9000"
+    - "9001:9001"
+    volumes:
+    - minio-data:/data
+    command: server /data --console-address :9001
+    restart: unless-stopped
+
 
 volumes:
   grafana_data:
@@ -173,3 +200,4 @@ volumes:
   vmagent_data:
   victorialogs_data:
   rabbitmq_data:
+  minio-data:

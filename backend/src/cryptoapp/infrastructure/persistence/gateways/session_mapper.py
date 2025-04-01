@@ -5,7 +5,9 @@ from typing_extensions import TypedDict
 class Session(TypedDict):
     user_id: int
 
+
 SESSION_TTL = 7200
+
 
 class SessionGateway:
     def __init__(self, redis: Redis) -> None:

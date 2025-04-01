@@ -114,12 +114,42 @@ class RabbitConfig:
 
 
 @dataclass
+class CoinMarketCapConfig:
+    token: str
+    base_url: str
+
+    @classmethod
+    def from_env(cls) -> "CoinMarketCapConfig":
+        return cls(
+            token=os.environ["COINMARKETCAP_API_KEY"],
+            base_url=os.environ["COINMARKETCAP_BASE_URL"],
+        )
+
+
+@dataclass
+class S3MinioConfig:
+    base_url: str
+    aws_access_key: str
+    aws_secret_access_key: str
+
+    @classmethod
+    def from_env(cls) -> "S3MinioConfig":
+        return cls(
+            base_url=os.environ["BASE_MINIO_URL"],
+            aws_access_key=os.environ["MINIO_ACCESS_KEY"],
+            aws_secret_access_key=os.environ["MINIO_SECRET_KEY"],
+        )
+
+
+@dataclass
 class Config:
     db: DbConfig
     email_config: EmailConfig
     url_config: UrlConfig
     redis_config: RedisConfig
     rabbit_config: RabbitConfig
+    coinmarketcap: CoinMarketCapConfig
+    minio: S3MinioConfig
 
 
 def load_config() -> "Config":
@@ -128,10 +158,14 @@ def load_config() -> "Config":
     url_config = UrlConfig.from_env()
     redis_config = RedisConfig.from_env()
     rabbit_config = RabbitConfig.from_env()
+    coinmarketcap = CoinMarketCapConfig.from_env()
+    minio = S3MinioConfig.from_env()
     return Config(
         db=db,
         email_config=email_config,
         url_config=url_config,
         redis_config=redis_config,
         rabbit_config=rabbit_config,
+        coinmarketcap=coinmarketcap,
+        minio=minio,
     )

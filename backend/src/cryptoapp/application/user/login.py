@@ -5,7 +5,7 @@ from cryptoapp.domain.entities.user.gateway import UserGateway
 
 
 @dataclass
-class LoginRequestDTO:
+class LoginRequest:
     username: str
 
 
@@ -13,7 +13,7 @@ class LoginInteractor:
     def __init__(self, user_gateway: UserGateway) -> None:
         self._user_gateway = user_gateway
 
-    async def __call__(self, data: LoginRequestDTO) -> None:
+    async def __call__(self, data: LoginRequest) -> None:
         user = await self._user_gateway.by_username(data.username)
 
         if not user:

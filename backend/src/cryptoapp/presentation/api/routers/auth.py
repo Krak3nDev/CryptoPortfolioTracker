@@ -1,13 +1,15 @@
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter
-from pydantic import BaseModel, EmailStr
 from starlette.requests import Request
 from starlette.responses import Response
 
-from cryptoapp.application.user.login import LoginInteractor, LoginRequestDTO
-from cryptoapp.application.user.register_user import CreateUserDTO, RegisterInteractor
-from cryptoapp.infrastructure.services.auth import Auther, LoginAuthDTO
+from cryptoapp.application.user.login import LoginInteractor, LoginRequest
+from cryptoapp.application.user.register_user import (
+    CreationUserRequest,
+    RegisterInteractor,
+)
+from cryptoapp.infrastructure.services.auth import Auther, LoginAuthRequest
 from cryptoapp.infrastructure.services.session_manager import FastAPISessionManager
 
 auth_router = APIRouter(
@@ -17,19 +19,18 @@ auth_router = APIRouter(
 )
 
 
-@auth_router.post("/register")
+@auth_router.post("/register", status_code=201)
 async def register(
-    data: CreateUserDTO,
+    data: CreationUserRequest,
     interactor: FromDishka[RegisterInteractor],
 ) -> dict[str, str]:
     await interactor(data=data)
     return {"message": "Registration was successful. Please check your email."}
 
 
-
 @auth_router.post("/login")
 async def login(
-    data: LoginAuthDTO,
+    data: LoginAuthRequest,
     response: Response,
     auther: FromDishka[Auther],
     session_manager: FromDishka[FastAPISessionManager],
@@ -38,7 +39,7 @@ async def login(
     user_id = await auther.authenticate(
         data=data,
     )
-    await interactor(data=LoginRequestDTO(data.username))
+    await interactor(data=LoginRequest(data.username))
     await session_manager.init_session(user_id=user_id, response=response)
     return {"message": "You have successfully logged in."}
 

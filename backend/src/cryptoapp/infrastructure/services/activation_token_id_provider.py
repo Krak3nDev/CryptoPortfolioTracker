@@ -7,7 +7,7 @@ from starlette.requests import Request
 
 from cryptoapp.application.common.id_provider import IdProvider
 from cryptoapp.domain.entities.user.gateway import UserGateway
-from cryptoapp.domain.entities.user.user import User
+from cryptoapp.domain.entities.user.user import User, UserId
 
 Activation_Token = NewType("Activation_Token", str)
 
@@ -19,7 +19,10 @@ def get_activation_token(request: Request) -> Activation_Token:
     return Activation_Token(token_str)
 
 
-# Business logic leaked to the adapter, but this was done deliberately, because I wanted it that way
+# Business logic leaked to the adapter, but this was done deliberately,
+# because I wanted it that way
+
+
 class ActivationTokenIdProvider(IdProvider):
     def __init__(
         self, redis: Redis, token: Activation_Token, user_gateway: UserGateway
@@ -41,4 +44,4 @@ class ActivationTokenIdProvider(IdProvider):
 
     async def get_user(self) -> User:
         user_id = await self.get_current_user_id()
-        return cast(User, await self.user_gateway.by_identity(user_id))
+        return cast(User, await self.user_gateway.by_identity(UserId(user_id)))
