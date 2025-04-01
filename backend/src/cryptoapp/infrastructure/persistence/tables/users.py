@@ -11,10 +11,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import composite
 
-from cryptoapp.domain.entities.user.user import User
-from cryptoapp.domain.entities.user.user_id import UserId
-from cryptoapp.domain.value_objects.email import EMAIL_LENGTH, Email
-from cryptoapp.domain.value_objects.username import USERNAME_LENGTH, Username
+from cryptoapp.application.common.validators import EMAIL_LENGTH
+from cryptoapp.application.user.register_user import USERNAME_LENGTH
+from cryptoapp.domain.entities.user.user import User, UserId
 from cryptoapp.infrastructure.persistence.tables.base import mapper_registry
 
 users_table = Table(
@@ -40,8 +39,8 @@ mapper_registry.map_imperatively(
     users_table,
     properties={
         "_identity": composite(UserId, users_table.c.user_id),
-        "_email": composite(Email, users_table.c.email),
-        "_username": composite(Username, users_table.c.username),
+        "_email": users_table.c.email,
+        "_username": users_table.c.username,
         "_hashed_password": users_table.c.hashed_password,
         "_is_active": users_table.c.is_active,
     },

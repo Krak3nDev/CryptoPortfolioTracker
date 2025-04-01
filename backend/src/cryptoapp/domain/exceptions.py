@@ -3,6 +3,11 @@ class DomainError(Exception):
         super().__init__(message or "Domain Error")
 
 
+class IdentityNotSetError(DomainError):
+    def __init__(self, message: str = "The identity has not been set.") -> None:
+        super().__init__(message)
+
+
 class ValidationError(Exception):
     def __init__(self, message: str | None = None) -> None:
         super().__init__(message or "Validation Error")
@@ -25,7 +30,7 @@ class InvalidFieldLength(ValidationError):
 
 class UserAlreadyExistsError(DomainError):
     def __init__(self, username: str | None = None, email: str | None = None) -> None:
-        details = []
+        details: list[str] = []
         if username:
             details.append(f"username='{username}'")
         if email:
@@ -38,3 +43,14 @@ class UserAlreadyExistsError(DomainError):
 class UserAlreadyActivated(DomainError):
     def __init__(self) -> None:
         super().__init__("User already activated")
+
+
+class BaseNotFound(Exception):
+    def __init__(self, message: str = "Resource not found") -> None:
+        super().__init__(message)
+
+
+class EntityNotFound(BaseNotFound):
+    def __init__(self, field_name: str, value: int) -> None:
+        message = f"{field_name} with ID {value} not found"
+        super().__init__(message)

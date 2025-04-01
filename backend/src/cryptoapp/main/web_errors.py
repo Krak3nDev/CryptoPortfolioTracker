@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from starlette.requests import Request
 
-from cryptoapp.application.exceptions import ApplicationError, UserIsNotRegistered
-from cryptoapp.domain.exceptions import DomainError, ValidationError
+from cryptoapp.application.exceptions import ApplicationError
+from cryptoapp.domain.exceptions import BaseNotFound, DomainError, ValidationError
 from cryptoapp.infrastructure.exceptions import UnauthorizedError
 
 
@@ -40,9 +40,13 @@ async def user_not_registered_error_handler(
     )
 
 
+async def resource_not_found(request: Request, exception: Exception) -> ORJSONResponse:
+    return ORJSONResponse(status_code=404, content={"detail": str(exception)})
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DomainError, business_logic_error_handler)
     app.add_exception_handler(ApplicationError, business_logic_error_handler)
     app.add_exception_handler(UnauthorizedError, unauthorized_error_handler)
-    app.add_exception_handler(UserIsNotRegistered, user_not_registered_error_handler)
     app.add_exception_handler(ValidationError, validation_error_handler)
+    app.add_exception_handler(BaseNotFound, resource_not_found)

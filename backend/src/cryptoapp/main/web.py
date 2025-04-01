@@ -4,6 +4,7 @@ from typing import AsyncContextManager, AsyncIterator, Callable
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from starlette.middleware.cors import CORSMiddleware
 from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.main.config import load_config
@@ -35,6 +36,16 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         lifespan=broker_startup_lifespan(broker), default_response_class=ORJSONResponse
+    )
+
+    origins = ["http://localhost:4242", "http://127.0.0.1:4242"]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     init_routers(app)

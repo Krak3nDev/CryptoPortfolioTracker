@@ -6,7 +6,7 @@ from starlette.requests import Request
 from cryptoapp.application.common.id_provider import IdProvider
 from cryptoapp.application.exceptions import UserIsNotRegistered
 from cryptoapp.domain.entities.user.gateway import UserGateway
-from cryptoapp.domain.entities.user.user import User
+from cryptoapp.domain.entities.user.user import User, UserId
 from cryptoapp.infrastructure.exceptions import UnauthorizedError
 from cryptoapp.infrastructure.persistence.gateways.session_mapper import (
     Session,
@@ -59,11 +59,11 @@ class HTTPIdentityProvider(IdProvider):
 
     async def get_current_user_id(self) -> int:
         session = await self._get_active_session()
-        return session["user_id"]
+        return int(session["user_id"])
 
     async def get_user(self) -> User:
         user_id = await self.get_current_user_id()
-        user = await self._user_mapper.by_identity(user_id)
+        user = await self._user_mapper.by_identity(UserId(user_id))
 
         if not user:
             raise UserIsNotRegistered()
