@@ -1,0 +1,107 @@
+<main class="main">
+  <section class="auth">
+    <div class="auth__container block">
+      <h1 class="auth__title">
+        {{ isRegister() ? 'Register' : 'Login' }}
+      </h1>
+
+      <form class="auth__form" [formGroup]="authForm" (ngSubmit)="onSubmit()">
+        <h2 class="auth__form-label">Username</h2>
+        <div class="auth__form-container">
+          <input
+            class="auth__form-input {{ authForm.get('username')?.invalid && authForm.get('username')?.touched ? 'auth__form-input_error' : '' }}"
+            type="text"
+            formControlName="username"
+            required
+          >
+        </div>
+        @if (authForm.get('username')?.invalid && authForm.get('username')?.touched) {
+          <app-auth-error [error]="authForm.get('username')?.errors" />
+        }
+
+        @if (isRegister()) {
+          <h2 class="auth__form-label">Email</h2>
+          <div class="auth__form-container">
+            <input
+              class="auth__form-input {{ authForm.get('email')?.invalid && authForm.get('email')?.touched ? 'auth__form-input_error' : '' }}"
+              type="email"
+              formControlName="email"
+              required
+            >
+          </div>
+          @if (authForm.get('email')?.invalid && authForm.get('email')?.touched) {
+            <app-auth-error [error]="authForm.get('email')?.errors" />
+          }
+        }
+
+        <h2 class="auth__form-label">Password</h2>
+        <div class="auth__form-container">
+          <input
+            class="auth__form-input {{ authForm.get('password')?.invalid && authForm.get('password')?.touched ? 'auth__form-input_error' : '' }}"
+            [type]="isPasswordVisible()['password'] ? 'text' : 'password'"
+            formControlName="password"
+            required
+          >
+          <button
+            type="button"
+            class="auth__form-show-password"
+            (click)="showPassword('password')"
+          >
+            @if (isPasswordVisible()['password']) {
+              <fa-icon [icon]="icons.eye" />
+            } @else {
+              <fa-icon [icon]="icons.eyeSlash" />
+            }
+          </button>
+        </div>
+        @if (authForm.get('password')?.invalid && authForm.get('password')?.touched) {
+          <app-auth-error [error]="authForm.get('password')?.errors" />
+        }
+
+        @if (isRegister()) {
+          <h2 class="auth__form-label">Confirm Password</h2>
+          <div class="auth__form-container">
+            <input
+              class="auth__form-input {{ authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched ? 'auth__form-input_error' : '' }}"
+              [type]="isPasswordVisible()['confirmPassword'] ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              required
+            >
+            <button
+              type="button"
+              class="auth__form-show-password"
+              (click)="showPassword('confirmPassword')"
+            >
+              @if (isPasswordVisible()['confirmPassword']) {
+                <fa-icon [icon]="icons.eye" />
+              } @else {
+                <fa-icon [icon]="icons.eyeSlash" />
+              }
+            </button>
+          </div>
+          @if (authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched) {
+            <app-auth-error [error]="authForm.get('confirmPassword')?.errors" />
+          }
+        }
+
+        <button class="auth__form-submit" type="submit">
+          {{ isRegister() ? 'Register' : 'Login' }}
+        </button>
+
+        @if (submitError()) {
+          <app-auth-error [error]="submitError()"/>
+        }
+      </form>
+
+      @if (!isRegister()) {
+        <a class="auth__form-link link" [routerLink]="['/register']">
+          Don't have an account? Register
+        </a>
+      } @else {
+        <a class="auth__form-link link" [routerLink]="['/login']">
+          Already have an account? Login
+        </a>
+      }
+    </div>
+  </section>
+</main>

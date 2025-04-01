@@ -1,0 +1,44 @@
+@use "../../../styles/mixins" as mixins;
+
+.confirm {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--main-bg);
+
+  &__container {
+    @include mixins.adaptiveValue("min-width", 450, 320);
+    @include mixins.adaptiveValue("padding-top", 30, 20);
+    @include mixins.adaptiveValue("padding-bottom", 30, 20);
+  }
+
+  &__title {
+    font-weight: 700;
+    @include mixins.adaptiveValue("font-size", 32, 24);
+    text-align: center;
+  }
+
+  &__text {
+    font-weight: 500;
+    @include mixins.adaptiveValue("margin-top", 30, 15);
+    @include mixins.adaptiveValue("font-size", 16, 12);
+    color: var(--disable-text);
+    text-align: center;
+  }
+
+  &__error {
+    @include mixins.adaptiveValue("margin-top", 30, 15);
+    @include mixins.adaptiveValue("font-size", 16, 12);
+    @include mixins.adaptiveValue("margin-bottom", 15, 10);
+    color: var(--error);
+    text-align: center;
+  }
+
+  &__link {
+    display: block;
+    width: max-content;
+    margin: 0 auto;
+  }
+}
