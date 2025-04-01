@@ -104,7 +104,7 @@ services:
     pid: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config/vector.yml:/etc/vector/vector.yml:ro
+      - ./config/vector.yaml:/etc/vector/vector.yaml:ro
       - /proc:/host_proc:ro
       - /sys:/host_sys:ro
     environment:
