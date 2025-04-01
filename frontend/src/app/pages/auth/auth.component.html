@@ -2,7 +2,7 @@
   <section class="auth">
     <div class="auth__container block">
       <h1 class="auth__title">
-        {{ isRegister ? 'Register' : 'Login' }}
+        {{ isRegister() ? 'Register' : 'Login' }}
       </h1>
 
       <form class="auth__form" [formGroup]="authForm" (ngSubmit)="onSubmit()">
@@ -15,8 +15,11 @@
             required
           >
         </div>
+        @if (authForm.get('username')?.invalid && authForm.get('username')?.touched) {
+          <app-auth-error [error]="authForm.get('username')?.errors" />
+        }
 
-        @if (isRegister) {
+        @if (isRegister()) {
           <h2 class="auth__form-label">Email</h2>
           <div class="auth__form-container">
             <input
@@ -26,6 +29,9 @@
               required
             >
           </div>
+          @if (authForm.get('email')?.invalid && authForm.get('email')?.touched) {
+            <app-auth-error [error]="authForm.get('email')?.errors" />
+          }
         }
 
         <h2 class="auth__form-label">Password</h2>
@@ -37,6 +43,7 @@
             required
           >
           <button
+            type="button"
             class="auth__form-show-password"
             (click)="showPassword('password')"
           >
@@ -47,17 +54,21 @@
             }
           </button>
         </div>
+        @if (authForm.get('password')?.invalid && authForm.get('password')?.touched) {
+          <app-auth-error [error]="authForm.get('password')?.errors" />
+        }
 
-        @if (isRegister) {
+        @if (isRegister()) {
           <h2 class="auth__form-label">Confirm Password</h2>
           <div class="auth__form-container">
             <input
-              class="auth__form-input {{ (!passwordMatch() || authForm.get('confirmPassword')?.invalid) && authForm.get('confirmPassword')?.touched ? 'auth__form-input_error' : '' }}"
+              class="auth__form-input {{ authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched ? 'auth__form-input_error' : '' }}"
               [type]="isPasswordVisible()['confirmPassword'] ? 'text' : 'password'"
               formControlName="confirmPassword"
               required
             >
             <button
+              type="button"
               class="auth__form-show-password"
               (click)="showPassword('confirmPassword')"
             >
@@ -68,14 +79,21 @@
               }
             </button>
           </div>
+          @if (authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched) {
+            <app-auth-error [error]="authForm.get('confirmPassword')?.errors" />
+          }
         }
 
         <button class="auth__form-submit" type="submit">
-          {{ isRegister ? 'Register' : 'Login' }}
+          {{ isRegister() ? 'Register' : 'Login' }}
         </button>
+
+        @if (submitError()) {
+          <app-auth-error [error]="submitError()"/>
+        }
       </form>
 
-      @if (!isRegister) {
+      @if (!isRegister()) {
         <a class="auth__form-link link" [routerLink]="['/register']">
           Don't have an account? Register
         </a>

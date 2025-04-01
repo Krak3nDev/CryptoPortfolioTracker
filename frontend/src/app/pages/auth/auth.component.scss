@@ -7,6 +7,8 @@
   align-items: center;
   justify-content: center;
   background-color: var(--main-bg);
+  @include mixins.adaptiveValue("padding-top", 40, 20);
+  @include mixins.adaptiveValue("padding-bottom", 40, 20);
 
   &__container {
     @include mixins.adaptiveValue("min-width", 450, 320);
@@ -34,7 +36,7 @@
     &-container {
       position: relative;
       width: 100%;
-      @include mixins.adaptiveValue("margin-bottom", 25, 20);
+      @include mixins.adaptiveValue("margin-bottom", 10, 7);
     }
 
     &-input {
@@ -46,6 +48,7 @@
       border: var(--light) solid mixins.rem(1);
       background-color: var(--second-bg);
       border-radius: mixins.rem(15);
+      color: var(--main-text);
 
       &_error {
         border-color: var(--error);
@@ -80,6 +83,8 @@
       width: 100%;
       padding: mixins.rem(10) mixins.rem(15);
       @include mixins.adaptiveValue("font-size", 18, 14);
+      @include mixins.adaptiveValue("margin-top", 25, 20);
+      @include mixins.adaptiveValue("margin-bottom", 10, 7);
       transition: background-color 0.2s ease, color 0.2s ease;
       background-color: var(--second-bg);
       border: var(--light) solid mixins.rem(1);
