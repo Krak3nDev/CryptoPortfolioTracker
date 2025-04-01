@@ -1,11 +1,22 @@
 <main class="main">
   <section class="confirm">
     <div class="confirm__container block">
-      <h1 class="confirm__title">Confirm registration</h1>
-      <p class="confirm__text">Check your email</p>
+      @if (isToken()) {
+        <h1 class="confirm__title">Waiting for confirmation</h1>
+      } @else {
+        <h1 class="confirm__title">Confirm registration</h1>
+        <p class="confirm__text">Check your email</p>
+      }
 
       @if (error()) {
-        <p class="confirm__error">Something went wrong!</p>
+        <p class="confirm__error">
+          <fa-icon [icon]="icon" />
+          {{ message() }}
+        </p>
+
+        <a class="confirm__link link" [routerLink]="['/register']">
+          Try to register again
+        </a>
       }
     </div>
   </section>

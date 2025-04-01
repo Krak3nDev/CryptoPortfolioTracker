@@ -18,6 +18,26 @@
   --green: #00C287;
   --red: #E72D04;
   --error: #f2545b;
+  --scroll-bar: #372C44;
+  --scroll-bar-hover: #4e3c61;
+}
+
+::-webkit-scrollbar {
+  width: mixins.rem(12);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--main-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-bar);
+  border-radius: mixins.rem(6);
+  transition: background 0.2s ease;
+
+  &:hover {
+    background-color: var(--scroll-bar-hover);
+  }
 }
 
 main {

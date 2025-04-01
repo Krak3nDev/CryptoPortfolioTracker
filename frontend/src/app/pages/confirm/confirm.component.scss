@@ -17,21 +17,28 @@
   &__title {
     font-weight: 700;
     @include mixins.adaptiveValue("font-size", 32, 24);
-    @include mixins.adaptiveValue("margin-bottom", 30, 15);
     text-align: center;
   }
 
   &__text {
     font-weight: 500;
+    @include mixins.adaptiveValue("margin-top", 30, 15);
     @include mixins.adaptiveValue("font-size", 16, 12);
     color: var(--disable-text);
     text-align: center;
   }
 
-  &_error {
+  &__error {
     @include mixins.adaptiveValue("margin-top", 30, 15);
-    @include mixins.adaptiveValue("font-size", 24, 20);
+    @include mixins.adaptiveValue("font-size", 16, 12);
+    @include mixins.adaptiveValue("margin-bottom", 15, 10);
     color: var(--error);
     text-align: center;
+  }
+
+  &__link {
+    display: block;
+    width: max-content;
+    margin: 0 auto;
   }
 }

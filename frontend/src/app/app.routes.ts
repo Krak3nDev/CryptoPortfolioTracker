@@ -7,19 +7,23 @@ import { ConfirmComponent } from "./pages/confirm/confirm.component"
 export const routes: Routes = [
   {
     path: ROUTES.register,
-    component: AuthComponent
+    component: AuthComponent,
+    title: "Registration"
   },
   {
     path: ROUTES.login,
-    component: AuthComponent
+    component: AuthComponent,
+    title: "Login"
   },
   {
     path: ROUTES.confirm,
-    component: ConfirmComponent
+    component: ConfirmComponent,
+    title: "Please confirm"
   },
   {
     path: ROUTES.confirmByToken,
-    component: ConfirmComponent
+    component: ConfirmComponent,
+    title: "Confirmation"
   },
   {
     path: "",
