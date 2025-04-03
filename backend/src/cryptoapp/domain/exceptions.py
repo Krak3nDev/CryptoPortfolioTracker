@@ -3,11 +3,6 @@ class DomainError(Exception):
         super().__init__(message or "Domain Error")
 
 
-class IdentityNotSetError(DomainError):
-    def __init__(self, message: str = "The identity has not been set.") -> None:
-        super().__init__(message)
-
-
 class ValidationError(Exception):
     def __init__(self, message: str | None = None) -> None:
         super().__init__(message or "Validation Error")
@@ -29,7 +24,12 @@ class InvalidFieldLength(ValidationError):
 
 
 class UserAlreadyExistsError(DomainError):
-    def __init__(self, username: str | None = None, email: str | None = None) -> None:
+    def __init__(
+        self, username: str | None = None, email: str | None = None
+    ) -> None:
+        self.username = username
+        self.email = email
+
         details: list[str] = []
         if username:
             details.append(f"username='{username}'")
@@ -38,11 +38,6 @@ class UserAlreadyExistsError(DomainError):
 
         fields_str = ", ".join(details)
         super().__init__(f"User with {fields_str} already exists")
-
-
-class UserAlreadyActivated(DomainError):
-    def __init__(self) -> None:
-        super().__init__("User already activated")
 
 
 class BaseNotFound(Exception):

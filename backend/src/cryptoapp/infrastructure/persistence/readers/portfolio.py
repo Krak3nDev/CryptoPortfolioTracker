@@ -1,11 +1,13 @@
 from decimal import Decimal
 from typing import Sequence, TypedDict
 
-from sqlalchemy import case, func, literal, select, union_all
+from sqlalchemy import case, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cryptoapp.domain.entities.transaction.transaction import TransactionType
-from cryptoapp.infrastructure.persistence.gateways.base import SessionInitializer
+from cryptoapp.infrastructure.persistence.gateways.base import (
+    SessionInitializer,
+)
 from cryptoapp.infrastructure.persistence.tables import (
     assets_table,
     portfolios_table,
@@ -16,8 +18,8 @@ from cryptoapp.infrastructure.services.minio import S3Minio
 
 class PortfolioData(TypedDict):
     portfolio_name: str
-    portfolio_id: int | None
-    avatar: str | None
+    portfolio_id: int
+    avatar: str
     total_value: Decimal
     value_change_24h: Decimal
     percent_change_24h: Decimal
@@ -34,6 +36,64 @@ class TransactionData(TypedDict):
     purchase_price: Decimal | None
     current_price: Decimal
     note: str | None
+
+
+class TransactionsPage(TypedDict):
+    next_cursor: int | None
+    items: list[TransactionData]
+
+
+class Asset(TypedDict):
+    asset_id: int
+    asset_symbol: str
+    total_quantity: Decimal
+    current_price: Decimal
+    change_1h: Decimal
+    change_24h: Decimal
+    change_7d: Decimal
+    total_value: Decimal
+    allocation_percentage: Decimal
+
+
+class PortfolioSummary(TypedDict):
+    total_value: Decimal | None
+    total_value_change_24h: Decimal | None
+    total_value_change_24h_percentage: Decimal | None
+    holdings: list[Asset]
+
+
+class PerformerData(TypedDict):
+    symbol: str
+    name: str
+    change_value: Decimal
+    change_percentage: Decimal
+
+
+class AssetWithProfitLoss(TypedDict):
+    asset_id: int
+    asset_symbol: str
+    asset_name: str
+    total_quantity: Decimal
+    average_buy_price: Decimal
+    current_price: Decimal
+    change_1h: Decimal
+    change_24h: Decimal
+    change_7d: Decimal
+    total_value: Decimal
+    profit_loss_usd: Decimal
+    profit_loss_percentage: Decimal
+    allocation_percentage: Decimal
+
+
+class PortfolioStats(TypedDict):
+    total_value: Decimal | None
+    total_value_change_24h: Decimal | None
+    total_value_change_24h_percentage: Decimal | None
+    all_time_profit: Decimal | None
+    cost_basis: Decimal | None
+    best_performer: PerformerData | None
+    worst_performer: PerformerData | None
+    holdings: list[AssetWithProfitLoss]
 
 
 class PortfolioReader(SessionInitializer):
@@ -71,11 +131,13 @@ class PortfolioReader(SessionInitializer):
                             -transactions_table.c.quantity,
                         ),
                         (
-                            transactions_table.c.transaction_type == "transfer_in",
+                            transactions_table.c.transaction_type
+                            == "transfer_in",
                             transactions_table.c.quantity,
                         ),
                         (
-                            transactions_table.c.transaction_type == "transfer_out",
+                            transactions_table.c.transaction_type
+                            == "transfer_out",
                             -transactions_table.c.quantity,
                         ),
                         else_=0,
@@ -83,7 +145,8 @@ class PortfolioReader(SessionInitializer):
                 ).label("total_quantity"),
                 assets_table.c.price_usd.label("current_price"),
                 (
-                    assets_table.c.price_usd * func.sum(transactions_table.c.quantity)
+                    assets_table.c.price_usd
+                    * func.sum(transactions_table.c.quantity)
                 ).label("current_value"),
                 (
                     assets_table.c.price_usd
@@ -91,7 +154,9 @@ class PortfolioReader(SessionInitializer):
                     * assets_table.c.percent_change_24h_usd
                     / 100
                 ).label("value_change_24h"),
-                assets_table.c.percent_change_24h_usd.label("percent_change_24h"),
+                assets_table.c.percent_change_24h_usd.label(
+                    "percent_change_24h"
+                ),
             )
             .select_from(
                 portfolios_table.join(
@@ -122,8 +187,12 @@ class PortfolioReader(SessionInitializer):
                 portfolio_assets.c.portfolio_id,
                 portfolio_assets.c.portfolio_name,
                 portfolio_assets.c.avatar,
-                func.sum(portfolio_assets.c.current_value).label("total_value"),
-                func.sum(portfolio_assets.c.value_change_24h).label("value_change_24h"),
+                func.sum(portfolio_assets.c.current_value).label(
+                    "total_value"
+                ),
+                func.sum(portfolio_assets.c.value_change_24h).label(
+                    "value_change_24h"
+                ),
                 case(
                     (
                         func.sum(portfolio_assets.c.current_value) > 0,
@@ -142,7 +211,7 @@ class PortfolioReader(SessionInitializer):
             .cte("portfolio_totals_with_transactions")
         )
 
-        all_user_portfolios = (
+        portfolios_with_values = (
             select(
                 user_portfolios.c.portfolio_id,
                 user_portfolios.c.portfolio_name,
@@ -156,7 +225,6 @@ class PortfolioReader(SessionInitializer):
                 func.coalesce(
                     portfolio_totals_with_transactions.c.percent_change_24h, 0
                 ).label("percent_change_24h"),
-                literal(1).label("sort_order"),
             )
             .select_from(
                 user_portfolios.outerjoin(
@@ -165,61 +233,10 @@ class PortfolioReader(SessionInitializer):
                     == portfolio_totals_with_transactions.c.portfolio_id,
                 )
             )
-            .cte("all_user_portfolios")
+            .order_by(user_portfolios.c.portfolio_id)
         )
 
-        all_portfolios_total = select(
-            func.sum(all_user_portfolios.c.total_value).label("total_value"),
-            func.sum(all_user_portfolios.c.value_change_24h).label("value_change_24h"),
-            case(
-                (
-                    func.sum(all_user_portfolios.c.total_value) > 0,
-                    func.sum(all_user_portfolios.c.value_change_24h)
-                    / func.sum(all_user_portfolios.c.total_value)
-                    * 100,
-                ),
-                else_=0,
-            ).label("percent_change_24h"),
-        ).cte("all_portfolios_total")
-
-        all_portfolios_query = select(
-            literal("All Portfolios").label("portfolio_name"),
-            literal(None).label("portfolio_id"),
-            literal("").label("avatar"),
-            all_portfolios_total.c.total_value,
-            all_portfolios_total.c.value_change_24h,
-            all_portfolios_total.c.percent_change_24h,
-            literal(0).label("sort_order"),
-        )
-
-        individual_portfolios_query = select(
-            all_user_portfolios.c.portfolio_name,
-            all_user_portfolios.c.portfolio_id,
-            all_user_portfolios.c.avatar,
-            all_user_portfolios.c.total_value,
-            all_user_portfolios.c.value_change_24h,
-            all_user_portfolios.c.percent_change_24h,
-            all_user_portfolios.c.sort_order,
-        )
-
-        combined_query = union_all(
-            all_portfolios_query, individual_portfolios_query
-        ).alias("combined")
-
-        final_query = (
-            select(
-                combined_query.c.portfolio_name,
-                combined_query.c.portfolio_id,
-                combined_query.c.avatar,
-                combined_query.c.total_value,
-                combined_query.c.value_change_24h,
-                combined_query.c.percent_change_24h,
-            )
-            .select_from(combined_query)
-            .order_by(combined_query.c.sort_order, combined_query.c.portfolio_id)
-        )
-
-        result = await self._session.execute(final_query)
+        result = await self._session.execute(portfolios_with_values)
         rows = result.mappings().all()
 
         return [
@@ -234,18 +251,16 @@ class PortfolioReader(SessionInitializer):
             for row in rows
         ]
 
-    async def _prepare_data(self, data: Sequence[PortfolioData]) -> list[PortfolioData]:
+    async def _prepare_data(
+        self, data: Sequence[PortfolioData]
+    ) -> list[PortfolioData]:
         result: list[PortfolioData] = []
 
         for portfolio in data:
             avatar = portfolio["avatar"]
             portfolio_id = portfolio["portfolio_id"]
 
-            if portfolio["portfolio_name"] == "All Portfolios":
-                avatar = None
-                portfolio_id = None
-            elif avatar is not None:
-                avatar = await self._minio.get_presigned_url(avatar)
+            avatar = await self._minio.get_presigned_url(avatar)
 
             new_portfolio: PortfolioData = {
                 "portfolio_name": portfolio["portfolio_name"],
@@ -267,58 +282,432 @@ class PortfolioReader(SessionInitializer):
         return await self._prepare_data(portfolios_data)
 
     async def get_portfolio_transactions(
-        self, portfolio_id: int, user_id: int, limit: int = 20, offset: int = 0
-    ) -> list[TransactionData]:
-        stmt = (
-            select(
-                transactions_table.c.transaction_id.label("transaction_id"),
-                transactions_table.c.transaction_type.label("transaction_type"),
-                transactions_table.c.created_at.label("transaction_time"),
-                transactions_table.c.quantity.label("quantity"),
-                assets_table.c.asset_id.label("asset_id"),
-                assets_table.c.symbol.label("asset_symbol"),
-                assets_table.c.name.label("asset_name"),
-                transactions_table.c.price.label("purchase_price"),
-                assets_table.c.price_usd.label("current_price"),
-                transactions_table.c.note.label("note"),
-            )
-            .select_from(
-                transactions_table.join(
-                    assets_table,
-                    transactions_table.c.asset_id == assets_table.c.asset_id,
-                ).join(
-                    portfolios_table,
-                    transactions_table.c.portfolio_id
-                    == portfolios_table.c.portfolio_id,
-                )
-            )
-            .where(
-                transactions_table.c.portfolio_id == portfolio_id,
-                portfolios_table.c.user_id == user_id,
-            )
-            .limit(limit)
-            .offset(offset)
+        self,
+        portfolio_id: int,
+        user_id: int,
+        limit: int = 20,
+        last_transaction_id: int | None = None,
+    ) -> TransactionsPage:
+        transaction_id_condition = (
+            "AND t.transaction_id > :last_transaction_id"
+            if last_transaction_id is not None
+            else ""
         )
 
-        result = await self._session.execute(stmt)
-        rows = result.mappings().all()
-
-        transactions: list[TransactionData] = []
-
-        for row in rows:
-            transactions.append(
-                TransactionData(
-                    transaction_id=row["transaction_id"],
-                    transaction_type=row["transaction_type"],
-                    transaction_time=row["transaction_time"].isoformat(),
-                    quantity=row["quantity"],
-                    asset_id=row["asset_id"],
-                    asset_symbol=row["asset_symbol"],
-                    asset_name=row["asset_name"],
-                    purchase_price=row["purchase_price"],
-                    current_price=row["current_price"],
-                    note=row["note"],
-                )
+        sql = text(f"""
+        WITH base AS (
+            SELECT
+                t.transaction_id,
+                t.transaction_type,
+                t.created_at,
+                t.quantity,
+                a.asset_id,
+                a.symbol  AS asset_symbol,
+                a.name    AS asset_name,
+                t.price   AS purchase_price,
+                a.price_usd AS current_price,
+                t.note
+            FROM transactions t
+            JOIN assets a
+                ON t.asset_id = a.asset_id
+            JOIN portfolios p
+                ON t.portfolio_id = p.portfolio_id
+            WHERE t.portfolio_id = :portfolio_id 
+                AND p.user_id = :user_id
+                {transaction_id_condition}
+            ORDER BY t.transaction_id ASC
+            LIMIT :limit
+        )
+        SELECT json_build_object(
+            'next_cursor',
+            (
+              SELECT transaction_id
+              FROM base
+              ORDER BY transaction_id DESC
+              LIMIT 1
+            ),
+            'items',
+            COALESCE(
+                json_agg(
+                   json_build_object(
+                      'transaction_id', base.transaction_id,
+                        'transaction_type', base.transaction_type,
+                        'transaction_time',
+                            to_char(
+                                base.created_at,
+                                'YYYY-MM-DD"T"HH24:MI:SSOF'
+                            ),
+                        'quantity', base.quantity,
+                        'asset_id', base.asset_id,
+                        'asset_symbol', base.asset_symbol,
+                        'asset_name', base.asset_name,
+                        'purchase_price', base.purchase_price,
+                        'current_price', base.current_price,
+                        'note', base.note
+                   )
+                   ORDER BY base.transaction_id
+                ),
+                '[]'::json
             )
+        )::text AS result_json
+        FROM base
+        ;
+        """)
 
-        return transactions
+        params = {
+            "portfolio_id": portfolio_id,
+            "user_id": user_id,
+            "limit": limit,
+        }
+
+        if last_transaction_id is not None:
+            params["last_transaction_id"] = last_transaction_id
+
+        result: TransactionsPage = await self._session.scalar(sql, params)
+
+        return result
+
+    async def get_portfolio_stats(self, user_id: int) -> PortfolioSummary:
+        sql = text("""
+        WITH holdings AS (
+            SELECT
+                a.asset_id,
+                a.symbol AS asset_symbol,
+                SUM(
+                    CASE
+                        WHEN t.transaction_type IN ('buy', 'transfer_in')
+                        THEN t.quantity
+                        WHEN t.transaction_type IN ('sell', 'transfer_out')
+                        THEN -t.quantity
+                        ELSE 0
+                    END
+                ) AS total_quantity,
+                a.price_usd             AS current_price,
+                a.percent_change_1h_usd AS change_1h,
+                a.percent_change_24h_usd AS change_24h,
+                a.percent_change_7d_usd  AS change_7d
+            FROM portfolios p
+            JOIN transactions t
+              ON p.portfolio_id = t.portfolio_id
+            JOIN assets a
+              ON t.asset_id = a.asset_id
+            WHERE p.user_id = :user_id
+            GROUP BY
+                a.asset_id,
+                a.symbol,
+                a.price_usd,
+                a.percent_change_1h_usd,
+                a.percent_change_24h_usd,
+                a.percent_change_7d_usd
+        ),
+        final_data AS (
+            SELECT
+                SUM(h.total_quantity * h.current_price) OVER ()
+                    AS portfolio_value,
+                SUM(
+                    h.total_quantity * h.current_price * h.change_24h / 100
+                ) OVER () AS total_value_change_24h,
+                (
+                    SUM(
+                        h.total_quantity * h.current_price * h.change_24h / 100
+                    ) OVER ()
+                    / NULLIF(
+                        SUM(h.total_quantity * h.current_price) OVER (),
+                        0
+                    )
+                    * 100
+                ) AS total_value_change_24h_percentage,
+                h.asset_id,
+                h.asset_symbol,
+                h.total_quantity,
+                h.current_price,
+                h.change_1h,
+                h.change_24h,
+                h.change_7d,
+                (h.total_quantity * h.current_price) AS holding_value,
+                (
+                    (h.total_quantity * h.current_price)
+                    / NULLIF(
+                        SUM(h.total_quantity * h.current_price) OVER (),
+                        0
+                    )
+                    * 100
+                ) AS allocation_percentage
+            FROM holdings h
+        )
+        SELECT
+            json_build_object(
+                'portfolio_value',
+                MAX(fd.portfolio_value),
+                'total_value_change_24h',
+                MAX(fd.total_value_change_24h),
+                'total_value_change_24h_percentage',
+                MAX(fd.total_value_change_24h_percentage),
+                'holdings',
+                json_agg(
+                    json_build_object(
+                        'asset_id', fd.asset_id,
+                        'asset_symbol', fd.asset_symbol,
+                        'total_quantity', fd.total_quantity,
+                        'current_price', fd.current_price,
+                        'change_1h', fd.change_1h,
+                        'change_24h', fd.change_24h,
+                        'change_7d', fd.change_7d,
+                        'holding_value', fd.holding_value,
+                        'allocation_percentage', fd.allocation_percentage
+                    )
+                    ORDER BY fd.holding_value DESC
+                )
+            ) AS portfolio_json
+        FROM final_data fd
+        ;
+        """)
+
+        result: PortfolioSummary = await self._session.scalar(
+            sql, {"user_id": user_id}
+        )
+
+        return result
+
+    async def get_portfolio_stats_by_portfolio_id(
+        self, portfolio_id: int, user_id: int
+    ) -> PortfolioStats:
+        sql = text("""
+        WITH portfolio_check AS (
+            SELECT portfolio_id
+            FROM portfolios
+            WHERE portfolio_id = :portfolio_id
+              AND user_id = :user_id
+        ),
+
+        holdings AS (
+            SELECT
+                a.asset_id,
+                a.symbol AS asset_symbol,
+                a.name AS asset_name,
+                SUM(
+                    CASE
+                        WHEN t.transaction_type IN ('buy', 'transfer_in')
+                        THEN t.quantity
+                        WHEN t.transaction_type IN ('sell', 'transfer_out')
+                        THEN -t.quantity
+                        ELSE 0
+                    END
+                ) AS total_quantity,
+                SUM(
+                    CASE
+                        WHEN t.transaction_type IN ('buy', 'transfer_in')
+                        THEN t.quantity * t.price
+                        ELSE 0
+                    END
+                ) AS total_spent,
+                SUM(
+                    CASE
+                        WHEN t.transaction_type IN ('sell', 'transfer_out')
+                        THEN t.quantity * t.price
+                        ELSE 0
+                    END
+                ) AS total_sold,
+                a.price_usd AS current_price,
+                a.percent_change_1h_usd AS change_1h,
+                a.percent_change_24h_usd AS change_24h,
+                a.percent_change_7d_usd AS change_7d
+            FROM transactions t
+            JOIN assets a ON t.asset_id = a.asset_id
+            JOIN portfolios p ON t.portfolio_id = p.portfolio_id
+            WHERE t.portfolio_id = :portfolio_id
+              AND p.user_id = :user_id
+            GROUP BY
+                a.asset_id,
+                a.symbol,
+                a.name,
+                a.price_usd,
+                a.percent_change_1h_usd,
+                a.percent_change_24h_usd,
+                a.percent_change_7d_usd
+        ),
+
+        holdings_with_derived AS (
+            SELECT
+                h.*,
+                (h.total_quantity * h.current_price) AS holding_value,
+                CASE WHEN h.total_quantity > 0
+                    THEN (h.total_spent / h.total_quantity)
+                    ELSE 0
+                END AS average_buy_price,
+                (
+                    h.total_quantity * h.current_price
+                    - h.total_spent
+                ) AS profit_loss_usd,
+                CASE WHEN h.total_spent > 0
+                    THEN (
+                        (h.total_quantity * h.current_price - h.total_spent)
+                        / h.total_spent
+                        * 100
+                    )
+                    ELSE 0
+                END AS profit_loss_percentage,
+                (
+                    (h.change_24h / 100) * h.total_quantity * h.current_price
+                ) AS change_value_24h
+            FROM holdings h
+            WHERE h.total_quantity > 0
+        ),
+
+        aggregated_data AS (
+            SELECT
+                SUM(h.holding_value) AS total_value,
+                SUM(h.change_value_24h) AS total_value_change_24h,
+                SUM(h.total_spent) AS cost_basis,
+                (
+                    SUM(h.holding_value)
+                    - SUM(h.total_spent)
+                    + SUM(h.total_sold)
+                ) AS all_time_profit,
+                CASE WHEN SUM(h.holding_value) > 0
+                    THEN (
+                        SUM(h.change_value_24h)
+                        / SUM(h.holding_value)
+                        * 100
+                    )
+                    ELSE 0
+                END AS total_value_change_24h_percentage
+            FROM holdings_with_derived h
+        ),
+
+        best_performer AS (
+            SELECT
+                h.asset_symbol AS symbol,
+                h.asset_name AS name,
+                h.change_value_24h AS change_value,
+                h.change_24h AS change_percentage
+            FROM holdings_with_derived h
+            WHERE h.holding_value >= 10
+            ORDER BY h.change_24h DESC
+            LIMIT 1
+        ),
+
+        worst_performer AS (
+            SELECT
+                h.asset_symbol AS symbol,
+                h.asset_name AS name,
+                h.change_value_24h AS change_value,
+                h.change_24h AS change_percentage
+            FROM holdings_with_derived h
+            WHERE h.holding_value >= 10
+            ORDER BY h.change_24h ASC
+            LIMIT 1
+        ),
+
+        final_holdings AS (
+            SELECT
+                h.asset_id,
+                h.asset_symbol,
+                h.asset_name,
+                h.total_quantity,
+                h.average_buy_price,
+                h.current_price,
+                h.change_1h,
+                h.change_24h,
+                h.change_7d,
+                h.holding_value AS total_value,
+                h.profit_loss_usd,
+                h.profit_loss_percentage,
+                CASE WHEN (SELECT total_value FROM aggregated_data) > 0
+                    THEN (
+                        h.holding_value
+                        / (SELECT total_value FROM aggregated_data)
+                        * 100
+                    )
+                    ELSE 0
+                END AS allocation_percentage
+            FROM holdings_with_derived h
+        )
+
+        SELECT json_build_object(
+        'total_value',
+            (SELECT total_value FROM aggregated_data),
+        'total_value_change_24h',
+            (SELECT total_value_change_24h FROM aggregated_data),
+        'total_value_change_24h_percentage',
+            (SELECT total_value_change_24h_percentage FROM aggregated_data),
+        'cost_basis',
+            (SELECT cost_basis FROM aggregated_data),
+        'all_time_profit',
+            COALESCE((SELECT all_time_profit FROM aggregated_data), 0),
+        'best_performer',
+                CASE WHEN (SELECT COUNT(*) FROM best_performer) > 0
+                THEN (
+                    SELECT json_build_object(
+                        'symbol', symbol,
+                        'name', name,
+                        'change_value', change_value,
+                        'change_percentage', change_percentage
+                    )
+                    FROM best_performer
+                )
+                ELSE NULL
+                END,
+        'worst_performer',
+                CASE WHEN (SELECT COUNT(*) FROM worst_performer) > 0
+                THEN (
+                    SELECT json_build_object(
+                        'symbol', symbol,
+                        'name', name,
+                        'change_value', change_value,
+                        'change_percentage', change_percentage
+                    )
+                    FROM worst_performer
+                )
+                ELSE NULL
+                END,
+        'holdings',
+            COALESCE(
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'asset_id', asset_id,
+                            'asset_symbol', asset_symbol,
+                            'asset_name', asset_name,
+                            'total_quantity', total_quantity,
+                            'average_buy_price', average_buy_price,
+                            'current_price', current_price,
+                            'change_1h', change_1h,
+                            'change_24h', change_24h,
+                            'change_7d', change_7d,
+                            'total_value', total_value,
+                            'profit_loss_usd', profit_loss_usd,
+                            'profit_loss_percentage', profit_loss_percentage,
+                            'allocation_percentage', allocation_percentage
+                        )
+                        ORDER BY total_value DESC
+                    )
+                    FROM final_holdings
+                ),
+                '[]'::json
+            )
+        ) AS portfolio_stats_json
+        FROM (
+            SELECT 1
+            WHERE EXISTS (SELECT 1 FROM portfolio_check)
+        ) dummy
+        UNION ALL
+        SELECT json_build_object(
+            'total_value', NULL,
+            'total_value_change_24h', NULL,
+            'total_value_change_24h_percentage', NULL,
+            'cost_basis', NULL,
+            'all_time_profit', NULL,
+            'best_performer', NULL,
+            'worst_performer', NULL,
+            'holdings', '[]'::json
+        ) AS portfolio_stats_json
+        WHERE NOT EXISTS (SELECT 1 FROM portfolio_check)
+            OR NOT EXISTS (SELECT 1 FROM holdings_with_derived)
+        LIMIT 1
+        """)
+
+        result: PortfolioStats = await self._session.scalar(
+            sql, {"portfolio_id": portfolio_id, "user_id": user_id}
+        )
+        return result

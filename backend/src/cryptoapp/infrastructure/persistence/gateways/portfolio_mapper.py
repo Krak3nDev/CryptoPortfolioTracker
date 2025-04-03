@@ -1,13 +1,18 @@
 from sqlalchemy import select
 
-from cryptoapp.domain.entities.portfolio.gateway import PortfolioGateway
-from cryptoapp.domain.entities.portfolio.portfolio import Portfolio, PortfolioId
+from cryptoapp.domain.entities.portfolio.portfolio import (
+    Portfolio,
+    PortfolioId,
+)
+from cryptoapp.domain.entities.portfolio.repository import PortfolioRepository
 from cryptoapp.domain.entities.user.user import UserId
-from cryptoapp.infrastructure.persistence.gateways.base import SessionInitializer
+from cryptoapp.infrastructure.persistence.gateways.base import (
+    SessionInitializer,
+)
 from cryptoapp.infrastructure.persistence.tables import portfolios_table
 
 
-class PortfolioMapper(SessionInitializer, PortfolioGateway):
+class PortfolioMapper(SessionInitializer, PortfolioRepository):
     async def by_identity(
         self, portfolio_id: PortfolioId, user_id: UserId
     ) -> Portfolio | None:

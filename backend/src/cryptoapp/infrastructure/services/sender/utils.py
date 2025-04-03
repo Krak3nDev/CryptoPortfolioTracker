@@ -7,7 +7,9 @@ from cryptoapp.main.config import EmailConfig
 
 
 @asynccontextmanager
-async def smtp_client_context(config: EmailConfig) -> AsyncIterator[aiosmtplib.SMTP]:
+async def smtp_client_context(
+    config: EmailConfig,
+) -> AsyncIterator[aiosmtplib.SMTP]:
     smtp_client = aiosmtplib.SMTP(
         hostname=config.smtp_server,
         port=config.smtp_port,

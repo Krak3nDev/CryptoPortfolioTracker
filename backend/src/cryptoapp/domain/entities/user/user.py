@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from cryptoapp.domain.entities.identity import Identity
-from cryptoapp.domain.exceptions import UserAlreadyActivated
+from cryptoapp.domain.exceptions import DomainError
 
 
 class UserId(Identity):
@@ -54,5 +54,5 @@ class User:
 
     def activate(self) -> None:
         if self._is_active:
-            raise UserAlreadyActivated()
+            raise DomainError("User already activated")
         self._is_active = True

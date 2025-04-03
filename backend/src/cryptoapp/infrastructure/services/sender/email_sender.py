@@ -14,7 +14,10 @@ from cryptoapp.main.config import EmailConfig, load_config
 
 class SMTPEmailSender(EmailSender):
     def __init__(
-        self, config: EmailConfig, smtp_client: aiosmtplib.SMTP, templates_dir: Path
+        self,
+        config: EmailConfig,
+        smtp_client: aiosmtplib.SMTP,
+        templates_dir: Path,
     ) -> None:
         self.config = config
         self.smtp_client = smtp_client
@@ -62,7 +65,9 @@ class SMTPEmailSender(EmailSender):
 async def main() -> None:
     config = load_config()
     async with smtp_client_context(config.email_config) as smtp:
-        email_sender = SMTPEmailSender(config.email_config, smtp, Path("templates"))
+        email_sender = SMTPEmailSender(
+            config.email_config, smtp, Path("templates")
+        )
         response = await email_sender.send_notification(
             recipient="insta5441@gmail.com",
             template_name="email.html",

@@ -4,7 +4,9 @@ from fastapi import HTTPException
 
 from cryptoapp.application.exceptions import UserIsNotRegistered
 from cryptoapp.domain.entities.user.hasher import PasswordHasher
-from cryptoapp.infrastructure.persistence.gateways.user_mapper import UserMapper
+from cryptoapp.infrastructure.persistence.gateways.user_mapper import (
+    UserMapper,
+)
 
 
 @dataclass

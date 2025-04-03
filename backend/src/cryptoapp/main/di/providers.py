@@ -7,41 +7,58 @@ from aiobotocore.client import AioBaseClient
 from dishka import AnyOf, FromComponent, Provider, Scope, from_context, provide
 from httpx import AsyncClient
 from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+)
 from starlette.requests import Request
 from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.application.common.id_provider import IdProvider
 from cryptoapp.application.common.publisher import Publisher
 from cryptoapp.application.common.transaction_manager import TransactionManager
+from cryptoapp.application.interfaces.asset_gateway import AssetGateway
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.sender import EmailSender
 from cryptoapp.application.interfaces.storage import StorageService
 from cryptoapp.application.portfolio.create import (
     CreatePortfolio,
 )
-from cryptoapp.application.portfolio.create_transaction import CreateTransaction
+from cryptoapp.application.portfolio.create_transaction import (
+    CreateTransaction,
+)
 from cryptoapp.application.portfolio.delete import DeletePortfolio
-from cryptoapp.application.portfolio.delete_transaction import DeleteTransaction
+from cryptoapp.application.portfolio.delete_transaction import (
+    DeleteTransaction,
+)
+from cryptoapp.application.portfolio.update import UpdatePortfolio
+from cryptoapp.application.portfolio.update_transaction import (
+    UpdateTransaction,
+)
 from cryptoapp.application.user.activation import ActivateUserProfileInteractor
 from cryptoapp.application.user.login import LoginInteractor
 from cryptoapp.application.user.register_user import RegisterInteractor
 from cryptoapp.application.user.send_mail import SendMailInteractor
-from cryptoapp.domain.entities.portfolio.gateway import PortfolioGateway
-from cryptoapp.domain.entities.transaction.factory import TransactionFactory
-from cryptoapp.domain.entities.transaction.gateway import TransactionGateway
+from cryptoapp.domain.entities.portfolio.repository import PortfolioRepository
 from cryptoapp.domain.entities.user.factory import UserFactory
 from cryptoapp.domain.entities.user.gateway import UserGateway
 from cryptoapp.domain.entities.user.hasher import PasswordHasher
+from cryptoapp.infrastructure.persistence.gateways.asset_gateway import (
+    AssetMapper,
+)
 from cryptoapp.infrastructure.persistence.gateways.portfolio_mapper import (
     PortfolioMapper,
 )
-from cryptoapp.infrastructure.persistence.gateways.session_mapper import SessionGateway
-from cryptoapp.infrastructure.persistence.gateways.transaction_mapper import (
-    TransactionMapper,
+from cryptoapp.infrastructure.persistence.gateways.session_mapper import (
+    SessionGateway,
 )
-from cryptoapp.infrastructure.persistence.gateways.user_mapper import UserMapper
-from cryptoapp.infrastructure.persistence.readers.portfolio import PortfolioReader
+from cryptoapp.infrastructure.persistence.gateways.user_mapper import (
+    UserMapper,
+)
+from cryptoapp.infrastructure.persistence.readers.portfolio import (
+    PortfolioReader,
+)
 from cryptoapp.infrastructure.persistence.setup import (
     create_engine,
     create_session_pool,
@@ -56,11 +73,15 @@ from cryptoapp.infrastructure.services.activation_token_id_provider import (
 )
 from cryptoapp.infrastructure.services.auth import Auther
 from cryptoapp.infrastructure.services.generator import UrlGenerator
-from cryptoapp.infrastructure.services.marcetcap_api.api import CoinMarketCapAPI
+from cryptoapp.infrastructure.services.marcetcap_api.api import (
+    CoinMarketCapAPI,
+)
 from cryptoapp.infrastructure.services.minio import S3Minio
 from cryptoapp.infrastructure.services.password_hasher import Hasher
 from cryptoapp.infrastructure.services.rabbit_publisher import RabbitPublisher
-from cryptoapp.infrastructure.services.sender.email_sender import SMTPEmailSender
+from cryptoapp.infrastructure.services.sender.email_sender import (
+    SMTPEmailSender,
+)
 from cryptoapp.infrastructure.services.sender.utils import smtp_client_context
 from cryptoapp.infrastructure.services.session_id_provider import (
     FastAPISessionIDGetter,
@@ -128,14 +149,18 @@ class ActivationProvider(Provider):
 
 class InfrastructureServiceProvider(Provider):
     broker = from_context(AioPikaBroker, scope=Scope.APP)
-    publisher = provide(source=RabbitPublisher, provides=Publisher, scope=Scope.APP)
+    publisher = provide(
+        source=RabbitPublisher, provides=Publisher, scope=Scope.APP
+    )
     hasher = provide(source=Hasher, provides=PasswordHasher, scope=Scope.APP)
     url_generator = provide(
         source=UrlGenerator, provides=ActivationGenerator, scope=Scope.APP
     )
 
     @provide(scope=Scope.APP)
-    async def smtp_client(self, config: EmailConfig) -> AsyncIterable[aiosmtplib.SMTP]:
+    async def smtp_client(
+        self, config: EmailConfig
+    ) -> AsyncIterable[aiosmtplib.SMTP]:
         async with smtp_client_context(config) as smtp:
             yield smtp
 
@@ -146,24 +171,32 @@ class InfrastructureServiceProvider(Provider):
         return SMTPEmailSender(
             config=config,
             smtp_client=smtp,
-            templates_dir=Path("cryptoapp/infrastructure/services/sender/templates"),
+            templates_dir=Path(
+                "cryptoapp/infrastructure/services/sender/templates"
+            ),
         )
 
     http_identity_provider = provide(
         source=HTTPIdentityProvider, provides=IdProvider, scope=Scope.REQUEST
     )
     session_id_getter = provide(
-        source=FastAPISessionIDGetter, provides=SessionIDGetter, scope=Scope.REQUEST
+        source=FastAPISessionIDGetter,
+        provides=SessionIDGetter,
+        scope=Scope.REQUEST,
     )
     session_mapper = provide(source=SessionGateway, scope=Scope.APP)
 
     http_session_manager = provide(source=HTTPSessionManager, scope=Scope.APP)
-    fastapi_session_manager = provide(source=FastAPISessionManager, scope=Scope.APP)
+    fastapi_session_manager = provide(
+        source=FastAPISessionManager, scope=Scope.APP
+    )
 
     auth_manager = provide(source=Auther, scope=Scope.REQUEST)
 
     minio = provide(
-        source=S3Minio, provides=AnyOf[StorageService, S3Minio], scope=Scope.APP
+        source=S3Minio,
+        provides=AnyOf[StorageService, S3Minio],
+        scope=Scope.APP,
     )
 
     market_api = provide(source=CoinMarketCapAPI, scope=Scope.APP)
@@ -195,7 +228,6 @@ class InfrastructureServiceProvider(Provider):
 
 class DomainServiceProvider(Provider):
     user_factory = provide(source=UserFactory, scope=Scope.REQUEST)
-    transaction_factory = provide(source=TransactionFactory, scope=Scope.REQUEST)
 
 
 class InteractorProvider(Provider):
@@ -206,17 +238,23 @@ class InteractorProvider(Provider):
     create_transaction = provide(source=CreateTransaction, scope=Scope.REQUEST)
     delete_portfolio = provide(source=DeletePortfolio, scope=Scope.REQUEST)
     delete_transaction = provide(source=DeleteTransaction, scope=Scope.REQUEST)
+    update_portfolio = provide(source=UpdatePortfolio, scope=Scope.REQUEST)
+    update_transaction = provide(source=UpdateTransaction, scope=Scope.REQUEST)
 
 
 class MapperProvider(Provider):
     user_mapper = provide(
-        source=UserMapper, provides=AnyOf[UserGateway, UserMapper], scope=Scope.REQUEST
+        source=UserMapper,
+        provides=AnyOf[UserGateway, UserMapper],
+        scope=Scope.REQUEST,
     )
     portfolio_mapper = provide(
-        source=PortfolioMapper, provides=PortfolioGateway, scope=Scope.REQUEST
+        source=PortfolioMapper,
+        provides=PortfolioRepository,
+        scope=Scope.REQUEST,
     )
-    transaction_mapper = provide(
-        source=TransactionMapper, provides=TransactionGateway, scope=Scope.REQUEST
+    asset_gateway = provide(
+        source=AssetMapper, provides=AssetGateway, scope=Scope.REQUEST
     )
 
 
@@ -226,7 +264,9 @@ class DbProvider(Provider):
         return create_engine(db_config)
 
     @provide(scope=Scope.APP)
-    def session_pool(self, engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    def session_pool(
+        self, engine: AsyncEngine
+    ) -> async_sessionmaker[AsyncSession]:
         return create_session_pool(engine)
 
     @provide(scope=Scope.REQUEST)

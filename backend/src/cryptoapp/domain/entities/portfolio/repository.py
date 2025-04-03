@@ -1,11 +1,14 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from cryptoapp.domain.entities.portfolio.portfolio import Portfolio, PortfolioId
+from cryptoapp.domain.entities.portfolio.portfolio import (
+    Portfolio,
+    PortfolioId,
+)
 from cryptoapp.domain.entities.user.user import UserId
 
 
-class PortfolioGateway(Protocol):
+class PortfolioRepository(Protocol):
     @abstractmethod
     async def by_identity(
         self, portfolio_id: PortfolioId, user_id: UserId

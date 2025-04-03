@@ -5,7 +5,9 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from cryptoapp.infrastructure.exceptions import UnauthorizedError
-from cryptoapp.infrastructure.persistence.gateways.session_mapper import SessionGateway
+from cryptoapp.infrastructure.persistence.gateways.session_mapper import (
+    SessionGateway,
+)
 
 
 @dataclass
@@ -26,7 +28,9 @@ class HTTPSessionManager:
             session_id=session_id, user_id=str(user_id)
         )
 
-        return SessionCookieDTO(key="session_id", value=session_id, httponly=True)
+        return SessionCookieDTO(
+            key="session_id", value=session_id, httponly=True
+        )
 
     async def invalidate_session(self, session_id: str) -> None:
         await self._session_mapper.delete_session(session_id)
@@ -46,7 +50,9 @@ class FastAPISessionManager:
             samesite="lax",
         )
 
-    async def invalidate_session(self, request: Request, response: Response) -> None:
+    async def invalidate_session(
+        self, request: Request, response: Response
+    ) -> None:
         session_id = request.cookies.get("session_id")
 
         if not session_id:

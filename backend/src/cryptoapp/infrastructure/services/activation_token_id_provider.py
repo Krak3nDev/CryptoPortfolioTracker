@@ -15,7 +15,9 @@ Activation_Token = NewType("Activation_Token", str)
 def get_activation_token(request: Request) -> Activation_Token:
     token_str = request.path_params.get("token")
     if not token_str:
-        raise HTTPException(status_code=400, detail="Missing 'token' path param")
+        raise HTTPException(
+            status_code=400, detail="Missing 'token' path param"
+        )
     return Activation_Token(token_str)
 
 

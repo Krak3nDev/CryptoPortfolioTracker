@@ -1,6 +1,9 @@
 from taskiq_aio_pika import AioPikaBroker
 
-from cryptoapp.application.common.publisher import Publisher, SendActivationEmail
+from cryptoapp.application.common.publisher import (
+    Publisher,
+    SendActivationEmail,
+)
 from cryptoapp.infrastructure.taskiq_tasks import send_mail_executor
 
 

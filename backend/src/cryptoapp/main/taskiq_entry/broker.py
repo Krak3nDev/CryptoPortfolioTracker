@@ -15,7 +15,9 @@ def create_broker(config: Config) -> AioPikaBroker:
         declare_exchange=True,
         declare_queues_kwargs={"durable": True},
         declare_exchange_kwargs={"durable": True},
-    ).with_result_backend(RedisAsyncResultBackend(redis_url=config.redis_config.url))
+    ).with_result_backend(
+        RedisAsyncResultBackend(redis_url=config.redis_config.url)
+    )
     register_tasks(broker)
     return broker
 

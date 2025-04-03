@@ -13,7 +13,9 @@ from cryptoapp.main.config import (
 from cryptoapp.main.di import providers
 
 
-def setup_ioc_container(config: Config, broker: AioPikaBroker) -> AsyncContainer:
+def setup_ioc_container(
+    config: Config, broker: AioPikaBroker
+) -> AsyncContainer:
     container = make_async_container(
         *providers,
         context={

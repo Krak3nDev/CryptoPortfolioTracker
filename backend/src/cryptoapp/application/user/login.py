@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
-from cryptoapp.application.exceptions import EmailNotVerifiedError, UserIsNotRegistered
+from cryptoapp.application.exceptions import (
+    EmailNotVerifiedError,
+    UserIsNotRegistered,
+)
 from cryptoapp.domain.entities.user.gateway import UserGateway
 
 

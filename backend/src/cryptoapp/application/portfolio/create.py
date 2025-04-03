@@ -5,8 +5,8 @@ from cryptoapp.application.common.id_provider import IdProvider
 from cryptoapp.application.common.transaction_manager import TransactionManager
 from cryptoapp.application.common.validators import validate_length
 from cryptoapp.application.interfaces.storage import StorageService
-from cryptoapp.domain.entities.portfolio.gateway import PortfolioGateway
 from cryptoapp.domain.entities.portfolio.portfolio import Portfolio
+from cryptoapp.domain.entities.portfolio.repository import PortfolioRepository
 
 
 @dataclass
@@ -29,7 +29,7 @@ BUCKET = "my-portfolios-bucket"
 class CreatePortfolio:
     def __init__(
         self,
-        portfolio_gateway: PortfolioGateway,
+        portfolio_gateway: PortfolioRepository,
         tr_manager: TransactionManager,
         storage: StorageService,
         identity_provider: IdProvider,
@@ -54,7 +54,10 @@ class CreatePortfolio:
             avatar_url = f"s3://{BUCKET}/defaults/default_avatar.webp"
 
         portfolio = Portfolio.create(
-            name=data.name, avatar=avatar_url, portfolio_id=None, user_id=user_id
+            name=data.name,
+            avatar=avatar_url,
+            portfolio_id=None,
+            user_id=user_id,
         )
 
         self._portfolio_gateway.add(portfolio)

@@ -14,7 +14,9 @@ class SessionGateway:
         self._redis = redis
 
     async def create_session(self, session_id: str, user_id: str) -> None:
-        await self._redis.setex(name=session_id, value=user_id, time=SESSION_TTL)
+        await self._redis.setex(
+            name=session_id, value=user_id, time=SESSION_TTL
+        )
 
     async def delete_session(self, session_id: str) -> None:
         await self._redis.delete(session_id)

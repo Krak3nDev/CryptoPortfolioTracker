@@ -35,7 +35,8 @@ def create_app() -> FastAPI:
     broker = create_broker(config)
 
     app = FastAPI(
-        lifespan=broker_startup_lifespan(broker), default_response_class=ORJSONResponse
+        lifespan=broker_startup_lifespan(broker),
+        default_response_class=ORJSONResponse,
     )
 
     origins = ["http://localhost:4242", "http://127.0.0.1:4242"]

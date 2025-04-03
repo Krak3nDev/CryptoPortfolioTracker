@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from cryptoapp.domain.exceptions import IdentityNotSetError
+from cryptoapp.domain.exceptions import DomainError
 
 
 @dataclass(frozen=True)
@@ -10,5 +10,5 @@ class Identity:
     @property
     def value(self) -> int:
         if not self._value:
-            raise IdentityNotSetError()
+            raise DomainError("The identity has not been set.")
         return self._value

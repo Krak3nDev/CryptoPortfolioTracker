@@ -1,8 +1,13 @@
 from sqlalchemy import or_, select
 
-from cryptoapp.domain.entities.user.gateway import UserAvailabilityInfo, UserGateway
+from cryptoapp.domain.entities.user.gateway import (
+    UserAvailabilityInfo,
+    UserGateway,
+)
 from cryptoapp.domain.entities.user.user import User, UserId
-from cryptoapp.infrastructure.persistence.gateways.base import SessionInitializer
+from cryptoapp.infrastructure.persistence.gateways.base import (
+    SessionInitializer,
+)
 from cryptoapp.infrastructure.persistence.tables.users import users_table
 
 
@@ -23,7 +28,10 @@ class UserMapper(SessionInitializer, UserGateway):
         self, username: str, email: str
     ) -> UserAvailabilityInfo | None:
         query = select(users_table.c.username, users_table.c.email).where(
-            or_(users_table.c.username == username, users_table.c.email == email)
+            or_(
+                users_table.c.username == username,
+                users_table.c.email == email,
+            )
         )
 
         result = await self._session.execute(query)
