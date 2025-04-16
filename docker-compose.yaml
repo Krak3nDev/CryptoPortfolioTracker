@@ -8,7 +8,7 @@ services:
       - .env
     ports:
       - ${HOST_PORT:-8000}:8000
-    command: uvicorn cryptoapp.main.web:create_app --host 0.0.0.0 --port 8000 --reload --factory --use-colors
+    command: uvicorn cryptoapp.main.web:main --host 0.0.0.0 --port 8000 --reload --factory --use-colors
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
     depends_on:
@@ -65,7 +65,7 @@ services:
       dockerfile: Dockerfile.dev
     env_file:
       - .env
-    command: taskiq worker --ack-type when_saved cryptoapp.main.taskiq_entry.broker:broker cryptoapp.infrastructure.taskiq_tasks
+    command: taskiq worker --ack-type when_saved cryptoapp.main.taskiq_entry.broker:setup_taskiq_broker cryptoapp.infrastructure.taskiq_tasks
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
     depends_on:
@@ -79,7 +79,7 @@ services:
       dockerfile: Dockerfile.dev
     env_file:
       - .env
-    command: taskiq scheduler cryptoapp.main.taskiq_entry.broker:scheduler cryptoapp.infrastructure.taskiq_tasks
+    command: taskiq scheduler cryptoapp.main.taskiq_entry.broker:create_scheduler cryptoapp.infrastructure.taskiq_tasks
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
     depends_on:
@@ -186,8 +186,8 @@ services:
     env_file:
       - .env
     ports:
-    - "9000:9000"
-    - "9001:9001"
+      - "${MINIO_PORT}:9000"
+      - "9001:9001"
     volumes:
     - minio-data:/data
     command: server /data --console-address :9001
