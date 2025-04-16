@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from decimal import Decimal
 from typing import Annotated
 
@@ -13,23 +12,23 @@ from cryptoapp.application.portfolio.create import (
     CreationPortfolioRequest,
     CreationPortfolioResponse,
 )
-from cryptoapp.application.portfolio.create_transaction import (
-    CreateTransaction,
-    TransactionCreationRequest,
-)
 from cryptoapp.application.portfolio.delete import (
     DeletePortfolio,
     DeletePortfolioRequest,
-)
-from cryptoapp.application.portfolio.delete_transaction import (
-    DeleteTransaction,
-    DeleteTransactionRequest,
 )
 from cryptoapp.application.portfolio.update import (
     UpdatePortfolio,
     UpdatePortfolioRequest,
 )
-from cryptoapp.application.portfolio.update_transaction import (
+from cryptoapp.application.transaction.create import (
+    CreateTransaction,
+    TransactionCreationRequest,
+)
+from cryptoapp.application.transaction.delete import (
+    DeleteTransaction,
+    DeleteTransactionRequest,
+)
+from cryptoapp.application.transaction.update import (
     UpdateTransaction,
     UpdateTransactionRequest,
 )
@@ -130,9 +129,6 @@ class TransactionCreationSchema(BaseModel):
         None
     )
 
-    class Config:
-        arbitrary_types_allowed = True
-
 
 @portfolio_router.post("/{portfolio_id}/transactions", status_code=201)
 async def create_transaction_for_portfolio(
@@ -169,12 +165,21 @@ async def delete_transaction(
     return {"message": "Transaction deleted successfully"}
 
 
-@dataclass
-class UpdateTransactionSchema:
-    quantity: Decimal | None
-    price: Decimal | None
-    note: str | None
-    fee: Decimal | None
+class UpdateTransactionSchema(BaseModel):
+    quantity: Annotated[
+        Decimal | None, Field(max_digits=38, decimal_places=8, gt=Decimal("0"))
+    ] = None
+
+    price: Annotated[
+        Decimal | None,
+        Field(max_digits=38, decimal_places=12, gt=Decimal("0")),
+    ] = None
+
+    note: str | None = None
+
+    fee: Annotated[
+        Decimal | None, Field(max_digits=12, decimal_places=2, gt=Decimal("0"))
+    ] = None
 
 
 @portfolio_router.patch(

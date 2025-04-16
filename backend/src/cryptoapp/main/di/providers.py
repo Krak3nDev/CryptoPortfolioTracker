@@ -25,25 +25,23 @@ from cryptoapp.application.interfaces.storage import StorageService
 from cryptoapp.application.portfolio.create import (
     CreatePortfolio,
 )
-from cryptoapp.application.portfolio.create_transaction import (
-    CreateTransaction,
-)
 from cryptoapp.application.portfolio.delete import DeletePortfolio
-from cryptoapp.application.portfolio.delete_transaction import (
-    DeleteTransaction,
-)
 from cryptoapp.application.portfolio.update import UpdatePortfolio
-from cryptoapp.application.portfolio.update_transaction import (
-    UpdateTransaction,
-)
+from cryptoapp.application.transaction.create import CreateTransaction
+from cryptoapp.application.transaction.delete import DeleteTransaction
+from cryptoapp.application.transaction.update import UpdateTransaction
 from cryptoapp.application.user.activation import ActivateUserProfileInteractor
 from cryptoapp.application.user.login import LoginInteractor
 from cryptoapp.application.user.register_user import RegisterInteractor
 from cryptoapp.application.user.send_mail import SendMailInteractor
 from cryptoapp.domain.entities.portfolio.repository import PortfolioRepository
+from cryptoapp.domain.entities.transaction.repository import (
+    TransactionRepository,
+)
 from cryptoapp.domain.entities.user.factory import UserFactory
 from cryptoapp.domain.entities.user.gateway import UserGateway
 from cryptoapp.domain.entities.user.hasher import PasswordHasher
+from cryptoapp.domain.services.transaction import TransactionService
 from cryptoapp.infrastructure.persistence.gateways.asset_gateway import (
     AssetMapper,
 )
@@ -52,6 +50,9 @@ from cryptoapp.infrastructure.persistence.gateways.portfolio_mapper import (
 )
 from cryptoapp.infrastructure.persistence.gateways.session_mapper import (
     SessionGateway,
+)
+from cryptoapp.infrastructure.persistence.gateways.transaction_mapper import (
+    TransactionMapper,
 )
 from cryptoapp.infrastructure.persistence.gateways.user_mapper import (
     UserMapper,
@@ -228,6 +229,9 @@ class InfrastructureServiceProvider(Provider):
 
 class DomainServiceProvider(Provider):
     user_factory = provide(source=UserFactory, scope=Scope.REQUEST)
+    transaction_service = provide(
+        source=TransactionService, scope=Scope.REQUEST
+    )
 
 
 class InteractorProvider(Provider):
@@ -253,6 +257,12 @@ class MapperProvider(Provider):
         provides=PortfolioRepository,
         scope=Scope.REQUEST,
     )
+    transaction_mapper = provide(
+        source=TransactionMapper,
+        provides=TransactionRepository,
+        scope=Scope.REQUEST,
+    )
+
     asset_gateway = provide(
         source=AssetMapper, provides=AssetGateway, scope=Scope.REQUEST
     )

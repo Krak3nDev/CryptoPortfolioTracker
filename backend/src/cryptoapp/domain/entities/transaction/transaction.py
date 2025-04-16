@@ -3,6 +3,7 @@ from decimal import Decimal
 from enum import Enum
 
 from cryptoapp.domain.entities.identity import Identity
+from cryptoapp.domain.entities.portfolio.portfolio import PortfolioId
 from cryptoapp.domain.exceptions import DomainError
 
 
@@ -22,8 +23,9 @@ class AssetId(Identity):
 
 
 @dataclass
-class CreateTransactionData:
+class CreationData:
     asset_id: int
+    portfolio_id: int
     quantity: Decimal
     price: Decimal | None
     transaction_type: TransactionType
@@ -35,6 +37,7 @@ class CreateTransactionData:
 class Transaction:
     _identity: TransactionId
     _asset_id: AssetId
+    _portfolio_id: PortfolioId
     _quantity: Decimal
     _price: Decimal | None
     _transaction_type: TransactionType
@@ -42,7 +45,7 @@ class Transaction:
     _fee: Decimal | None
 
     @classmethod
-    def create(cls, data: CreateTransactionData) -> "Transaction":
+    def create(cls, data: CreationData) -> "Transaction":
         return cls(
             _identity=TransactionId(None),
             _asset_id=AssetId(data.asset_id),
@@ -51,7 +54,27 @@ class Transaction:
             _transaction_type=data.transaction_type,
             _note=data.note,
             _fee=data.fee,
+            _portfolio_id=PortfolioId(data.portfolio_id),
         )
+
+    def update_transaction(
+        self,
+        quantity: Decimal | None = None,
+        price: Decimal | None = None,
+        note: str | None = None,
+        fee: Decimal | None = None,
+    ) -> None:
+        if quantity is not None:
+            self.quantity = quantity
+
+        if price is not None:
+            self.price = price
+
+        if note is not None:
+            self.note = note
+
+        if fee is not None:
+            self.fee = fee
 
     @property
     def transaction_type(self) -> TransactionType:
@@ -60,6 +83,14 @@ class Transaction:
     @property
     def identity(self) -> TransactionId:
         return self._identity
+
+    @property
+    def asset_identity(self) -> AssetId:
+        return self._asset_id
+
+    @property
+    def portfolio_id(self) -> PortfolioId:
+        return self._portfolio_id
 
     @property
     def price(self) -> Decimal | None:

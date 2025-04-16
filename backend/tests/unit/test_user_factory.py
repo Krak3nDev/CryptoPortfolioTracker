@@ -10,6 +10,7 @@ from cryptoapp.infrastructure.services.password_hasher import Hasher
 def password_hasher():
     return Hasher()
 
+
 @pytest.fixture
 def user_factory(user_gateway, password_hasher):
     return UserFactory(user_gateway, password_hasher)
@@ -37,7 +38,7 @@ async def test_create_user_username_taken(user_factory, user_gateway):
         user_id=1,
         email="another@example.com",
         hashed_password="hashed_pwd",
-        username="busy_username"
+        username="busy_username",
     )
     user_gateway.add(existing_user)
 
@@ -46,7 +47,7 @@ async def test_create_user_username_taken(user_factory, user_gateway):
             username="busy_username",
             email="some_new@example.com",
             password="secret",
-            user_id=2
+            user_id=2,
         )
 
     exc = exc_info.value
@@ -60,7 +61,7 @@ async def test_create_user_email_taken(user_factory, user_gateway):
         user_id=3,
         email="busy@example.com",
         hashed_password="hashed_pwd",
-        username="free_username"
+        username="free_username",
     )
     user_gateway.add(existing_user)
 
@@ -69,7 +70,7 @@ async def test_create_user_email_taken(user_factory, user_gateway):
             username="totally_free",
             email="busy@example.com",
             password="secret",
-            user_id=4
+            user_id=4,
         )
 
     exc = exc_info.value
@@ -78,12 +79,14 @@ async def test_create_user_email_taken(user_factory, user_gateway):
 
 
 @pytest.mark.asyncio
-async def test_create_user_username_and_email_taken(user_factory, user_gateway):
+async def test_create_user_username_and_email_taken(
+    user_factory, user_gateway
+):
     existing_user = User.create(
         user_id=5,
         email="taken@example.com",
         hashed_password="hashed_pwd",
-        username="taken_username"
+        username="taken_username",
     )
     user_gateway.add(existing_user)
 
@@ -92,7 +95,7 @@ async def test_create_user_username_and_email_taken(user_factory, user_gateway):
             username="taken_username",
             email="taken@example.com",
             password="secret",
-            user_id=6
+            user_id=6,
         )
 
     exc = exc_info.value

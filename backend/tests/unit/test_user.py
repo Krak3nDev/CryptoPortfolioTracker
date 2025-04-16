@@ -10,9 +10,11 @@ def test_user_creation(user):
     assert user.hashed_password == "hashed_password"
     assert not user.is_active
 
+
 def test_user_activation(user):
     user.activate()
     assert user.is_active
+
 
 def test_user_activate_twice_raises_exception(user):
     user.activate()

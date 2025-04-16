@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
 from typing import AsyncContextManager, AsyncIterator, Callable
 
+from dishka import AsyncContainer
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.cors import CORSMiddleware
-from taskiq_aio_pika import AioPikaBroker
+from taskiq import AsyncBroker
 
 from cryptoapp.main.config import load_config
 from cryptoapp.main.di.setup import setup_ioc_container
@@ -16,7 +17,7 @@ from cryptoapp.main.web_errors import register_exception_handlers
 
 
 def broker_startup_lifespan(
-    broker: AioPikaBroker,
+    broker: AsyncBroker,
 ) -> Callable[[FastAPI], AsyncContextManager[None]]:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -29,11 +30,7 @@ def broker_startup_lifespan(
     return lifespan
 
 
-def create_app() -> FastAPI:
-    config = load_config()
-
-    broker = create_broker(config)
-
+def create_app(broker: AsyncBroker, container: AsyncContainer) -> FastAPI:
     app = FastAPI(
         lifespan=broker_startup_lifespan(broker),
         default_response_class=ORJSONResponse,
@@ -53,7 +50,14 @@ def create_app() -> FastAPI:
     register_exception_handlers(app)
     setup_logging()
 
-    container = setup_ioc_container(config=config, broker=broker)
     setup_dishka(container=container, app=app)
 
+    return app
+
+
+def main() -> FastAPI:
+    config = load_config()
+    broker = create_broker(config)
+    container = setup_ioc_container(config=config, broker=broker)
+    app = create_app(broker=broker, container=container)
     return app

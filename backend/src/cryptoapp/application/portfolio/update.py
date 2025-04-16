@@ -3,10 +3,10 @@ from dataclasses import dataclass
 from cryptoapp.application.common.id_provider import IdProvider
 from cryptoapp.application.common.transaction_manager import TransactionManager
 from cryptoapp.application.interfaces.storage import StorageService
-from cryptoapp.domain.entities.portfolio.portfolio import PortfolioId
+from cryptoapp.application.portfolio.shared import (
+    get_portfolio_with_ownership_check,
+)
 from cryptoapp.domain.entities.portfolio.repository import PortfolioRepository
-from cryptoapp.domain.entities.user.user import UserId
-from cryptoapp.domain.exceptions import EntityNotFound
 
 
 @dataclass
@@ -32,15 +32,11 @@ class UpdatePortfolio:
     async def __call__(self, data: UpdatePortfolioRequest) -> None:
         user_id = await self._id_provider.get_current_user_id()
 
-        portfolio = await self._portfolio_repository.by_identity(
-            portfolio_id=PortfolioId(data.portfolio_id),
-            user_id=UserId(user_id),
+        portfolio = await get_portfolio_with_ownership_check(
+            portfolio_repository=self._portfolio_repository,
+            user_id=user_id,
+            portfolio_id=data.portfolio_id,
         )
-
-        if not portfolio:
-            raise EntityNotFound(
-                field_name="Portfolio", value=data.portfolio_id
-            )
 
         if data.avatar:
             avatar_url = await self._storage.upload_from_bytes(

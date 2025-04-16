@@ -20,7 +20,6 @@ class CreationPortfolioResponse:
     portfolio_id: int
     name: str
     avatar: str
-    created_at: str
 
 
 BUCKET = "my-portfolios-bucket"
@@ -68,5 +67,4 @@ class CreatePortfolio:
             portfolio_id=portfolio.identity.value,
             name=portfolio.name,
             avatar=portfolio.avatar,
-            created_at=datetime.now(timezone.utc).isoformat(),
         )

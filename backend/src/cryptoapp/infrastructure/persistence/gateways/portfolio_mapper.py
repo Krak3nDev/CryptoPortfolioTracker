@@ -14,13 +14,15 @@ from cryptoapp.infrastructure.persistence.tables import portfolios_table
 
 class PortfolioMapper(SessionInitializer, PortfolioRepository):
     async def by_identity(
-        self, portfolio_id: PortfolioId, user_id: UserId
+        self,
+        portfolio_id: PortfolioId,
+        user_id: UserId,
     ) -> Portfolio | None:
         stmt = select(Portfolio).where(
             portfolios_table.c.user_id == user_id.value,
             portfolios_table.c.portfolio_id == portfolio_id.value,
         )
-        result = await self._session.scalar(stmt)
+        result: Portfolio | None = await self._session.scalar(stmt)
         return result
 
     def add(self, portfolio: Portfolio) -> None:
@@ -28,3 +30,18 @@ class PortfolioMapper(SessionInitializer, PortfolioRepository):
 
     async def delete(self, portfolio: Portfolio) -> None:
         await self._session.delete(portfolio)
+
+    async def is_exists(
+        self, portfolio_id: PortfolioId, user_id: UserId
+    ) -> bool:
+        stmt = (
+            select(1)
+            .select_from(portfolios_table)
+            .where(
+                portfolios_table.c.user_id == user_id.value,
+                portfolios_table.c.portfolio_id == portfolio_id.value,
+            )
+        )
+
+        result = await self._session.scalar(stmt)
+        return result is not None

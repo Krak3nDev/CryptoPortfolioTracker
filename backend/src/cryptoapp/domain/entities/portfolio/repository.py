@@ -16,6 +16,12 @@ class PortfolioRepository(Protocol):
         raise NotImplementedError
 
     @abstractmethod
+    async def is_exists(
+        self, portfolio_id: PortfolioId, user_id: UserId
+    ) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
     def add(self, portfolio: Portfolio) -> None:
         raise NotImplementedError
 

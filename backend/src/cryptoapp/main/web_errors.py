@@ -2,11 +2,10 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from starlette.requests import Request
 
-from cryptoapp.application.exceptions import ApplicationError
+from cryptoapp.application.exceptions import ApplicationError, ValidationError
 from cryptoapp.domain.exceptions import (
     BaseNotFound,
     DomainError,
-    ValidationError,
 )
 from cryptoapp.infrastructure.exceptions import UnauthorizedError
 
