@@ -1,0 +1,107 @@
+@use "../../../styles/mixins" as mixins;
+
+.header {
+  border-bottom: var(--light) solid mixins.rem(1);
+
+  &__container {
+    @include mixins.adaptiveValue("padding-top", 20, 10);
+    @include mixins.adaptiveValue("padding-bottom", 20, 10);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: mixins.rem(20);
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: mixins.rem(10);
+
+    span {
+      font-weight: 700;
+      @include mixins.adaptiveValue("font-size", 20, 15);
+    }
+  }
+}
+
+.spoiler-nav {
+  position: relative;
+
+  &__avatar {
+    padding: mixins.rem(3);
+    border: var(--light) solid mixins.rem(1);
+    border-radius: 50%;
+
+    img {
+      height: mixins.rem(30);
+      width: mixins.rem(30);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + mixins.rem(20));
+    right: mixins.rem(-20);
+    background-color: var(--second-bg);
+    padding: mixins.rem(20);
+    border-radius: mixins.rem(15);
+    box-shadow: var(--shadow-overlay);
+    transform: scale(0);
+    transform-origin: calc(100% - mixins.rem(30)) mixins.rem(-20);
+    transition: transform 0.2s cubic-bezier(0, 0.7, 0, 0.7);
+
+    &_active {
+      transform: scale(1);
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__item {
+    display: block;
+    text-align: left;
+    padding: mixins.rem(12);
+    border-radius: mixins.rem(15);
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: var(--select-bg);
+      color: var(--select-text);
+    }
+  }
+}
+
+.spoiler-user {
+  display: flex;
+  gap: mixins.rem(20);
+  padding-bottom: mixins.rem(15);
+  border-bottom: var(--light) solid mixins.rem(1);
+  margin-bottom: mixins.rem(15);
+
+  &__avatar {
+    img {
+      height: mixins.rem(45);
+      width: mixins.rem(45);
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__name {
+    font-weight: 700;
+    font-size: mixins.rem(20);
+  }
+
+  &__email {
+    color: var(--disable-text);
+  }
+}
+

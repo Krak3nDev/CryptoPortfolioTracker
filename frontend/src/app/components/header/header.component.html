@@ -1,5 +1,57 @@
 <header class="header">
   <div class="header__container">
-    <div class="header__logo"></div>
+    <a class="header__logo" [routerLink]="['/']">
+      <svg width="30" height="33" viewBox="0 0 42 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M38.9711 11.25L19.4856 0L0 11.25V33.75L38.9711 11.25Z" fill="#EC5EB7" />
+        <path d="M2.9854 34.5L22.471 45.75L41.9565 34.5L41.9565 12L2.9854 34.5Z" fill="#B783EB" />
+      </svg>
+      <span>Crypto Portfolio Tracker</span>
+    </a>
+    <nav class="header__nav nav-header">
+      @if (usersService.me) {
+        <div class="nav-header__spoiler spoiler-nav">
+          <button
+            id="spoiler-button"
+            type="button"
+            class="spoiler-nav__avatar"
+            (click)="dropdownToggle()"
+          >
+            <img src="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png" alt="avatar"
+                 srcset="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png">
+          </button>
+          <div
+            id="spoiler-dropdown"
+            class="spoiler-nav__dropdown {{ isOpenDropdown()
+              ? 'spoiler-nav__dropdown_active'
+              : ''
+            }}"
+          >
+            <a class="spoiler-nav__user spoiler-user" [routerLink]="['/settings']">
+              <div class="spoiler-user__avatar">
+                <img src="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png"
+                     alt="avatar-dropdown"
+                     srcset="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png">
+              </div>
+              <div class="spoiler-user__content">
+                <h1 class="spoiler-user__name">Username</h1>
+                <h1 class="spoiler-user__email">example&#64;email.com</h1>
+              </div>
+            </a>
+            <ul class="spoiler-nav__list">
+              <a class="spoiler-nav__item" [routerLink]="['/settings']">
+                Settings
+              </a>
+              <button class="spoiler-nav__item" type="button">
+                Log Out
+              </button>
+            </ul>
+          </div>
+        </div>
+      } @else {
+        <a class="nav-header__link button" [routerLink]="['/login']">
+          Login
+        </a>
+      }
+    </nav>
   </div>
 </header>

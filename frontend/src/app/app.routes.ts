@@ -3,6 +3,7 @@ import { ROUTES } from "./consts/routes"
 import { AuthComponent } from "./pages/auth/auth.component"
 import { HeaderLayoutComponent } from "./layout/header-layout/header-layout.component"
 import { ConfirmComponent } from "./pages/confirm/confirm.component"
+import { HomeComponent } from './pages/home/home.component'
 
 export const routes: Routes = [
   {
@@ -27,6 +28,12 @@ export const routes: Routes = [
   },
   {
     path: "",
-    component: HeaderLayoutComponent
+    component: HeaderLayoutComponent,
+    children: [
+      {
+        path: "",
+        component: HomeComponent
+      }
+    ]
   }
 ]
