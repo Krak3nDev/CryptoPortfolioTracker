@@ -5,46 +5,46 @@
         {{ isRegister() ? 'Register' : 'Login' }}
       </h1>
 
-      <form class="auth__form" [formGroup]="authForm" (ngSubmit)="onSubmit()">
-        <h2 class="auth__form-label">Username</h2>
-        <div class="auth__form-container">
+      <form class="auth__form form" [formGroup]="authForm" (ngSubmit)="onSubmit()">
+        <h2 class="form__label">Username</h2>
+        <div class="form__input-container">
           <input
-            class="auth__form-input {{ authForm.get('username')?.invalid && authForm.get('username')?.touched ? 'auth__form-input_error' : '' }}"
+            class="form__input {{ invalid(authForm, 'username') ? 'form__input_error' : '' }}"
             type="text"
             formControlName="username"
             required
           >
         </div>
-        @if (authForm.get('username')?.invalid && authForm.get('username')?.touched) {
-          <app-auth-error [error]="authForm.get('username')?.errors" />
+        @if (invalid(authForm, 'username')) {
+          <app-form-error [message]="message(authErrors, authForm, 'username')" />
         }
 
         @if (isRegister()) {
-          <h2 class="auth__form-label">Email</h2>
-          <div class="auth__form-container">
+          <h2 class="form__label">Email</h2>
+          <div class="form__input-container">
             <input
-              class="auth__form-input {{ authForm.get('email')?.invalid && authForm.get('email')?.touched ? 'auth__form-input_error' : '' }}"
+              class="form__input {{ invalid(authForm, 'email') ? 'form__input_error' : '' }}"
               type="email"
               formControlName="email"
               required
             >
           </div>
-          @if (authForm.get('email')?.invalid && authForm.get('email')?.touched) {
-            <app-auth-error [error]="authForm.get('email')?.errors" />
+          @if (invalid(authForm, 'email')) {
+            <app-form-error [message]="message(authErrors, authForm, 'email')" />
           }
         }
 
-        <h2 class="auth__form-label">Password</h2>
-        <div class="auth__form-container">
+        <h2 class="form__label">Password</h2>
+        <div class="form__input-container">
           <input
-            class="auth__form-input {{ authForm.get('password')?.invalid && authForm.get('password')?.touched ? 'auth__form-input_error' : '' }}"
+            class="form__input {{ invalid(authForm, 'password') ? 'form__input_error' : '' }}"
             [type]="isPasswordVisible()['password'] ? 'text' : 'password'"
             formControlName="password"
             required
           >
           <button
             type="button"
-            class="auth__form-show-password"
+            class="form__show-password"
             (click)="showPassword('password')"
           >
             @if (isPasswordVisible()['password']) {
@@ -54,22 +54,22 @@
             }
           </button>
         </div>
-        @if (authForm.get('password')?.invalid && authForm.get('password')?.touched) {
-          <app-auth-error [error]="authForm.get('password')?.errors" />
+        @if (invalid(authForm, 'password')) {
+          <app-form-error [message]="message(authErrors, authForm, 'password')" />
         }
 
         @if (isRegister()) {
-          <h2 class="auth__form-label">Confirm Password</h2>
-          <div class="auth__form-container">
+          <h2 class="form__label">Confirm Password</h2>
+          <div class="form__input-container">
             <input
-              class="auth__form-input {{ authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched ? 'auth__form-input_error' : '' }}"
+              class="form__input {{ invalid(authForm, 'confirmPassword') ? 'form__input_error' : '' }}"
               [type]="isPasswordVisible()['confirmPassword'] ? 'text' : 'password'"
               formControlName="confirmPassword"
               required
             >
             <button
               type="button"
-              class="auth__form-show-password"
+              class="form__show-password"
               (click)="showPassword('confirmPassword')"
             >
               @if (isPasswordVisible()['confirmPassword']) {
@@ -79,26 +79,26 @@
               }
             </button>
           </div>
-          @if (authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched) {
-            <app-auth-error [error]="authForm.get('confirmPassword')?.errors" />
+          @if (invalid(authForm, 'confirmPassword')) {
+            <app-form-error [message]="message(authErrors, authForm, 'confirmPassword')" />
           }
         }
 
-        <button class="auth__form-submit" type="submit">
+        <button class="form__submit" type="submit">
           {{ isRegister() ? 'Register' : 'Login' }}
         </button>
 
         @if (submitError()) {
-          <app-auth-error [error]="submitError()"/>
+          <app-form-error [message]="submitError()!" />
         }
       </form>
 
       @if (!isRegister()) {
-        <a class="auth__form-link link" [routerLink]="['/register']">
+        <a class="auth__link link" [routerLink]="['/' + ROUTES.register]">
           Don't have an account? Register
         </a>
       } @else {
-        <a class="auth__form-link link" [routerLink]="['/login']">
+        <a class="auth__link link" [routerLink]="['/' + ROUTES.login]">
           Already have an account? Login
         </a>
       }

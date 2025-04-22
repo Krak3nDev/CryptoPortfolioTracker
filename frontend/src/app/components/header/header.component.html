@@ -8,44 +8,51 @@
       <span>Crypto Portfolio Tracker</span>
     </a>
     <nav class="header__nav nav-header">
+      <a [routerLink]="ROUTES.portfoliosList" class="nav-header__link link">
+        Portfolios
+      </a>
       @if (usersService.me) {
-        <div class="nav-header__spoiler spoiler-nav">
+        <div class="nav-header__user user-nav">
           <button
-            id="spoiler-button"
+            id="modal-target-header"
             type="button"
-            class="spoiler-nav__avatar"
-            (click)="dropdownToggle()"
+            class="user-nav__avatar"
+            (click)="this.modalAdapter.open('header')"
           >
             <img src="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png" alt="avatar"
                  srcset="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png">
           </button>
-          <div
-            id="spoiler-dropdown"
-            class="spoiler-nav__dropdown {{ isOpenDropdown()
-              ? 'spoiler-nav__dropdown_active'
-              : ''
-            }}"
+          <app-modal
+            class="user-nav__modal modal-nav"
+            [modalId]="'header'"
+            [options]="{
+              closeOutside: true
+            }"
           >
-            <a class="spoiler-nav__user spoiler-user" [routerLink]="['/settings']">
-              <div class="spoiler-user__avatar">
+            <a class="modal-nav__user modal-user" [routerLink]="['/settings']">
+              <div class="modal-user__avatar">
                 <img src="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png"
                      alt="avatar-dropdown"
                      srcset="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png">
               </div>
-              <div class="spoiler-user__content">
-                <h1 class="spoiler-user__name">Username</h1>
-                <h1 class="spoiler-user__email">example&#64;email.com</h1>
+              <div class="modal-user__content">
+                <h1 class="modal-user__name">Username</h1>
+                <h1 class="modal-user__email">example&#64;email.com</h1>
               </div>
             </a>
-            <ul class="spoiler-nav__list">
-              <a class="spoiler-nav__item" [routerLink]="['/settings']">
+            <ul class="modal-nav__list">
+              <a class="modal-nav__item" [routerLink]="['/settings']">
                 Settings
               </a>
-              <button class="spoiler-nav__item" type="button">
+              <button
+                class="modal-nav__item"
+                type="button"
+                (click)="this.authService.logout()"
+              >
                 Log Out
               </button>
             </ul>
-          </div>
+          </app-modal>
         </div>
       } @else {
         <a class="nav-header__link button" [routerLink]="['/login']">

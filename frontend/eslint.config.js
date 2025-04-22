@@ -6,7 +6,7 @@ const unusedImports = require("eslint-plugin-unused-imports")
 
 module.exports = tseslint.config(
   {
-    files: [ "**/*.ts" ],
+    files: ["**/*.ts"],
     plugins: {
       // @ts-ignore
       "unused-imports": unusedImports
@@ -34,7 +34,7 @@ module.exports = tseslint.config(
     }
   },
   {
-    files: [ "**/*.html" ],
+    files: ["**/*.html"],
     extends: [
       ...angular.configs.templateRecommended,
       ...angular.configs.templateAccessibility

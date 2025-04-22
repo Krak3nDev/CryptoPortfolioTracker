@@ -1,0 +1,18 @@
+@use "../../../styles/mixins" as mixins;
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background-color: var(--second-bg);
+  padding: mixins.rem(30);
+  border-radius: mixins.rem(15);
+  box-shadow: var(--shadow-overlay);
+  transition: transform 0.15s cubic-bezier(0, 0.7, 0, 0.7);
+  z-index: 10;
+
+  &_active {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

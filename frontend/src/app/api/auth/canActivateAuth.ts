@@ -10,3 +10,11 @@ export const canActivateAuth: CanActivateFn = () => {
 
   return inject(Router).createUrlTree(["/" + ROUTES.login])
 }
+
+export const canActivateUnauth: CanActivateFn = () => {
+  if (!inject(UsersService).me) {
+    return true
+  }
+
+  return inject(Router).createUrlTree(["/" + ROUTES.home])
+}

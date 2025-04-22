@@ -1,0 +1,159 @@
+<section class="portfolios">
+  <div class="portfolios__container">
+    <div class="portfolios__heading">
+      <h1 class="portfolios__title">Portfolios</h1>
+      <div class="portfolios__new">
+        <button
+          id="modal-target-new-portfolio"
+          type="button"
+          class="portfolios__button button"
+          (click)="modalAdapter.open('new-portfolio')"
+        >
+          New portfolio
+        </button>
+        @if (!portfolios().list.isLoading) {
+          <app-modal
+            class="portfolios__modal new-portfolio"
+            [modalId]="'new-portfolio'"
+            [options]="{
+              closeOutside: true
+            }"
+          >
+            <h1 class="new-portfolio__title">
+              Create new portfolio
+            </h1>
+            <form
+              class="new-portfolio__form form"
+              [formGroup]="createPortfolioForm"
+              (ngSubmit)="createPortfolio()"
+            >
+              <h2 class="form__label">Name</h2>
+              <div class="form__input-container">
+                <input
+                  type="text"
+                  class="form__input {{ invalid(createPortfolioForm, 'name') ? 'form__input_error' : '' }}"
+                  formControlName="name"
+                  required
+                >
+              </div>
+              @if (invalid(createPortfolioForm, 'name')) {
+                <app-form-error [message]="message(portfoliosListErrors, createPortfolioForm, 'name')" />
+              }
+
+              <h2 class="form__label">Avatar</h2>
+              <div class="form__input-container form__input-container_file">
+                <label for="avatar-input">
+                  <fa-icon [icon]="icons.upload" />
+                  <span>{{ createPortfolioForm.get('avatar')?.value?.name || "No file uploaded yet" }}</span>
+                </label>
+                <input
+                  id="avatar-input"
+                  type="file"
+                  class="form__input {{ invalid(createPortfolioForm, 'avatar') ? 'form__input_error' : '' }}"
+                  (change)="uploadFile($event)"
+                  required
+                >
+              </div>
+              @if (invalid(createPortfolioForm, 'avatar')) {
+                <app-form-error [message]="message(portfoliosListErrors, createPortfolioForm, 'avatar')" />
+              }
+
+              @if (portfolios().newPortfolio.error) {
+                <app-form-error [message]="portfolios().newPortfolio.error!" />
+              }
+
+              <div class="form__buttons">
+                <button
+                  type="submit"
+                  class="button form__button_submit"
+                  (click)="createPortfolio()"
+                >Create
+                </button>
+                <button
+                  type="button"
+                  class="button form__button_cancel"
+                  (click)="modalAdapter.close('new-portfolio')"
+                >Cancel
+                </button>
+              </div>
+            </form>
+          </app-modal>
+        }
+      </div>
+    </div>
+    @if (portfolios().list.isLoading) {
+      <div class="loader"></div>
+    } @else if (portfolios().list.error) {
+      <app-form-error [message]="portfolios().list.error!" />
+    } @else {
+      <div class="table__wrapper table-portfolios__wrapper">
+        <table class="portfolios__table table-portfolios table">
+          @for (portfolio of portfolios().list.result; track portfolio.portfolio_id) {
+            <tr class="table-portfolios__row">
+              <td class="table-portfolios__column table-portfolios__column_avatar">
+                <img
+                  [src]="portfolio.avatar"
+                  [srcset]="portfolio.avatar"
+                  alt="Avatar"
+                  fill
+                >
+              </td>
+              <td class="table-portfolios__column">{{ portfolio.portfolio_name }}</td>
+              <td class="table-portfolios__column table-portfolios__column_{{portfolio.type}}">
+                <div class="table-portfolio__flex">
+                  <div class="triangle triangle_{{portfolio.type}}"></div>
+                  <span>{{ portfolio.total_value }}</span>
+                </div>
+              </td>
+              <td class="table-portfolios__column table-portfolios__column_{{portfolio.type}}">
+                <div class="table-portfolio__flex">
+                  <div class="triangle triangle_{{portfolio.type}}"></div>
+                  <span>{{ portfolio.percent_change_24h }}%</span>
+                </div>
+              </td>
+              <td class="table-portfolios__column table-portfolios__column_{{portfolio.type}}">
+                <div class="table-portfolio__flex">
+                  <div class="triangle triangle_{{portfolio.type}}"></div>
+                  <span>{{ portfolio.value_change_24h }}</span>
+                </div>
+              </td>
+              <td class="table-portfolios__column table-portfolios__column_button">
+                <button
+                  id="modal-target-{{portfolio.portfolio_id}}"
+                  type="button"
+                  class="table-portfolios__delete"
+                  (click)="modalAdapter.open(portfolio.portfolio_id.toString())"
+                >
+                  <fa-icon [icon]="icons.delete" />
+                </button>
+                <app-modal
+                  class="table-portfolios__modal"
+                  [modalId]="portfolio.portfolio_id.toString()"
+                  [options]="{
+                    closeOutside: true
+                  }"
+                >
+                  <h1 class="modal__title">Are you sure you want to delete the {{ portfolio.portfolio_name }}?</h1>
+                  <div class="modal__buttons">
+                    <button
+                      type="button"
+                      class="modal__button modal__button_delete button"
+                      (click)="deletePortfolio(portfolio.portfolio_id.toString())"
+                    >Delete
+                    </button>
+                    <button
+                      type="button"
+                      class="modal__button modal__button_cancel button"
+                      (click)="modalAdapter.close(portfolio.portfolio_id.toString())"
+                    >Cancel
+                    </button>
+                  </div>
+                </app-modal>
+              </td>
+            </tr>
+          }
+        </table>
+      </div>
+    }
+  </div>
+</section>

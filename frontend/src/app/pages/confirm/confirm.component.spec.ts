@@ -1,7 +1,7 @@
 import {
   ComponentFixture,
-  TestBed,
   fakeAsync,
+  TestBed,
   tick
 } from "@angular/core/testing"
 import { ConfirmComponent } from "./confirm.component"
@@ -14,6 +14,7 @@ import { HttpErrorResponse } from "@angular/common/http"
 import { ROUTES } from "../../consts/routes"
 import { authErrors } from "../../consts/errors/auth.errors"
 import { routes } from "../../app.routes"
+import { commonErrors } from "../../consts/errors/common.errors"
 
 describe("ConfirmComponent", () => {
   let component: ConfirmComponent
@@ -82,7 +83,9 @@ describe("ConfirmComponent", () => {
 
     it("should set error message on 404 error", fakeAsync(() => {
       const error = new HttpErrorResponse({ status: 404 })
-      jest.spyOn(confirmService, "confirm").mockReturnValue(throwError(() => error))
+      jest
+        .spyOn(confirmService, "confirm")
+        .mockReturnValue(throwError(() => error))
       fixture.detectChanges()
       tick()
       expect(component.message()).toBe(authErrors.token)
@@ -91,11 +94,13 @@ describe("ConfirmComponent", () => {
 
     it("should set error flag on other errors", fakeAsync(() => {
       const error = new HttpErrorResponse({ status: 500 })
-      jest.spyOn(confirmService, "confirm").mockReturnValue(throwError(() => error))
+      jest
+        .spyOn(confirmService, "confirm")
+        .mockReturnValue(throwError(() => error))
       fixture.detectChanges()
       tick()
       expect(component.error()).toBeTruthy()
-      expect(component.message()).toBe(authErrors.common)
+      expect(component.message()).toBe(commonErrors.main)
     }))
   })
 

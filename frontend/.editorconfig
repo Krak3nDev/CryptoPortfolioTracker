@@ -9,7 +9,6 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.ts]
-quote_type = double
 ij_typescript_use_double_quotes = false
 
 [*.md]

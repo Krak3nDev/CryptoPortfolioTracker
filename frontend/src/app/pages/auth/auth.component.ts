@@ -9,18 +9,17 @@ import {
   LoginBodyRequest,
   RegisterBodyRequest
 } from "../../api/auth/auth.interface"
-import { authFormValidators } from "./form.validators"
-import { AuthErrorComponent } from "./error/auth-error.component"
+import { authFormValidators } from "./authForm.validators"
+import { ErrorComponent } from "../../components/error/error.component"
 import { HttpErrorResponse } from "@angular/common/http"
+import { invalid } from "../../utils/error/invalid"
+import { message } from "../../utils/error/message"
+import { authErrors } from "../../consts/errors/auth.errors"
+import { commonErrors } from "../../consts/errors/common.errors"
 
 @Component({
   selector: "app-auth",
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    FontAwesomeModule,
-    AuthErrorComponent
-  ],
+  imports: [ReactiveFormsModule, RouterLink, FontAwesomeModule, ErrorComponent],
   templateUrl: "./auth.component.html",
   styleUrl: "./auth.component.scss"
 })
@@ -51,7 +50,7 @@ export class AuthComponent {
     eye: faEye,
     eyeSlash: faEyeSlash
   }
-  submitError = signal<object | null>(null)
+  submitError = signal<string | null>(null)
 
   ngOnInit() {
     if (this.router.url.includes(ROUTES.register)) {
@@ -61,6 +60,11 @@ export class AuthComponent {
 
   onSubmit() {
     if (this.authForm.invalid) {
+      this.authForm.markAsTouched()
+      this.authForm.controls.username.markAsTouched()
+      this.authForm.controls.email.markAsTouched()
+      this.authForm.controls.password.markAsTouched()
+      this.authForm.controls.confirmPassword.markAsTouched()
       return
     }
 
@@ -98,15 +102,11 @@ export class AuthComponent {
     },
     error: (error: HttpErrorResponse) => {
       if (error.status === 404) {
-        this.submitError.set({
-          submitInvalid: true
-        })
+        this.submitError.set(authErrors.submitInvalid)
         return
       }
 
-      this.submitError.set({
-        common: true
-      })
+      this.submitError.set(commonErrors.main)
     }
   }
 
@@ -118,4 +118,9 @@ export class AuthComponent {
       [field]: !oldState[field]
     })
   }
+
+  protected readonly invalid = invalid
+  protected readonly message = message
+  protected readonly authErrors = authErrors
+  protected readonly ROUTES = ROUTES
 }

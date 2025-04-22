@@ -23,83 +23,9 @@
     text-align: center;
   }
 
-  &__form {
-    @include mixins.adaptiveValue("margin-bottom", 30, 20);
-
-    &-label {
-      display: block;
-      @include mixins.adaptiveValue("font-size", 18, 14);
-      @include mixins.adaptiveValue("margin-bottom", 15, 10);
-      color: var(--disable-text);
-    }
-
-    &-container {
-      position: relative;
-      width: 100%;
-      @include mixins.adaptiveValue("margin-bottom", 10, 7);
-    }
-
-    &-input {
-      display: block;
-      width: 100%;
-      height: 100%;
-      padding: mixins.rem(10) mixins.rem(15);
-      transition: border-color 0.2s ease, background-color 0.2s ease;
-      border: var(--light) solid mixins.rem(1);
-      background-color: var(--second-bg);
-      border-radius: mixins.rem(15);
-      color: var(--main-text);
-
-      &_error {
-        border-color: var(--error);
-      }
-
-      &:hover {
-        background-color: var(--select-bg);
-      }
-
-      &:focus {
-        border-color: inherit;
-        background-color: var(--select-bg);
-      }
-    }
-
-    &-show-password {
-      font-size: mixins.rem(18);
-      position: absolute;
-      right: mixins.rem(10);
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--icons);
-      cursor: pointer;
-      transition: color 0.2s ease;
-
-      &:hover {
-        color: var(--select-text);
-      }
-    }
-
-    &-submit {
-      width: 100%;
-      padding: mixins.rem(10) mixins.rem(15);
-      @include mixins.adaptiveValue("font-size", 18, 14);
-      @include mixins.adaptiveValue("margin-top", 25, 20);
-      @include mixins.adaptiveValue("margin-bottom", 10, 7);
-      transition: background-color 0.2s ease, color 0.2s ease;
-      background-color: var(--second-bg);
-      border: var(--light) solid mixins.rem(1);
-      border-radius: mixins.rem(15);
-
-      &:hover {
-        background-color: var(--select-bg);
-        color: var(--select-text);
-      }
-    }
-
-    &-link {
-      display: block;
-      width: max-content;
-      margin: 0 auto;
-    }
+  &__link {
+    display: block;
+    width: max-content;
+    margin: 0 auto;
   }
 }

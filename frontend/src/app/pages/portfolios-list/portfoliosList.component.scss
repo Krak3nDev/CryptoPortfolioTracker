@@ -1,0 +1,67 @@
+@use "../../../styles/mixins" as mixins;
+
+.portfolios {
+  &__container {
+    @include mixins.adaptiveValue("padding-top", 30, 20);
+    @include mixins.adaptiveValue("padding-bottom", 30, 20);
+  }
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @include mixins.adaptiveValue("margin-bottom", 20, 15);
+  }
+
+  &__title {
+    font-weight: 700;
+    @include mixins.adaptiveValue("font-size", 32, 24);
+  }
+}
+
+:host ::ng-deep .new-portfolio {
+  &__title {
+    font-weight: 700;
+    @include mixins.adaptiveValue("font-size", 32, 24);
+    @include mixins.adaptiveValue("margin-bottom", 40, 20);
+    text-align: center;
+  }
+
+  &__form {
+    margin-bottom: 0;
+  }
+
+  .modal {
+    @include mixins.adaptiveValue("max-width", 450, 300);
+  }
+}
+
+.table-portfolios {
+  &__delete {
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--error);
+    }
+  }
+
+  &__column {
+    &_up {
+      color: var(--green);
+    }
+
+    &_down {
+      color: var(--red);
+    }
+
+    &_middle {
+      color: var(--disable-text);
+    }
+  }
+
+  :host ::ng-deep &__modal {
+    .modal {
+      @include mixins.adaptiveValue("max-width", 450, 300);
+    }
+  }
+}
