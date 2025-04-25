@@ -1,25 +1,53 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing"
 import { ErrorComponent } from "./error.component"
-import { FaIconComponent } from "@fortawesome/angular-fontawesome"
-import { ComponentRef } from "@angular/core"
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { Component, Input } from "@angular/core"
 
-describe("AuthErrorComponent", () => {
+@Component({
+  selector: "fa-icon",
+  template: "<span></span>"
+})
+class MockFaIconComponent {
+  @Input() icon: unknown
+}
+
+describe("ErrorComponent", () => {
   let component: ErrorComponent
-  let componentRef: ComponentRef<ErrorComponent>
   let fixture: ComponentFixture<ErrorComponent>
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FaIconComponent, ErrorComponent]
+      imports: [ErrorComponent, MockFaIconComponent]
     }).compileComponents()
 
     fixture = TestBed.createComponent(ErrorComponent)
     component = fixture.componentInstance
-    componentRef = fixture.componentRef
-    fixture.detectChanges()
   })
 
   it("should create", () => {
     expect(component).toBeTruthy()
+  })
+
+  it("should display the correct error message", () => {
+    const testMessage = "Test error message"
+    component.message = testMessage
+    fixture.detectChanges()
+
+    const errorElement = fixture.nativeElement.querySelector(".error")
+    expect(errorElement.textContent).toContain(testMessage)
+  })
+
+  it("should have the correct icon", () => {
+    expect(component.icon).toBe(faTriangleExclamation)
+  })
+
+  it("should pass the icon to fa-icon component", () => {
+    component.message = "Test"
+    fixture.detectChanges()
+
+    const faIconComponent = fixture.debugElement.query(
+      el => el.name === "fa-icon"
+    ).componentInstance as MockFaIconComponent
+    expect(faIconComponent.icon).toBe(faTriangleExclamation)
   })
 })
