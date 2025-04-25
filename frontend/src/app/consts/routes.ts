@@ -3,5 +3,6 @@ export const ROUTES = {
   login: "login",
   register: "register",
   confirm: "confirm",
-  confirmByToken: `confirm/:token`
+  confirmByToken: "confirm/:token",
+  portfoliosList: "portfolios"
 }

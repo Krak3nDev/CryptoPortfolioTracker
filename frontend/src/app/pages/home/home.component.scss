@@ -1,0 +1,23 @@
+@use "../../../styles/mixins" as mixins;
+
+.get-started {
+  &__container {
+    @include mixins.adaptiveValue("padding-top", 200, 150);
+    @include mixins.adaptiveValue("padding-bottom", 30, 20);
+  }
+
+  &__title {
+    font-weight: 700;
+    @include mixins.adaptiveValue("font-size", 40, 30);
+    @include mixins.adaptiveValue("margin-bottom", 20, 15);
+  }
+
+  &__text {
+    font-weight: 500;
+    @include mixins.adaptiveValue("margin-bottom", 40, 30);
+    @include mixins.adaptiveValue("font-size", 16, 12);
+    color: var(--disable-text);
+    max-width: mixins.rem(400);
+    line-height: 1.5;
+  }
+}

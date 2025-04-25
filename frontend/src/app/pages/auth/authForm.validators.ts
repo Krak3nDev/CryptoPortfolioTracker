@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors, Validators } from '@angular/forms'
+import { AbstractControl, ValidationErrors, Validators } from "@angular/forms"
 import { WritableSignal } from "@angular/core"
 
 export const authFormValidators = (isRegister: WritableSignal<boolean>) => ({
@@ -19,12 +19,14 @@ export const authFormValidators = (isRegister: WritableSignal<boolean>) => ({
         return null
       }
 
-      if (group.get("password")?.value === group.get("confirmPassword")?.value) {
+      if (
+        group.get("password")?.value === group.get("confirmPassword")?.value
+      ) {
         return null
       }
 
       const error: ValidationErrors = {
-        "mismatch": true
+        mismatch: true
       }
 
       group.get("confirmPassword")?.setErrors(error)

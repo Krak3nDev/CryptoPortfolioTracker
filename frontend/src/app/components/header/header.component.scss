@@ -1,0 +1,119 @@
+@use "../../../styles/mixins" as mixins;
+
+.header {
+  border-bottom: var(--light) solid mixins.rem(1);
+
+  &__container {
+    @include mixins.adaptiveValue("padding-top", 20, 10);
+    @include mixins.adaptiveValue("padding-bottom", 20, 10);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: mixins.rem(20);
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: mixins.rem(10);
+
+    span {
+      font-weight: 700;
+      @include mixins.adaptiveValue("font-size", 20, 15);
+    }
+  }
+}
+
+.nav-header {
+  display: flex;
+  align-items: center;
+  gap: mixins.rem(20);
+
+  &__link {
+    @include mixins.adaptiveValue("font-size", 20, 16);
+  }
+}
+
+:host ::ng-deep .user-nav {
+  .modal__overlay {
+    position: relative;
+  }
+
+  .modal {
+    position: absolute;
+    transform: translate(0) scale(0);
+    transform-origin: calc(100% + mixins.rem(-15)) mixins.rem(-15);
+    right: 0;
+    left: auto;
+    top: mixins.rem(15);
+
+    &_active {
+      transform: translate(0) scale(1);
+    }
+  }
+
+  &__avatar {
+    padding: mixins.rem(3);
+    border: var(--light) solid mixins.rem(1);
+    border-radius: 50%;
+
+    img {
+      height: mixins.rem(30);
+      width: mixins.rem(30);
+      user-select: none;
+    }
+  }
+}
+
+:host ::ng-deep .modal-nav {
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__item {
+    display: block;
+    text-align: left;
+    padding: mixins.rem(12);
+    border-radius: mixins.rem(15);
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: var(--select-bg);
+      color: var(--select-text);
+    }
+  }
+}
+
+:host ::ng-deep .modal-user {
+  display: flex;
+  gap: mixins.rem(20);
+  padding-bottom: mixins.rem(15);
+  border-bottom: var(--light) solid mixins.rem(1);
+  margin-bottom: mixins.rem(15);
+
+  &__avatar {
+    img {
+      height: mixins.rem(45);
+      width: mixins.rem(45);
+      user-select: none;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__name {
+    font-weight: 700;
+    font-size: mixins.rem(20);
+  }
+
+  &__email {
+    color: var(--disable-text);
+  }
+}
+

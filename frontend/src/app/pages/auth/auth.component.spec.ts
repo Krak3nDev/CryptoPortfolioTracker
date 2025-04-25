@@ -1,21 +1,21 @@
 import {
   ComponentFixture,
-  TestBed,
   fakeAsync,
+  TestBed,
   tick
 } from "@angular/core/testing"
 import { AuthComponent } from "./auth.component"
 import { AuthService } from "../../api/auth/auth.service"
-import { provideRouter, Router } from '@angular/router'
+import { provideRouter, Router } from "@angular/router"
 import { ReactiveFormsModule } from "@angular/forms"
 import { HttpClientTestingModule } from "@angular/common/http/testing"
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome"
-import { AuthErrorComponent } from "./error/auth-error.component"
+import { ErrorComponent } from "../../components/error/error.component"
 import { of, throwError } from "rxjs"
 import { ROUTES } from "../../consts/routes"
 import { HttpErrorResponse } from "@angular/common/http"
 import { RouterTestingModule } from "@angular/router/testing"
-import { routes } from '../../app.routes'
+import { routes } from "../../app.routes"
 
 describe("AuthComponent", () => {
   let component: AuthComponent
@@ -31,11 +31,9 @@ describe("AuthComponent", () => {
         FontAwesomeModule,
         RouterTestingModule.withRoutes([]),
         AuthComponent,
-        AuthErrorComponent
+        ErrorComponent
       ],
-      providers: [
-        provideRouter(routes)
-      ]
+      providers: [provideRouter(routes)]
     }).compileComponents()
 
     fixture = TestBed.createComponent(AuthComponent)
@@ -60,14 +58,14 @@ describe("AuthComponent", () => {
     })
 
     it("should set isRegister to true when URL contains register", fakeAsync(() => {
-      (router as Router).navigate([ROUTES.register])
+      ;(router as Router).navigate([ROUTES.register])
       tick()
       component.ngOnInit()
       expect(component.isRegister()).toBeTruthy()
     }))
 
     it("should set isRegister to false when URL contains login", fakeAsync(() => {
-      (router as Router).navigate([ROUTES.login])
+      ;(router as Router).navigate([ROUTES.login])
       tick()
       component.ngOnInit()
       expect(component.isRegister()).toBeFalsy()
@@ -177,7 +175,9 @@ describe("AuthComponent", () => {
 
       it("should set submitError on 404 error", fakeAsync(() => {
         const error = new HttpErrorResponse({ status: 404 })
-        jest.spyOn(authService, "login").mockReturnValue(throwError(() => error))
+        jest
+          .spyOn(authService, "login")
+          .mockReturnValue(throwError(() => error))
         component.onSubmit()
         tick()
         expect(component.submitError()).toEqual({ submitInvalid: true })
@@ -185,7 +185,9 @@ describe("AuthComponent", () => {
 
       it("should set common error on other errors", fakeAsync(() => {
         const error = new HttpErrorResponse({ status: 500 })
-        jest.spyOn(authService, "login").mockReturnValue(throwError(() => error))
+        jest
+          .spyOn(authService, "login")
+          .mockReturnValue(throwError(() => error))
         component.onSubmit()
         tick()
         expect(component.submitError()).toEqual({ common: true })
@@ -220,7 +222,9 @@ describe("AuthComponent", () => {
 
       it("should set submitError on 404 error", fakeAsync(() => {
         const error = new HttpErrorResponse({ status: 404 })
-        jest.spyOn(authService, "register").mockReturnValue(throwError(() => error))
+        jest
+          .spyOn(authService, "register")
+          .mockReturnValue(throwError(() => error))
         component.onSubmit()
         tick()
         expect(component.submitError()).toEqual({ submitInvalid: true })
@@ -228,7 +232,9 @@ describe("AuthComponent", () => {
 
       it("should set common error on other errors", fakeAsync(() => {
         const error = new HttpErrorResponse({ status: 500 })
-        jest.spyOn(authService, "register").mockReturnValue(throwError(() => error))
+        jest
+          .spyOn(authService, "register")
+          .mockReturnValue(throwError(() => error))
         component.onSubmit()
         tick()
         expect(component.submitError()).toEqual({ common: true })

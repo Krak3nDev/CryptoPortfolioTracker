@@ -1,10 +1,11 @@
 import { Component, inject, signal } from "@angular/core"
-import { Router, RouterLink } from '@angular/router'
+import { Router, RouterLink } from "@angular/router"
 import { ROUTES } from "../../consts/routes"
 import { ConfirmService } from "../../api/confirm/confirm.service"
-import { FaIconComponent } from '@fortawesome/angular-fontawesome'
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
-import { authErrors } from '../../consts/errors/auth.errors'
+import { FaIconComponent } from "@fortawesome/angular-fontawesome"
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { authErrors } from "../../consts/errors/auth.errors"
+import { commonErrors } from "../../consts/errors/common.errors"
 
 @Component({
   selector: "app-confirm",
@@ -18,7 +19,7 @@ export class ConfirmComponent {
 
   error = signal(false)
   isToken = signal(false)
-  message = signal(authErrors.common)
+  message = signal(commonErrors.main)
   icon = faTriangleExclamation
 
   ngOnInit() {

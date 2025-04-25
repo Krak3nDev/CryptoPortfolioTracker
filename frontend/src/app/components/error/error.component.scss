@@ -1,6 +1,6 @@
-@use "../../../../styles/mixins" as mixins;
+@use "../../../styles/mixins" as mixins;
 
-.auth__form-error {
+.error {
   @include mixins.adaptiveValue("font-size", 16, 12);
   @include mixins.adaptiveValue("margin-bottom", 10, 7);
   @include mixins.adaptiveValue("padding", 10, 7);
