@@ -60,6 +60,7 @@ from cryptoapp.infrastructure.persistence.gateways.user_mapper import (
 from cryptoapp.infrastructure.persistence.readers.portfolio import (
     PortfolioReader,
 )
+from cryptoapp.infrastructure.persistence.readers.user import UserReader
 from cryptoapp.infrastructure.persistence.setup import (
     create_engine,
     create_session_pool,
@@ -225,6 +226,8 @@ class InfrastructureServiceProvider(Provider):
             yield s3
 
     portfolio_reader = provide(PortfolioReader, scope=Scope.REQUEST)
+
+    user_reader = provide(UserReader, scope=Scope.REQUEST)
 
 
 class DomainServiceProvider(Provider):
