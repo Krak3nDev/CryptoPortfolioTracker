@@ -15,6 +15,23 @@ services:
       rabbit:
         condition: service_healthy
 
+  frontend:
+    container_name: cryptoapp.frontend.dev
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    expose:
+      - "4200"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      backend:
+        condition: service_started
+
+
   database:
     image: postgres:16.4-alpine
     container_name: cryptoapp.postgres.dev
@@ -79,7 +96,7 @@ services:
       dockerfile: Dockerfile.dev
     env_file:
       - .env
-    command: taskiq scheduler cryptoapp.main.taskiq_entry.broker:create_scheduler cryptoapp.infrastructure.taskiq_tasks
+    command: taskiq scheduler cryptoapp.main.taskiq_entry.broker:setup_taskiq_scheduler cryptoapp.infrastructure.taskiq_tasks
     volumes:
       - ./backend/src/cryptoapp:/app/cryptoapp
     depends_on:
@@ -94,8 +111,8 @@ services:
     volumes:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      backend:
-        condition: service_started
+      - backend
+      - frontend
 
   vector-agent:
     container_name: cryptoapp.vector-agent.dev

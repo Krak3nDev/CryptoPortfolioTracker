@@ -24,9 +24,9 @@ dependencies = [
     "python-multipart>=0.0.20",
     "redis>=5.2.1",
     "sqlalchemy>=2.0.38",
-    "taskiq-aio-pika>=0.4.1",
-    "taskiq-redis>=1.0.2",
-    "taskiq[orjson]>=0.11.11",
+    "taskiq-aio-pika>=0.4.2",
+    "taskiq-redis>=1.0.8",
+    "taskiq[orjson]>=0.11.17",
     "tenacity>=9.0.0",
     "uuid6>=2024.7.10",
 ]

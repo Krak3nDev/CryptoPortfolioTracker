@@ -1,0 +1,10 @@
+FROM node:20-alpine3.19
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+EXPOSE 4200
+ENV CHOKIDAR_USEPOLLING=true
+CMD ["npm", "run", "start:hmr", "--", "--host", "0.0.0.0"]

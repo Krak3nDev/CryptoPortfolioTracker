@@ -4,8 +4,8 @@ from typing import AsyncContextManager, AsyncIterator, Callable
 from dishka import AsyncContainer
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
-from starlette.middleware.cors import CORSMiddleware
 from taskiq import AsyncBroker
 
 from cryptoapp.main.config import load_config
@@ -36,11 +36,16 @@ def create_app(broker: AsyncBroker, container: AsyncContainer) -> FastAPI:
         default_response_class=ORJSONResponse,
     )
 
-    origins = ["http://localhost:4242", "http://127.0.0.1:4242"]
+    origins_dev = [
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://localhost:4200",
+        "http://127.0.0.1:4200",
+    ]
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=origins_dev,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -53,7 +58,6 @@ def create_app(broker: AsyncBroker, container: AsyncContainer) -> FastAPI:
     setup_dishka(container=container, app=app)
 
     return app
-
 
 def main() -> FastAPI:
     config = load_config()
