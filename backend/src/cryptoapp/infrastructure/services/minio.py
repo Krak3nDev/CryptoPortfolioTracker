@@ -31,7 +31,8 @@ class S3Minio(StorageService):
         self._minio_config = minio_config
 
     @retry(
-        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=30)
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
     )
     async def upload_from_bytes(self, data: bytes, file_name: str) -> str:
         unique_file_name = f"{file_name}_{uuid6.uuid7().hex}.webp"
@@ -54,9 +55,12 @@ class S3Minio(StorageService):
             raise e
 
     @retry(
-        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=30)
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
     )
-    async def get_presigned_url(self, s3_url: str, expires_in: int = 3600) -> str:
+    async def get_presigned_url(
+        self, s3_url: str, expires_in: int = 3600
+    ) -> str:
         if not s3_url.startswith("s3://"):
             raise ValueError(f"Invalid s3_url format: {s3_url}")
 

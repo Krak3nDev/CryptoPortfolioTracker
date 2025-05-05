@@ -128,16 +128,22 @@ class CoinMarketCapConfig:
 
 @dataclass
 class S3MinioConfig:
-    base_url: str
     aws_access_key: str
     aws_secret_access_key: str
+    host: str
+    port: int
+
+    @property
+    def base_url(self) -> str:
+        return f"http://{self.host}:{self.port}"
 
     @classmethod
     def from_env(cls) -> "S3MinioConfig":
         return cls(
-            base_url=os.environ["BASE_MINIO_URL"],
             aws_access_key=os.environ["MINIO_ACCESS_KEY"],
             aws_secret_access_key=os.environ["MINIO_SECRET_KEY"],
+            host=os.environ["MINIO_HOST"],
+            port=int(os.environ["MINIO_PORT"]),
         )
 
 

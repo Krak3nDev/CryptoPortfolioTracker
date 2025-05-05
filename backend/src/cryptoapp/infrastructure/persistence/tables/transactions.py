@@ -52,7 +52,9 @@ mapper_registry.map_imperatively(
     Transaction,
     transactions_table,
     properties={
-        "_identity": composite(TransactionId, transactions_table.c.transaction_id),
+        "_identity": composite(
+            TransactionId, transactions_table.c.transaction_id
+        ),
         "_asset_id": composite(AssetId, transactions_table.c.asset_id),
         "_quantity": transactions_table.c.quantity,
         "_price": transactions_table.c.price,

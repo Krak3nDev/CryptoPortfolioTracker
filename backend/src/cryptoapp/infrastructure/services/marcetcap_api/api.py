@@ -33,7 +33,8 @@ class CoinMarketCapAPI:
         self, start: int = 1, limit: int = 5000
     ) -> list[CryptoCurrency]:
         response = await self._client.get(
-            url=self._market_api_config.base_url + "/v1/cryptocurrency/listings/latest",
+            url=self._market_api_config.base_url
+            + "/v1/cryptocurrency/listings/latest",
             headers={
                 "X-CMC_PRO_API_KEY": self._market_api_config.token,
                 "Accept": "application/json",
@@ -69,7 +70,8 @@ async def retrieve_all_data(
 #     engine = create_engine(db=config.db)
 #
 #     async with AsyncClient() as client:
-#         api = CoinMarketCapAPI(client=client, market_api_config=config.coinmarketcap)
+#         api = CoinMarketCapAPI(client=client,
+#         market_api_config=config.coinmarketcap)
 #         data = await retrieve_all_data(api)
 #         assets = prepare_asset_rows(data)
 #

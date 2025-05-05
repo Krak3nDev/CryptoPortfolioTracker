@@ -3,6 +3,8 @@ from decimal import Decimal
 from enum import Enum
 
 from cryptoapp.domain.entities.identity import Identity
+from cryptoapp.domain.entities.portfolio.portfolio import PortfolioId
+from cryptoapp.domain.exceptions import DomainError
 
 
 class TransactionType(str, Enum):
@@ -21,8 +23,9 @@ class AssetId(Identity):
 
 
 @dataclass
-class CreateTransactionData:
-    asset_id: AssetId
+class CreationData:
+    asset_id: int
+    portfolio_id: int
     quantity: Decimal
     price: Decimal | None
     transaction_type: TransactionType
@@ -34,6 +37,7 @@ class CreateTransactionData:
 class Transaction:
     _identity: TransactionId
     _asset_id: AssetId
+    _portfolio_id: PortfolioId
     _quantity: Decimal
     _price: Decimal | None
     _transaction_type: TransactionType
@@ -41,17 +45,86 @@ class Transaction:
     _fee: Decimal | None
 
     @classmethod
-    def create(cls, data: CreateTransactionData) -> "Transaction":
+    def create(cls, data: CreationData) -> "Transaction":
         return cls(
             _identity=TransactionId(None),
-            _asset_id=data.asset_id,
+            _asset_id=AssetId(data.asset_id),
             _quantity=data.quantity,
             _price=data.price,
             _transaction_type=data.transaction_type,
             _note=data.note,
             _fee=data.fee,
+            _portfolio_id=PortfolioId(data.portfolio_id),
         )
+
+    def update_transaction(
+        self,
+        quantity: Decimal | None = None,
+        price: Decimal | None = None,
+        note: str | None = None,
+        fee: Decimal | None = None,
+    ) -> None:
+        if quantity is not None:
+            self.quantity = quantity
+
+        if price is not None:
+            self.price = price
+
+        if note is not None:
+            self.note = note
+
+        if fee is not None:
+            self.fee = fee
+
+    @property
+    def transaction_type(self) -> TransactionType:
+        return self._transaction_type
 
     @property
     def identity(self) -> TransactionId:
         return self._identity
+
+    @property
+    def asset_identity(self) -> AssetId:
+        return self._asset_id
+
+    @property
+    def portfolio_id(self) -> PortfolioId:
+        return self._portfolio_id
+
+    @property
+    def price(self) -> Decimal | None:
+        return self._price
+
+    @price.setter
+    def price(self, value: Decimal) -> None:
+        if self._transaction_type in (TransactionType.IN, TransactionType.OUT):
+            raise DomainError(
+                f"Cannot set price for a {self._transaction_type.value} "
+                "transaction."
+            )
+        self._price = value
+
+    @property
+    def quantity(self) -> Decimal:
+        return self._quantity
+
+    @quantity.setter
+    def quantity(self, value: Decimal) -> None:
+        self._quantity = value
+
+    @property
+    def note(self) -> str | None:
+        return self._note
+
+    @note.setter
+    def note(self, value: str | None) -> None:
+        self._note = value
+
+    @property
+    def fee(self) -> Decimal | None:
+        return self._fee
+
+    @fee.setter
+    def fee(self, value: Decimal | None) -> None:
+        self._fee = value

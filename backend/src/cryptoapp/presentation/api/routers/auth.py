@@ -10,7 +10,9 @@ from cryptoapp.application.user.register_user import (
     RegisterInteractor,
 )
 from cryptoapp.infrastructure.services.auth import Auther, LoginAuthRequest
-from cryptoapp.infrastructure.services.session_manager import FastAPISessionManager
+from cryptoapp.infrastructure.services.session_manager import (
+    FastAPISessionManager,
+)
 
 auth_router = APIRouter(
     prefix="/auth",
@@ -50,5 +52,7 @@ async def logout(
     response: Response,
     session_manager: FromDishka[FastAPISessionManager],
 ) -> dict[str, str]:
-    await session_manager.invalidate_session(request=request, response=response)
+    await session_manager.invalidate_session(
+        request=request, response=response
+    )
     return {"message": "You have been logged out successfully."}

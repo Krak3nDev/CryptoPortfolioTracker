@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 
 from cryptoapp.domain.entities.identity import Identity
-from cryptoapp.domain.entities.transaction.transaction import Transaction, TransactionId
 from cryptoapp.domain.entities.user.user import UserId
-from cryptoapp.domain.exceptions import EntityNotFound
 
 
 class PortfolioId(Identity):
@@ -16,7 +14,6 @@ class Portfolio:
     _user_id: UserId
     _name: str
     _avatar: str
-    _transactions: list[Transaction]
 
     @classmethod
     def create(
@@ -31,7 +28,6 @@ class Portfolio:
             _user_id=UserId(user_id),
             _name=name,
             _avatar=avatar,
-            _transactions=[],
         )
 
     @property
@@ -42,20 +38,14 @@ class Portfolio:
     def name(self) -> str:
         return self._name
 
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
+
     @property
     def avatar(self) -> str:
         return self._avatar
 
-    def get_transactions(self) -> tuple[Transaction, ...]:
-        return tuple(self._transactions)
-
-    def add_transaction(self, transaction: Transaction) -> None:
-        self._transactions.append(transaction)
-
-    def remove_transaction(self, transaction_id: TransactionId) -> None:
-        for transaction in self._transactions:
-            if transaction.identity == transaction_id:
-                self._transactions.remove(transaction)
-                return
-
-        raise EntityNotFound(field_name="Transaction", value=transaction_id.value)
+    @avatar.setter
+    def avatar(self, value: str) -> None:
+        self._avatar = value

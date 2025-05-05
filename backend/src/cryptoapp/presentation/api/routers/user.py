@@ -15,7 +15,9 @@ user_router = APIRouter(
 
 @user_router.get("/confirm/{token}")
 async def activate_user(
-    interactor: Annotated[ActivateUserProfileInteractor, FromComponent("additional")],
+    interactor: Annotated[
+        ActivateUserProfileInteractor, FromComponent("additional")
+    ],
 ) -> dict[str, str]:
     await interactor()
     return {"message": "Activation was successful"}

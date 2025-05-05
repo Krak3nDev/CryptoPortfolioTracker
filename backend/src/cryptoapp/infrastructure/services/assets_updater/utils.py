@@ -9,7 +9,9 @@ from cryptoapp.infrastructure.services.assets_updater.schemas import (
     CmcIdToTagNames,
     TagExtractionResult,
 )
-from cryptoapp.infrastructure.services.marcetcap_api.schemas import CryptoCurrency
+from cryptoapp.infrastructure.services.marcetcap_api.schemas import (
+    CryptoCurrency,
+)
 
 
 def extract_tags(
@@ -45,7 +47,9 @@ def build_assets_tags_rows(
         for tag_name in tag_names:
             if tag_name in tag_id_map:
                 assets_tags_rows.append(
-                    AssetTagLink(asset_id=asset_id, tag_id=tag_id_map[tag_name])
+                    AssetTagLink(
+                        asset_id=asset_id, tag_id=tag_id_map[tag_name]
+                    )
                 )
     return assets_tags_rows
 
@@ -82,15 +86,21 @@ def prepare_asset_rows(currencies: Iterable[CryptoCurrency]) -> list[AssetRow]:
                 is_infinite_supply=currency.get("infinite_supply", False),
                 max_supply=safe_decimal(currency.get("max_supply")),
                 total_supply=safe_decimal(currency.get("total_supply")),
-                circulating_supply=safe_decimal(currency.get("circulating_supply")),
+                circulating_supply=safe_decimal(
+                    currency.get("circulating_supply")
+                ),
                 price_usd=safe_decimal(quote_usd.get("price")),
                 volume_24h_usd=safe_decimal(quote_usd.get("volume_24h")),
                 market_cap_usd=safe_decimal(quote_usd.get("market_cap")),
-                percent_change_1h_usd=safe_decimal(quote_usd.get("percent_change_1h")),
+                percent_change_1h_usd=safe_decimal(
+                    quote_usd.get("percent_change_1h")
+                ),
                 percent_change_24h_usd=safe_decimal(
                     quote_usd.get("percent_change_24h")
                 ),
-                percent_change_7d_usd=safe_decimal(quote_usd.get("percent_change_7d")),
+                percent_change_7d_usd=safe_decimal(
+                    quote_usd.get("percent_change_7d")
+                ),
                 last_updated=last_updated,
             )
         )

@@ -1,12 +1,16 @@
 from dishka import FromDishka
 from dishka.integrations.taskiq import inject
 from sqlalchemy.ext.asyncio import AsyncSession
-from taskiq_aio_pika import AioPikaBroker
+from taskiq import AsyncBroker
 
 from cryptoapp.application.common.publisher import SendActivationEmail
 from cryptoapp.application.user.send_mail import EmailData, SendMailInteractor
-from cryptoapp.infrastructure.services.assets_updater.sync import update_all_assets
-from cryptoapp.infrastructure.services.marcetcap_api.api import CoinMarketCapAPI
+from cryptoapp.infrastructure.services.assets_updater.sync import (
+    update_all_assets,
+)
+from cryptoapp.infrastructure.services.marcetcap_api.api import (
+    CoinMarketCapAPI,
+)
 
 
 @inject
@@ -25,8 +29,9 @@ async def update_assets(
     await update_all_assets(api=api, session=session)
 
 
-def register_tasks(broker: AioPikaBroker) -> None:
+def register_tasks(broker: AsyncBroker) -> None:
     broker.register_task(send_mail_executor, task_name="send_mail")
     # broker.register_task(
-    #     update_assets, task_name="update_assets", schedule=[{"cron": "*/10 * * * *"}]
+    #     update_assets, task_name="update_assets",
+    #     schedule=[{"cron": "*/10 * * * *"}]
     # )

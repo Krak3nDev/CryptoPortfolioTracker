@@ -5,15 +5,19 @@ from cryptoapp.domain.exceptions import UserAlreadyExistsError
 
 
 class UserFactory:
-    def __init__(self, user_gateway: UserGateway, hasher: PasswordHasher) -> None:
-        self.user_gateway = user_gateway
-        self.hasher = hasher
+    def __init__(
+        self, user_gateway: UserGateway, hasher: PasswordHasher
+    ) -> None:
+        self._user_gateway = user_gateway
+        self._hasher = hasher
 
     async def create(
         self, username: str, email: str, password: str, user_id: int | None
     ) -> User:
-        availability_info = await self.user_gateway.get_username_email_availability(
-            username, email
+        availability_info = (
+            await self._user_gateway.get_username_email_availability(
+                username, email
+            )
         )
 
         if availability_info is not None:
@@ -25,7 +29,7 @@ class UserFactory:
                 email=email if is_email_taken else None,
             )
 
-        hashed_password = self.hasher.hash(password)
+        hashed_password = self._hasher.hash(password)
 
         return User.create(
             user_id=user_id,

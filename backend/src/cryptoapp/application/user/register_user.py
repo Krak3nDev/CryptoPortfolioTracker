@@ -1,8 +1,14 @@
 from dataclasses import dataclass
 
-from cryptoapp.application.common.publisher import Publisher, SendActivationEmail
+from cryptoapp.application.common.publisher import (
+    Publisher,
+    SendActivationEmail,
+)
 from cryptoapp.application.common.transaction_manager import TransactionManager
-from cryptoapp.application.common.validators import validate_email, validate_length
+from cryptoapp.application.common.validators import (
+    validate_email,
+    validate_length,
+)
 from cryptoapp.application.interfaces.generator import ActivationGenerator
 from cryptoapp.application.interfaces.sender import EmailSender
 from cryptoapp.domain.entities.user.factory import UserFactory
@@ -20,7 +26,9 @@ USERNAME_LENGTH = 50
 
 
 def validate_creation_user_data(username: str, email: str) -> None:
-    validate_length(max_length=USERNAME_LENGTH, field_name="username", value=username)
+    validate_length(
+        max_length=USERNAME_LENGTH, field_name="username", value=username
+    )
     validate_email(value=email)
 
 

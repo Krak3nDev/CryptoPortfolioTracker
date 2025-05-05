@@ -22,7 +22,9 @@ from cryptoapp.infrastructure.services.marcetcap_api.api import (
 )
 
 
-async def upsert_assets(data: Iterable[AssetRow], session: AsyncSession) -> None:
+async def upsert_assets(
+    data: Iterable[AssetRow], session: AsyncSession
+) -> None:
     insert_stmt = insert(assets_table).values(
         [
             {
@@ -61,12 +63,14 @@ async def upsert_assets(data: Iterable[AssetRow], session: AsyncSession) -> None
             "price_usd": insert_stmt.excluded.price_usd,
             "volume_24h_usd": insert_stmt.excluded.volume_24h_usd,
             "market_cap_usd": insert_stmt.excluded.market_cap_usd,
-            "percent_change_1h_usd": insert_stmt.excluded.percent_change_1h_usd,
-            "percent_change_24h_usd": insert_stmt.excluded.percent_change_24h_usd,
-            "percent_change_7d_usd": insert_stmt.excluded.percent_change_7d_usd,
+            "percent_change_1h_usd": insert_stmt.excluded.percent_change_1h_usd,  # noqa: E501
+            "percent_change_24h_usd": insert_stmt.excluded.percent_change_24h_usd,  # noqa: E501
+            "percent_change_7d_usd": insert_stmt.excluded.percent_change_7d_usd,  # noqa: E501
             "last_updated": insert_stmt.excluded.last_updated,
         },
-        where=(insert_stmt.excluded.last_updated > assets_table.c.last_updated),
+        where=(
+            insert_stmt.excluded.last_updated > assets_table.c.last_updated
+        ),
     ).returning(assets_table.c.asset_id, assets_table.c.cmc_id)
 
     result_assets = await session.execute(insert_stmt)

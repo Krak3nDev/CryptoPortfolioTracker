@@ -1,7 +1,5 @@
 from abc import abstractmethod
-from typing import TypedDict
-
-from websockets import Protocol
+from typing import Protocol, TypedDict
 
 from cryptoapp.domain.entities.user.user import User, UserId
 

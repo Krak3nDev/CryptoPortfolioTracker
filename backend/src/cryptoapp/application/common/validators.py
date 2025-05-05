@@ -1,9 +1,12 @@
 import re
 from typing import Final
 
-from cryptoapp.domain.exceptions import InvalidEmail, InvalidFieldLength
+from cryptoapp.application.exceptions import (
+    InvalidEmail,
+    InvalidFieldLength,
+)
 
-PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+PATTERN: Final[re.Pattern[str]] = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 EMAIL_LENGTH: Final[int] = 320
 

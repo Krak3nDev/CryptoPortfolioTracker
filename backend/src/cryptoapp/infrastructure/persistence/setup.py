@@ -20,6 +20,8 @@ def create_engine(db: DbConfig) -> AsyncEngine:
     return engine
 
 
-def create_session_pool(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+def create_session_pool(
+    engine: AsyncEngine,
+) -> async_sessionmaker[AsyncSession]:
     session_pool = async_sessionmaker(bind=engine, expire_on_commit=False)
     return session_pool

@@ -1,4 +1,5 @@
 from dishka import AsyncContainer, make_async_container
+from taskiq import AsyncBroker
 from taskiq_aio_pika import AioPikaBroker
 
 from cryptoapp.main.config import (
@@ -13,7 +14,7 @@ from cryptoapp.main.config import (
 from cryptoapp.main.di import providers
 
 
-def setup_ioc_container(config: Config, broker: AioPikaBroker) -> AsyncContainer:
+def setup_ioc_container(config: Config, broker: AsyncBroker) -> AsyncContainer:
     container = make_async_container(
         *providers,
         context={
@@ -28,6 +29,3 @@ def setup_ioc_container(config: Config, broker: AioPikaBroker) -> AsyncContainer
         },
     )
     return container
-
-
-1
