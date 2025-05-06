@@ -39,8 +39,8 @@ def create_app(broker: AsyncBroker, container: AsyncContainer) -> FastAPI:
     origins_dev = [
         "http://localhost",
         "http://127.0.0.1",
-        "http://localhost:4200",
-        "http://127.0.0.1:4200",
+        "http://localhost:4242",
+        "http://127.0.0.1:4242",
     ]
 
     app.add_middleware(
