@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core"
+import { Component, inject, OnInit, signal } from '@angular/core'
 import { Router, RouterLink } from "@angular/router"
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms"
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome"
@@ -23,7 +23,7 @@ import { commonErrors } from "../../consts/errors/common.errors"
   templateUrl: "./auth.component.html",
   styleUrl: "./auth.component.scss"
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit {
   router = inject(Router)
   authService = inject(AuthService)
 

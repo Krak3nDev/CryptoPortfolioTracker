@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core"
+import { Component, inject, OnInit, signal } from '@angular/core'
 import { Router, RouterLink } from "@angular/router"
 import { ROUTES } from "../../consts/routes"
 import { ConfirmService } from "../../api/confirm/confirm.service"
@@ -13,7 +13,7 @@ import { commonErrors } from "../../consts/errors/common.errors"
   templateUrl: "./confirm.component.html",
   styleUrl: "./confirm.component.scss"
 })
-export class ConfirmComponent {
+export class ConfirmComponent implements OnInit {
   router = inject(Router)
   confirmService = inject(ConfirmService)
 
