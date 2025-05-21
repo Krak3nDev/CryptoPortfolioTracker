@@ -1,4 +1,4 @@
-export const BASE_API_URL = "http://localhost:8000"
+export const BASE_API_URL = "http://localhost/api"
 
 export const ENDPOINTS = {
   auth: {
@@ -7,7 +7,8 @@ export const ENDPOINTS = {
     logout: `${BASE_API_URL}/auth/logout`
   },
   users: {
-    confirm: (token: string) => `${BASE_API_URL}/users/confirm/${token}`
+    confirm: (token: string) => `${BASE_API_URL}/users/confirm/${token}`,
+    me: `${BASE_API_URL}/users/me`
   },
   portfolios: {
     main: `${BASE_API_URL}/portfolios`,

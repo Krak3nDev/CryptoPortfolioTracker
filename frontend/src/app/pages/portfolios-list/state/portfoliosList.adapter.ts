@@ -48,29 +48,7 @@ export class PortfoliosListAdapter {
           )
         }
       )
-      .add(
-        // finallyFn
-        () => {
-          const list = new Array(5).fill(null).map((_, i) => {
-            const current = Math.floor(Math.random() * 10000)
-            const change = Math.floor(Math.random() * 1000) - 500
-
-            return {
-              portfolio_id: i,
-              portfolio_name: `Portfolio ${i}`,
-              avatar:
-                "https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png",
-              total_value: current + change + "",
-              value_change_24h: change + "",
-              percent_change_24h:
-                Math.floor((change / current) * 10000) / 100 + "",
-              type: growthTypes.get(Math.sign(change)) || "middle"
-            }
-          })
-
-          this.store.dispatch(listUpdateActionSuccess({ list }))
-        }
-      )
+      .add(finallyFn)
   }
 
   createNewPortfolio(payload: CreatePortfolioRequest, finallyFn?: () => void) {

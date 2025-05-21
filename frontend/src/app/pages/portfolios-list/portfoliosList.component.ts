@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core"
+import { Component, inject, OnInit, signal } from '@angular/core'
 import { CreatePortfolioRequest } from "../../api/portfolios/portfolios.interface"
 import { PortfoliosService } from "../../api/portfolios/portfolios.service"
 import { faTrash, faUpload } from "@fortawesome/free-solid-svg-icons"
@@ -28,7 +28,7 @@ import { message } from "../../utils/error/message"
   templateUrl: "./portfoliosList.component.html",
   styleUrl: "./portfoliosList.component.scss"
 })
-export class PortfoliosListComponent {
+export class PortfoliosListComponent implements OnInit {
   portfoliosService = inject(PortfoliosService)
   portfolios = signal<PortfoliosListState["portfolios"]>(
     initialPortfoliosListState.portfolios
@@ -77,7 +77,6 @@ export class PortfoliosListComponent {
     }
 
     this.portfoliosListAdapter.createNewPortfolio(payload, () => {
-      console.log(this.portfolios().newPortfolio.error)
       this.modalAdapter.close("new-portfolio")
       this.portfoliosListAdapter.updateList()
     })

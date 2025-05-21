@@ -1,25 +1,28 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing"
 import { HeaderComponent } from "./header.component"
-import { UsersService } from "../../api/users/users.service"
 import { ModalAdapter } from "../modal/state/modal.adapter"
 import { AuthService } from "../../api/auth/auth.service"
 import { RouterTestingModule } from "@angular/router/testing"
 import { ModalComponent } from "../modal/modal.component"
 import { By } from "@angular/platform-browser"
 import { of } from "rxjs"
+import { User } from '../../api/auth/auth.interface'
 
 describe("HeaderComponent", () => {
   let component: HeaderComponent
   let fixture: ComponentFixture<HeaderComponent>
-  let usersService: UsersService
   let authService: AuthService
   let modalAdapter: ModalAdapter
 
-  const mockUsersService = {
-    me: null
+  const mockUser: User = {
+    user_id: 1,
+    email: "quinceney@gmail.com",
+    username: "pc",
+    is_active: true
   }
 
   const mockAuthService = {
+    me: null,
     logout: jest.fn()
   }
 
@@ -33,7 +36,6 @@ describe("HeaderComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HeaderComponent, RouterTestingModule, ModalComponent],
       providers: [
-        { provide: UsersService, useValue: mockUsersService },
         { provide: AuthService, useValue: mockAuthService },
         { provide: ModalAdapter, useValue: mockModalAdapter }
       ]
@@ -41,7 +43,6 @@ describe("HeaderComponent", () => {
 
     fixture = TestBed.createComponent(HeaderComponent)
     component = fixture.componentInstance
-    usersService = TestBed.inject(UsersService)
     authService = TestBed.inject(AuthService)
     modalAdapter = TestBed.inject(ModalAdapter)
 
@@ -53,7 +54,7 @@ describe("HeaderComponent", () => {
   })
 
   it("should display login link when user is not logged in", () => {
-    usersService.me = null
+    authService.me = null
     fixture.detectChanges()
 
     const loginLink = fixture.debugElement.query(
@@ -64,7 +65,7 @@ describe("HeaderComponent", () => {
   })
 
   it("should display user avatar when user is logged in", () => {
-    usersService.me = { id: "1" }
+    authService.me = mockUser
     fixture.detectChanges()
 
     const avatarButton = fixture.debugElement.query(By.css(".user-nav__avatar"))
@@ -73,7 +74,7 @@ describe("HeaderComponent", () => {
   })
 
   it("should open modal when avatar is clicked", () => {
-    usersService.me = { id: "1" }
+    authService.me = mockUser
     fixture.detectChanges()
 
     const avatarButton = fixture.debugElement.query(By.css(".user-nav__avatar"))
@@ -83,7 +84,7 @@ describe("HeaderComponent", () => {
   })
 
   it("should contain modal with user options", () => {
-    usersService.me = { id: "1" }
+    authService.me = mockUser
     fixture.detectChanges()
 
     const modal = fixture.debugElement.query(By.directive(ModalComponent))
@@ -95,7 +96,7 @@ describe("HeaderComponent", () => {
   })
 
   it("should call logout when logout button is clicked", () => {
-    usersService.me = { id: "1" }
+    authService.me = mockUser
     fixture.detectChanges()
 
     const logoutButton = fixture.debugElement.query(

@@ -1,5 +1,7 @@
-import { Component } from "@angular/core"
+import { Component, inject } from '@angular/core'
 import { RouterLink } from "@angular/router"
+import { AuthService } from '../../api/auth/auth.service'
+import { ROUTES } from "../../consts/routes"
 
 @Component({
   selector: "app-home",
@@ -7,4 +9,8 @@ import { RouterLink } from "@angular/router"
   templateUrl: "./home.component.html",
   styleUrl: "./home.component.scss"
 })
-export class HomeComponent {}
+export class HomeComponent {
+  authService = inject(AuthService)
+
+  protected readonly ROUTES = ROUTES
+}

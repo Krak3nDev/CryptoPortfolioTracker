@@ -8,10 +8,10 @@
       <span>Crypto Portfolio Tracker</span>
     </a>
     <nav class="header__nav nav-header">
-      <a [routerLink]="ROUTES.portfoliosList" class="nav-header__link link">
-        Portfolios
-      </a>
-      @if (usersService.me) {
+      @if (authService.me) {
+        <a [routerLink]="ROUTES.portfoliosList" class="nav-header__link link">
+          Portfolios
+        </a>
         <div class="nav-header__user user-nav">
           <button
             id="modal-target-header"
@@ -29,25 +29,22 @@
               closeOutside: true
             }"
           >
-            <a class="modal-nav__user modal-user" [routerLink]="['/settings']">
+            <div class="modal-nav__user modal-user">
               <div class="modal-user__avatar">
                 <img src="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png"
                      alt="avatar-dropdown"
                      srcset="https://s3.coinmarketcap.com/static/img/portraits/63351fb59b613d345489037c.png">
               </div>
               <div class="modal-user__content">
-                <h1 class="modal-user__name">Username</h1>
-                <h1 class="modal-user__email">example&#64;email.com</h1>
+                <h1 class="modal-user__name">{{ authService.me.username }}</h1>
+                <h1 class="modal-user__email">{{ authService.me.email }}</h1>
               </div>
-            </a>
+            </div>
             <ul class="modal-nav__list">
-              <a class="modal-nav__item" [routerLink]="['/settings']">
-                Settings
-              </a>
               <button
                 class="modal-nav__item"
                 type="button"
-                (click)="this.authService.logout()"
+                (click)="this.authService.logout().subscribe()"
               >
                 Log Out
               </button>
@@ -55,7 +52,7 @@
           </app-modal>
         </div>
       } @else {
-        <a class="nav-header__link button" [routerLink]="['/login']">
+        <a class="nav-header__link button" [routerLink]="['/' + ROUTES.login]">
           Login
         </a>
       }
