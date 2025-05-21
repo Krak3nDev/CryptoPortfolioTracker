@@ -34,6 +34,7 @@ def create_app(broker: AsyncBroker, container: AsyncContainer) -> FastAPI:
     app = FastAPI(
         lifespan=broker_startup_lifespan(broker),
         default_response_class=ORJSONResponse,
+        openapi_prefix="/api"
     )
 
     origins_dev = [
