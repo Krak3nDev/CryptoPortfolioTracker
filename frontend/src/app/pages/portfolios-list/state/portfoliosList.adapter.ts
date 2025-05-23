@@ -13,10 +13,7 @@ import {
 } from "./portfoliosList.actions"
 import { map } from "rxjs"
 import { growthTypes } from "../../../consts/portfolios/growthTypes"
-import {
-  CreatePortfolioRequest,
-  PortfolioData
-} from "../../../api/portfolios/portfolios.interface"
+import { PortfolioData } from "../../../api/portfolios/portfolios.interface"
 import { PortfolioDataWithType } from "./portfoliosList.state"
 import { commonErrors } from "../../../consts/errors/common.errors"
 
@@ -51,7 +48,7 @@ export class PortfoliosListAdapter {
       .add(finallyFn)
   }
 
-  createNewPortfolio(payload: CreatePortfolioRequest, finallyFn?: () => void) {
+  createNewPortfolio(payload: FormData, finallyFn?: () => void) {
     this.store.dispatch(createPortfolioAction())
 
     this.portfoliosService

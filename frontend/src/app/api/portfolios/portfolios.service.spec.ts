@@ -5,15 +5,13 @@ import { ENDPOINTS } from "../../consts/endpoints"
 import {
   Asset,
   AssetWithProfitLoss,
-  CreatePortfolioRequest,
-  CreatePortfolioResponse,
   PerformerData,
   PortfolioData,
   PortfolioStats,
-  PortfolioSummary,
-  UpdatePortfolioRequest
+  PortfolioSummary
 } from "./portfolios.interface"
 import { of } from "rxjs"
+import { httpConfig } from "../../config/http.config"
 
 describe("PortfoliosService", () => {
   let service: PortfoliosService
@@ -77,12 +75,6 @@ describe("PortfoliosService", () => {
     holdings: [mockAssetWithProfit]
   }
 
-  const mockCreateResponse: CreatePortfolioResponse = {
-    portfolio_id: "1",
-    name: "New Portfolio",
-    avatar: "new-avatar-url"
-  }
-
   beforeEach(() => {
     httpClientMock = {
       post: jest.fn(),
@@ -107,64 +99,36 @@ describe("PortfoliosService", () => {
 
   describe("create", () => {
     it("should call POST with correct endpoint and return response", () => {
-      const payload: CreatePortfolioRequest = { name: "New Portfolio" }
-      httpClientMock.post.mockReturnValue(of(mockCreateResponse))
+      const payload = new FormData()
+      payload.append("name", "New Portfolio")
 
-      service.create(payload).subscribe(response => {
-        expect(response).toEqual(mockCreateResponse)
-        expect(response.portfolio_id).toBeDefined()
-      })
-
-      expect(httpClientMock.post).toHaveBeenCalledWith(
-        ENDPOINTS.portfolios.main,
-        payload
-      )
-    })
-
-    it("should handle optional avatar field", () => {
-      const payload: CreatePortfolioRequest = {
-        name: "New Portfolio",
-        avatar: "custom-avatar.png"
-      }
-      httpClientMock.post.mockReturnValue(of(mockCreateResponse))
+      httpClientMock.post.mockReturnValue(of({}))
 
       service.create(payload).subscribe()
 
       expect(httpClientMock.post).toHaveBeenCalledWith(
         ENDPOINTS.portfolios.main,
-        payload
+        payload,
+        httpConfig
       )
     })
   })
 
   describe("update", () => {
     it("should call PATCH with correct endpoint and payload", () => {
-      const payload: UpdatePortfolioRequest = {
-        portfolio_id: "1",
-        name: "Updated Name"
-      }
+      const payload = new FormData()
+
+      payload.append("portfolio_id", "1")
+      payload.append("name", "New Name")
+
       httpClientMock.patch.mockReturnValue(of({}))
 
       service.update(payload).subscribe()
 
       expect(httpClientMock.patch).toHaveBeenCalledWith(
         ENDPOINTS.portfolios.main,
-        payload
-      )
-    })
-
-    it("should handle partial updates", () => {
-      const payload: UpdatePortfolioRequest = {
-        portfolio_id: "1",
-        avatar: "new-avatar.png"
-      }
-      httpClientMock.patch.mockReturnValue(of({}))
-
-      service.update(payload).subscribe()
-
-      expect(httpClientMock.patch).toHaveBeenCalledWith(
-        ENDPOINTS.portfolios.main,
-        payload
+        payload,
+        httpConfig
       )
     })
   })
@@ -177,7 +141,8 @@ describe("PortfoliosService", () => {
       service.delete(portfolioId).subscribe()
 
       expect(httpClientMock.delete).toHaveBeenCalledWith(
-        ENDPOINTS.portfolios.byId(portfolioId)
+        ENDPOINTS.portfolios.byId(portfolioId),
+        httpConfig
       )
     })
   })
@@ -192,7 +157,10 @@ describe("PortfoliosService", () => {
         expect(response[0].portfolio_id).toBeDefined()
       })
 
-      expect(httpClientMock.get).toHaveBeenCalledWith(ENDPOINTS.portfolios.main)
+      expect(httpClientMock.get).toHaveBeenCalledWith(
+        ENDPOINTS.portfolios.main,
+        httpConfig
+      )
     })
   })
 
@@ -200,13 +168,14 @@ describe("PortfoliosService", () => {
     it("should call GET and return summary with holdings", () => {
       httpClientMock.get.mockReturnValue(of(mockPortfolioSummary))
 
-      service.summary().subscribe(response => {
+      service.getSummary().subscribe(response => {
         expect(response.total_value).toBeDefined()
         expect(response.holdings).toBeInstanceOf(Array)
       })
 
       expect(httpClientMock.get).toHaveBeenCalledWith(
-        ENDPOINTS.portfolios.summary
+        ENDPOINTS.portfolios.summary,
+        httpConfig
       )
     })
   })
@@ -223,7 +192,8 @@ describe("PortfoliosService", () => {
       })
 
       expect(httpClientMock.get).toHaveBeenCalledWith(
-        ENDPOINTS.portfolios.byIdSummary(portfolioId)
+        ENDPOINTS.portfolios.byIdSummary(portfolioId),
+        httpConfig
       )
     })
 

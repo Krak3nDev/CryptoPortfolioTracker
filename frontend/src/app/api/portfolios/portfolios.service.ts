@@ -2,14 +2,11 @@ import { inject, Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { ENDPOINTS } from "../../consts/endpoints"
 import {
-  CreatePortfolioRequest,
-  CreatePortfolioResponse,
   PortfolioData,
   PortfolioStats,
-  PortfolioSummary,
-  UpdatePortfolioRequest
+  PortfolioSummary
 } from "./portfolios.interface"
-import { httpConfig } from '../../config/http.config'
+import { httpConfig } from "../../config/http.config"
 
 @Injectable({
   providedIn: "root"
@@ -17,16 +14,16 @@ import { httpConfig } from '../../config/http.config'
 export class PortfoliosService {
   http = inject(HttpClient)
 
-  create(payload: CreatePortfolioRequest) {
-    return this.http.post<CreatePortfolioResponse>(
+  create(payload: FormData) {
+    return this.http.post(ENDPOINTS.portfolios.main, payload, httpConfig)
+  }
+
+  update(payload: FormData) {
+    return this.http.patch(
       ENDPOINTS.portfolios.main,
       payload,
       httpConfig
     )
-  }
-
-  update(payload: UpdatePortfolioRequest) {
-    return this.http.patch(ENDPOINTS.portfolios.main, payload, httpConfig)
   }
 
   delete(id: string) {
@@ -37,11 +34,17 @@ export class PortfoliosService {
     return this.http.get<PortfolioData[]>(ENDPOINTS.portfolios.main, httpConfig)
   }
 
-  summary() {
-    return this.http.get<PortfolioSummary>(ENDPOINTS.portfolios.summary, httpConfig)
+  getSummary() {
+    return this.http.get<PortfolioSummary>(
+      ENDPOINTS.portfolios.summary,
+      httpConfig
+    )
   }
 
   getById(id: string) {
-    return this.http.get<PortfolioStats>(ENDPOINTS.portfolios.byIdSummary(id), httpConfig)
+    return this.http.get<PortfolioStats>(
+      ENDPOINTS.portfolios.byIdSummary(id),
+      httpConfig
+    )
   }
 }

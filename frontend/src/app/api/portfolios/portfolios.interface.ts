@@ -51,19 +51,13 @@ export interface PortfolioStats {
   holdings: AssetWithProfitLoss[]
 }
 
-export interface CreatePortfolioRequest {
+export interface CreatePortfolioDto {
   name: string
   avatar?: string
 }
 
-export interface CreatePortfolioResponse {
+export interface UpdatePortfolioDto {
   portfolio_id: string
-  name: string
-  avatar: string
-}
-
-export interface UpdatePortfolioRequest {
-  portfolio_id: string
-  name?: string
+  portfolio_name?: string
   avatar?: string
 }

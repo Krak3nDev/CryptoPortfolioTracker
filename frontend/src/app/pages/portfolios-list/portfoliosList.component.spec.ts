@@ -12,8 +12,8 @@ import { ReactiveFormsModule } from "@angular/forms"
 import { MockStore, provideMockStore } from "@ngrx/store/testing"
 import { of, throwError } from "rxjs"
 import {
-  CreatePortfolioRequest,
-  CreatePortfolioResponse,
+  CreatePortfolioDto,
+  PartialPortfolioDto,
   PortfolioData
 } from "../../api/portfolios/portfolios.interface"
 import { HttpClientTestingModule } from "@angular/common/http/testing"
@@ -213,11 +213,11 @@ describe("PortfoliosListAdapter", () => {
   }))
 
   it("should dispatch actions for successful portfolio creation", fakeAsync(() => {
-    const mockCreateRequest: CreatePortfolioRequest = {
+    const mockCreateRequest: CreatePortfolioDto = {
       name: "name",
       avatar: "http://api/test.png"
     }
-    const mockCreateResponse: CreatePortfolioResponse = {
+    const mockCreateResponse: PartialPortfolioDto = {
       portfolio_id: "1",
       name: "name",
       avatar: "http://api/test.png"

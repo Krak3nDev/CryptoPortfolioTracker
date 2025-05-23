@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core'
-import { CreatePortfolioRequest } from "../../api/portfolios/portfolios.interface"
 import { PortfoliosService } from "../../api/portfolios/portfolios.service"
 import { faTrash, faUpload } from "@fortawesome/free-solid-svg-icons"
 import { FaIconComponent } from "@fortawesome/angular-fontawesome"
@@ -71,10 +70,9 @@ export class PortfoliosListComponent implements OnInit {
       return
     }
 
-    const payload: CreatePortfolioRequest = {
-      name: this.createPortfolioForm.value.name!,
-      avatar: this.createPortfolioForm.value.avatar!.toString()
-    }
+    const payload = new FormData()
+    payload.append("name", this.createPortfolioForm.value.name!)
+    payload.append("avatar", this.createPortfolioForm.value.avatar!)
 
     this.portfoliosListAdapter.createNewPortfolio(payload, () => {
       this.modalAdapter.close("new-portfolio")
